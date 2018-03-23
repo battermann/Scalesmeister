@@ -1,6 +1,6 @@
 {
     "name": "Luigi",
-    "repository": "",
+    "repository": "https://github.com/battermann/Luigi",
     "env": {
         "ELM_COMPILE": "elm make App.elm --output elm.js"
     },
