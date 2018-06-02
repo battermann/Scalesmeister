@@ -13,7 +13,7 @@
     "repl": "elm-repl",
     "reactor": "elm-reactor",
     "test": "elm-test",
-    "postinstall": "elm-app build"
+    "postinstall": "node scripts/build.js"
   },
   "devDependencies": {
     "assets-webpack-plugin": "^3.5.1",
