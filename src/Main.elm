@@ -1,6 +1,6 @@
 module Main exposing (..)
 
-import Html exposing (Html, text, div, h1, img, button)
+import Html exposing (Html, text, div, h1, img, button, p)
 import Html.Events exposing (onMouseDown, onMouseUp)
 import Ports exposing (..)
 import Types exposing (..)
@@ -9,7 +9,10 @@ import Types exposing (..)
 
 loadNoteSample : Note -> Cmd msg
 loadNoteSample note =
-    loadSample (toString note, "samples/" ++ (toString note) ++ ".mp3")
+    let
+        url = "samples/" ++ (toString note) ++ ".mp3"
+    in
+        loadSample (toString note, url)
 
 loadSamples : Cmd msg
 loadSamples =
@@ -49,7 +52,7 @@ view model =
         , button [ onMouseDown (NoteOn DSharp), onMouseUp NoteOff ] [ text "D#" ]
         , button [ onMouseDown (NoteOn FSharp), onMouseUp NoteOff ] [ text "F#" ]
         , button [ onMouseDown (NoteOn A), onMouseUp NoteOff ] [ text "A" ]
-        , text (Maybe.withDefault "" (Maybe.map toString model))
+        , p [] [ text (Maybe.withDefault "" (Maybe.map toString model)) ]
         ]
 
 
