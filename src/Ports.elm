@@ -10,3 +10,9 @@ port noteOff : PitchNotation -> Cmd msg
 
 
 port loadSamples : List ( PitchNotation, SampleUrl ) -> Cmd msg
+
+
+port startSequence : List PitchNotation -> Cmd msg
+
+
+port stopSequence : () -> Cmd msg

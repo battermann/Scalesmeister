@@ -1,10 +1,13 @@
 module Main exposing (..)
 
-import Html exposing (Html, text, div, h1, img, button, p)
-import Html.Events exposing (onMouseDown, onMouseUp)
+import Html exposing (Html, text, div, h1, h2, img, button, p)
+import Html.Events exposing (onMouseDown, onMouseUp, onClick)
 import Ports exposing (..)
 import Types exposing (..)
 import Pitches exposing (..)
+import Random exposing (..)
+import Array
+import Random.Array exposing (..)
 
 
 ---- MODEL ----
@@ -33,8 +36,8 @@ toPitchNotation pitch =
         note ++ accidental ++ octave
 
 
-pitchSampleUrlMapping : Pitch -> ( PitchNotation, SampleUrl )
-pitchSampleUrlMapping pitch =
+pitchToSampleUrlMapping : Pitch -> ( PitchNotation, SampleUrl )
+pitchToSampleUrlMapping pitch =
     let
         note =
             toString pitch.note
@@ -54,7 +57,18 @@ pitchSampleUrlMapping pitch =
 
 loadPianoSamples : Cmd msg
 loadPianoSamples =
-    loadSamples (List.map pitchSampleUrlMapping [ c4, dSharp4, fSharp4, a4 ])
+    [ c4, dSharp4, fSharp4, a4 ]
+        |> List.map pitchToSampleUrlMapping
+        |> loadSamples
+
+
+startRnd12ToneSeq : Cmd Msg
+startRnd12ToneSeq =
+    let
+        arr =
+            Array.fromList chromaticScaleFromC4ToB
+    in
+        Random.generate (Array.toList >> StartSequence) (Random.Array.shuffle arr)
 
 
 init : ( Model, Cmd Msg )
@@ -69,6 +83,9 @@ init =
 type Msg
     = NoteOn Pitch
     | NoteOff Pitch
+    | StartSequence (List Pitch)
+    | StopSequence
+    | StartRandom12ToneSequence
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -79,6 +96,15 @@ update msg model =
 
         NoteOff pitch ->
             ( Nothing, noteOff (toPitchNotation pitch) )
+
+        StartSequence seq ->
+            ( model, startSequence (List.map toPitchNotation seq) )
+
+        StopSequence ->
+            ( model, stopSequence () )
+
+        StartRandom12ToneSequence ->
+            ( model, startRnd12ToneSeq )
 
 
 
@@ -91,10 +117,33 @@ keys =
         |> List.map (\p -> button [ onMouseDown (NoteOn p), onMouseUp (NoteOff p) ] [ text (toPitchNotation p) ])
 
 
+displayPitch : Model -> Html Msg
+displayPitch model =
+    p [] [ text (Maybe.withDefault "" (Maybe.map toPitchNotation model)) ]
+
+
+startSequenceButton : Html Msg
+startSequenceButton =
+    button [ onClick StartRandom12ToneSequence ] [ text "Start" ]
+
+
+stopSequenceButton : Html Msg
+stopSequenceButton =
+    button [ onClick StopSequence ] [ text "Stop" ]
+
+
 view : Model -> Html Msg
 view model =
     div []
-        (keys ++ [ p [] [ text (Maybe.withDefault "" (Maybe.map toPitchNotation model)) ] ])
+        ([ h1 [] [ text "luigi" ]
+         , h2 [] [ text "random 12 tone sequence" ]
+         , startSequenceButton
+         , stopSequenceButton
+         , h2 [] [ text "play back samples" ]
+         ]
+            ++ keys
+            ++ [ displayPitch model ]
+        )
 
 
 
