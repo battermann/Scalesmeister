@@ -2,8 +2,8 @@ port module Ports exposing (..)
 
 import Types exposing (..)
 
-port noteOn : NoteAlias -> Cmd msg
+port noteOn : PitchNotation -> Cmd msg
 
-port noteOff : () -> Cmd msg
+port noteOff : PitchNotation -> Cmd msg
 
-port loadSample : ( NoteAlias, NoteSampleUrl ) -> Cmd msg
+port loadSamples : List ( PitchNotation, SampleUrl ) -> Cmd msg
