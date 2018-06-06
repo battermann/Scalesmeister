@@ -1,10 +1,14 @@
 module Types exposing (..)
 
+
 type Accidental
     = Sharp
     | Flat
 
-type alias Octave = Int
+
+type alias Octave =
+    Int
+
 
 type Note
     = C
@@ -15,14 +19,21 @@ type Note
     | A
     | B
 
+
 type alias Pitch =
-    { note: Note
-    , accidental: Maybe Accidental
-    , octave: Octave
+    { note : Note
+    , accidental : Maybe Accidental
+    , octave : Octave
     }
 
-type alias PitchNotation = String
 
-type alias SampleUrl = String
+type alias PitchNotation =
+    String
 
-type alias Model = Maybe Pitch
+
+type alias SampleUrl =
+    String
+
+
+type alias Model =
+    Maybe Pitch
