@@ -1,19 +1,24 @@
 module Main exposing (..)
 
-import Html exposing (Html, text, div, h1, img)
-import Html.Attributes exposing (src)
-
+import Html exposing (Html, text, div, h1, img, button)
+import Html.Events exposing (onMouseDown, onMouseUp)
+import Ports exposing (..)
+import Types exposing (..)
 
 ---- MODEL ----
 
+loadNoteSample : Note -> Cmd msg
+loadNoteSample note =
+    loadSample (toString note, "samples/" ++ (toString note) ++ ".mp3")
 
-type alias Model =
-    {}
+loadSamples : Cmd msg
+loadSamples =
+    Cmd.batch (List.map loadNoteSample [C, DSharp, FSharp, A])
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( {}, Cmd.none )
+    ( Nothing, loadSamples )
 
 
 
@@ -21,12 +26,16 @@ init =
 
 
 type Msg
-    = NoOp
+    = NoteOn Note
+    | NoteOff
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none )
+    case msg of
+        NoteOn note -> ( Just note, noteOn (toString note))
+
+        NoteOff -> ( Nothing, noteOff ())
 
 
 
@@ -36,8 +45,11 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ img [ src "/logo.svg" ] []
-        , h1 [] [ text "Your Elm App is working!" ]
+        [ button [ onMouseDown (NoteOn C), onMouseUp NoteOff ] [ text "C" ]
+        , button [ onMouseDown (NoteOn DSharp), onMouseUp NoteOff ] [ text "D#" ]
+        , button [ onMouseDown (NoteOn FSharp), onMouseUp NoteOff ] [ text "F#" ]
+        , button [ onMouseDown (NoteOn A), onMouseUp NoteOff ] [ text "A" ]
+        , text (Maybe.withDefault "" (Maybe.map toString model))
         ]
 
 
