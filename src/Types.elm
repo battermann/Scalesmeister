@@ -1,5 +1,7 @@
 module Types exposing (..)
 
+import Array exposing (Array)
+
 
 type Accidental
     = Sharp
@@ -35,5 +37,10 @@ type alias SampleUrl =
     String
 
 
+type Row
+    = Stopped (Array Pitch)
+    | Playing (Array Pitch)
+
+
 type alias Model =
-    Maybe Pitch
+    Maybe Row

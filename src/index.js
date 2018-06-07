@@ -30,19 +30,18 @@ app.ports.loadSamples.subscribe(function(pitchToSampleUrlMapping){
 
 app.ports.startSequence.subscribe(function(seq){
   var noteLength = "8n"
-  Transport.start()
   sequence = new Sequence(function(time, note){
     sampler.triggerAttackRelease(note, noteLength)
   }, seq, noteLength);
+  Transport.start()
   sequence.start();
 });
 
 app.ports.stopSequence.subscribe(function(){
-  if (sequence != null)  {
-    sequence.stop();
-    sequence.dispose()
-  }
   Transport.stop()
+  if (sequence != null)  {
+    sequence.removeAll();
+  }
 });
 
 registerServiceWorker();
