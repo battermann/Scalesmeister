@@ -2,7 +2,18 @@ body {
   font-family: 'Source Sans Pro', 'Trebuchet MS', 'Lucida Grande', 'Bitstream Vera Sans', 'Helvetica Neue', sans-serif;
   margin: 0;
   text-align: center;
-  color: #293c4b;
+  font-size: 14px;
+  background-color:  #666666;
+  color: #DFDFDF;
+}
+
+button {
+  border: 1px solid #666666;
+  background-color: #858585;
+  user-select: none;
+  color: #DFDFDF;
+  padding: 10px;
+  margin: 2px;
 }
 
 h1 {

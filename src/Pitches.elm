@@ -1,23 +1,25 @@
 module Pitches exposing (..)
 
 import Types exposing (..)
+import Array exposing (Array, fromList)
 
 
-chromaticScaleFromC4ToB : List Pitch
+chromaticScaleFromC4ToB : Array Pitch
 chromaticScaleFromC4ToB =
-    [ c4
-    , cSharp4
-    , d4
-    , dSharp4
-    , e4
-    , f4
-    , fSharp4
-    , g4
-    , gSharp4
-    , a4
-    , aSharp4
-    , b4
-    ]
+    Array.fromList
+        [ c4
+        , cSharp4
+        , d4
+        , dSharp4
+        , e4
+        , f4
+        , fSharp4
+        , g4
+        , gSharp4
+        , a4
+        , aSharp4
+        , b4
+        ]
 
 
 c4 : Pitch

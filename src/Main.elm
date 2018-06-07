@@ -1,13 +1,14 @@
 module Main exposing (..)
 
-import Html exposing (Html, text, div, h1, h2, img, button, p)
+import Html exposing (Html, text, div, h1, button, p, i)
 import Html.Events exposing (onMouseDown, onMouseUp, onClick)
+import Html.Attributes exposing (class)
 import Ports exposing (..)
 import Types exposing (..)
 import Pitches exposing (..)
-import Random exposing (..)
-import Array
-import Random.Array exposing (..)
+import Random exposing (generate)
+import Array exposing (Array, fromList, toList, map)
+import Random.Array exposing (shuffle)
 
 
 ---- MODEL ----
@@ -62,18 +63,18 @@ loadPianoSamples =
         |> loadSamples
 
 
-startRnd12ToneSeq : Cmd Msg
-startRnd12ToneSeq =
-    let
-        arr =
-            Array.fromList chromaticScaleFromC4ToB
-    in
-        Random.generate (Array.toList >> StartSequence) (Random.Array.shuffle arr)
+generate12ToneRow : Cmd Msg
+generate12ToneRow =
+    Random.generate RowGenerated (Random.Array.shuffle chromaticScaleFromC4ToB)
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( Nothing, loadPianoSamples )
+    let
+        cmd =
+            Cmd.batch [ loadPianoSamples, generate12ToneRow ]
+    in
+        ( Nothing, cmd )
 
 
 
@@ -83,67 +84,82 @@ init =
 type Msg
     = NoteOn Pitch
     | NoteOff Pitch
-    | StartSequence (List Pitch)
-    | StopSequence
-    | StartRandom12ToneSequence
+    | RowGenerated (Array Pitch)
+    | GenerateNew12ToneRow
+    | TogglePlay
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         NoteOn pitch ->
-            ( Just pitch, noteOn (toPitchNotation pitch) )
+            ( model, noteOn (toPitchNotation pitch) )
 
         NoteOff pitch ->
-            ( Nothing, noteOff (toPitchNotation pitch) )
+            ( model, noteOff (toPitchNotation pitch) )
 
-        StartSequence seq ->
-            ( model, startSequence (List.map toPitchNotation seq) )
+        RowGenerated row ->
+            ( Just (Stopped row), Cmd.none )
 
-        StopSequence ->
-            ( model, stopSequence () )
+        GenerateNew12ToneRow ->
+            ( Nothing, Cmd.batch [ stopSequence (), generate12ToneRow ] )
 
-        StartRandom12ToneSequence ->
-            ( model, startRnd12ToneSeq )
+        TogglePlay ->
+            case model of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just (Stopped row) ->
+                    ( Just (Playing row), startSequence (Array.map toPitchNotation row) )
+
+                Just (Playing row) ->
+                    ( Just (Stopped row), stopSequence () )
 
 
 
 ---- VIEW ----
 
 
-keys : List (Html Msg)
-keys =
-    chromaticScaleFromC4ToB
-        |> List.map (\p -> button [ onMouseDown (NoteOn p), onMouseUp (NoteOff p) ] [ text (toPitchNotation p) ])
+rowView : Array Pitch -> Html Msg
+rowView row =
+    div [] (row |> Array.map (\p -> button [ onMouseDown (NoteOn p), onMouseUp (NoteOff p) ] [ text (toPitchNotation p) ]) |> Array.toList)
 
 
-displayPitch : Model -> Html Msg
-displayPitch model =
-    p [] [ text (Maybe.withDefault "" (Maybe.map toPitchNotation model)) ]
+generateButton : Html Msg
+generateButton =
+    button [ onClick GenerateNew12ToneRow ] [ text "Generate new row" ]
 
 
-startSequenceButton : Html Msg
-startSequenceButton =
-    button [ onClick StartRandom12ToneSequence ] [ text "Start" ]
+rowWithControls : Array Pitch -> String -> Html Msg
+rowWithControls row icon =
+    div []
+        [ rowView row
+        , p []
+            [ button [ onClick TogglePlay ] [ i [ class icon ] [] ]
+            , generateButton
+            ]
+        ]
 
 
-stopSequenceButton : Html Msg
-stopSequenceButton =
-    button [ onClick StopSequence ] [ text "Stop" ]
+maybeRowWithControls : Model -> Html Msg
+maybeRowWithControls model =
+    case model of
+        Just (Stopped row) ->
+            rowWithControls row "fas fa-play"
+
+        Just (Playing row) ->
+            rowWithControls row "fas fa-stop"
+
+        Nothing ->
+            div [] [ generateButton ]
 
 
 view : Model -> Html Msg
 view model =
     div []
-        ([ h1 [] [ text "luigi" ]
-         , h2 [] [ text "random 12 tone sequence" ]
-         , startSequenceButton
-         , stopSequenceButton
-         , h2 [] [ text "play back samples" ]
-         ]
-            ++ keys
-            ++ [ displayPitch model ]
-        )
+        [ h1 [] [ text "luigi" ]
+        , maybeRowWithControls model
+        ]
 
 
 
