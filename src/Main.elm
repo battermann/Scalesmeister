@@ -1,14 +1,16 @@
 module Main exposing (..)
 
-import Html exposing (Html, text, div, h1, button, p, i)
+import Html exposing (Html, text, div, h1, button, p, i, a)
 import Html.Events exposing (onMouseDown, onMouseUp, onClick)
-import Html.Attributes exposing (class)
+import Html.Attributes exposing (class, href, download, downloadAs)
 import Ports exposing (..)
 import Types exposing (..)
 import Pitches exposing (..)
 import Random exposing (generate)
 import Array exposing (Array, fromList, toList, map)
 import Random.Array exposing (shuffle)
+import Midi.Types as Midi
+import Midi.Generate exposing (recording)
 
 
 ---- MODEL ----
@@ -67,14 +69,23 @@ generate12ToneRow : Cmd Msg
 generate12ToneRow =
     Random.generate RowGenerated (Random.Array.shuffle chromaticScaleFromC4ToB)
 
+-- dummy implementation
+-- todo: convert the array to an actual MIDI sequence by mapping to the correct MidiEvents according to http://package.elm-lang.org/packages/newlandsvalley/elm-comidi/3.0.0/Midi-Types#MidiEvent
+toMidi : Array Pitch -> List Midi.Byte
+toMidi row =
+    Midi.SingleTrack 0
+        [ ( 0, Midi.NoteOn 1 40 8 )
+        , ( 1500, Midi.NoteOn 1 40 8 )
+        , ( 3000, Midi.NoteOn 1 40 8 )
+        , ( 4500, Midi.NoteOn 1 40 8 )
+        , ( 6000, Midi.NoteOn 1 40 8 )
+        ]
+            |> recording
+
 
 init : ( Model, Cmd Msg )
 init =
-    let
-        cmd =
-            Cmd.batch [ loadPianoSamples, generate12ToneRow ]
-    in
-        ( Nothing, cmd )
+    ( Nothing, Cmd.batch [ loadPianoSamples, generate12ToneRow ] )
 
 
 
@@ -102,7 +113,7 @@ update msg model =
             ( Just (Stopped row), Cmd.none )
 
         GenerateNew12ToneRow ->
-            ( Nothing, Cmd.batch [ stopSequence (), generate12ToneRow ] )
+            ( model, Cmd.batch [ stopSequence (), generate12ToneRow ] )
 
         TogglePlay ->
             case model of
@@ -137,6 +148,11 @@ rowWithControls row icon =
         , p []
             [ button [ onClick TogglePlay ] [ i [ class icon ] [] ]
             , generateButton
+            -- todo: use a link button instead of just a link
+            -- todo: add elm package: http://package.elm-lang.org/packages/newlandsvalley/elm-binary-base64/latest
+            -- todo: use the toMidi function from above to convert the 12 tone row to a byte array and convert the byte array to a string using `encode` from http://package.elm-lang.org/packages/newlandsvalley/elm-binary-base64/latest
+            -- todo: replace `text "Download"` with fontawesome download icon
+            , a [ href "data:audio/midi;base64,<base64encodedbytestrig>", downloadAs "file.midi" ] [ text "Download" ]
             ]
         ]
 
