@@ -12,7 +12,7 @@ type alias Octave =
     Int
 
 
-type Note
+type Letter
     = C
     | D
     | E
@@ -22,11 +22,8 @@ type Note
     | B
 
 
-type alias Pitch =
-    { note : Note
-    , accidental : Maybe Accidental
-    , octave : Octave
-    }
+type Pitch
+    = Pitch Letter (Maybe Accidental) Octave
 
 
 type alias PitchNotation =
@@ -44,3 +41,21 @@ type Row
 
 type alias Model =
     Maybe Row
+
+
+chromaticScale : Octave -> Array Pitch
+chromaticScale octave =
+    Array.fromList
+        [ Pitch C Nothing octave
+        , Pitch C (Just Sharp) octave
+        , Pitch D Nothing octave
+        , Pitch D (Just Sharp) octave
+        , Pitch E Nothing octave
+        , Pitch F Nothing octave
+        , Pitch F (Just Sharp) octave
+        , Pitch G Nothing octave
+        , Pitch G (Just Sharp) octave
+        , Pitch A Nothing octave
+        , Pitch A (Just Sharp) octave
+        , Pitch B Nothing octave
+        ]

@@ -5,7 +5,6 @@ import Html.Events exposing (onMouseDown, onMouseUp, onClick)
 import Html.Attributes exposing (class)
 import Ports exposing (..)
 import Types exposing (..)
-import Pitches exposing (..)
 import Random exposing (generate)
 import Array exposing (Array, fromList, toList, map)
 import Random.Array exposing (shuffle)
@@ -15,13 +14,10 @@ import Random.Array exposing (shuffle)
 
 
 toPitchNotation : Pitch -> PitchNotation
-toPitchNotation pitch =
+toPitchNotation (Pitch note accidental octave) =
     let
-        note =
-            toString pitch.note
-
-        accidental =
-            case pitch.accidental of
+        acc =
+            case accidental of
                 Just Sharp ->
                     "#"
 
@@ -30,42 +26,37 @@ toPitchNotation pitch =
 
                 Nothing ->
                     ""
-
-        octave =
-            toString pitch.octave
     in
-        note ++ accidental ++ octave
+        (toString note) ++ acc ++ (toString octave)
 
 
 pitchToSampleUrlMapping : Pitch -> ( PitchNotation, SampleUrl )
-pitchToSampleUrlMapping pitch =
+pitchToSampleUrlMapping (Pitch note accidental octave) =
     let
-        note =
-            toString pitch.note
-
-        accidental =
-            Maybe.map toString pitch.accidental
+        acc =
+            Maybe.map toString accidental
                 |> Maybe.withDefault ""
 
-        octave =
-            toString pitch.octave
-
         url =
-            "samples/" ++ note ++ accidental ++ octave ++ ".mp3"
+            "samples/" ++ (toString note) ++ acc ++ (toString octave) ++ ".mp3"
     in
-        ( toPitchNotation pitch, url )
+        ( toPitchNotation (Pitch note accidental octave), url )
 
 
 loadPianoSamples : Cmd msg
 loadPianoSamples =
-    [ c4, dSharp4, fSharp4, a4 ]
+    [ Pitch C Nothing 4
+    , Pitch D (Just Sharp) 4
+    , Pitch F (Just Sharp) 4
+    , Pitch A Nothing 4
+    ]
         |> List.map pitchToSampleUrlMapping
         |> loadSamples
 
 
 generate12ToneRow : Cmd Msg
 generate12ToneRow =
-    Random.generate RowGenerated (Random.Array.shuffle chromaticScaleFromC4ToB)
+    Random.generate RowGenerated (Random.Array.shuffle (chromaticScale 4))
 
 
 init : ( Model, Cmd Msg )
