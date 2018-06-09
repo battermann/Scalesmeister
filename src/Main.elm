@@ -149,6 +149,8 @@ rowWithControls row icon =
             , generateButton
             -- todo: adjust layout / element size
             , a [ href ("data:audio/midi;base64," ++ (encode (toMidi row))), downloadAs "luigi.midi", class "button" ] [ i [ class "fas fa-download" ] [] ]
+            -- the hardcoded version below seems to work
+            --, a [ href "data:audio/midi;base64,TVRoZAAAAAYAAAABAIBNVHJrAAAAhAGRPH88gTx/AJE+fzyBPn8AkUB/PIFAfwCRQn88gUJ/AJFDfzyBQ38AkUV/PIFFfwCRR388gUd/AJFIfzyBSH8AkUh/PIFIfwCRR388gUd/AJFFfzyBRX8AkUN/PIFDfwCRQn88gUJ/AJFAfzyBQH8AkT5/PIE+fwCRPH88gTx/AP8vAA==", downloadAs "luigi.midi", class "button" ] [ i [ class "fas fa-download" ] [] ]
             ]
         ]
 
