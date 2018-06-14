@@ -74,26 +74,19 @@ zipWithIndex list =
 
 toMidi : Array Pitch -> List Midi.Byte
 toMidi row =
-    let
-        track =
-            row
-                |> Array.toList
-                |> List.map toMidiNumber
-                |> zipWithIndex
-                |> List.map
-                    (\( midiNumber, i ) ->
-                        [ ( 0, Midi.NoteOn 0 midiNumber 64 )
-                        , ( 2, Midi.NoteOff 0 midiNumber 0 )
-                        ]
-                    )
-                |> flatten
-
-        _ =
-            Debug.log "" track
-    in
-        track
-            |> Midi.SingleTrack 4
-            |> recording
+    row
+        |> Array.toList
+        |> List.map toMidiNumber
+        |> zipWithIndex
+        |> List.map
+            (\( midiNumber, i ) ->
+                [ ( 0, Midi.NoteOn 0 midiNumber 64 )
+                , ( 2, Midi.NoteOff 0 midiNumber 0 )
+                ]
+            )
+        |> flatten
+        |> Midi.SingleTrack 4
+        |> recording
 
 
 init : ( Model, Cmd Msg )
