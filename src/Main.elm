@@ -67,19 +67,13 @@ flatten list =
     List.foldr (++) [] list
 
 
-zipWithIndex : List a -> List ( a, Int )
-zipWithIndex list =
-    List.range 0 (List.length list) |> List.map2 (,) list
-
-
 toMidi : Array Pitch -> List Midi.Byte
 toMidi row =
     row
         |> Array.toList
         |> List.map toMidiNumber
-        |> zipWithIndex
         |> List.map
-            (\( midiNumber, i ) ->
+            (\midiNumber ->
                 [ ( 0, Midi.NoteOn 0 midiNumber 64 )
                 , ( 2, Midi.NoteOff 0 midiNumber 0 )
                 ]
