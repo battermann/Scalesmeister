@@ -10,7 +10,7 @@ import Array exposing (Array, fromList, toList, map)
 import Random.Array exposing (shuffle)
 import Midi.Types as Midi
 import Midi.Generate exposing (recording)
-import BinaryBase64 exposing (encode)
+import BinaryBase64 exposing (encode, decode)
 
 
 ---- MODEL ----
@@ -48,10 +48,10 @@ pitchToSampleUrlMapping (Pitch note accidental octave) =
 
 loadPianoSamples : Cmd msg
 loadPianoSamples =
-    [ Pitch C Nothing 4
-    , Pitch D (Just Sharp) 4
-    , Pitch F (Just Sharp) 4
-    , Pitch A Nothing 4
+    [ Pitch C Nothing middleOctave
+    , Pitch D (Just Sharp) middleOctave
+    , Pitch F (Just Sharp) middleOctave
+    , Pitch A Nothing middleOctave
     ]
         |> List.map pitchToSampleUrlMapping
         |> loadSamples
@@ -61,24 +61,38 @@ generate12ToneRow : Cmd Msg
 generate12ToneRow =
     Random.generate RowGenerated (Random.Array.shuffle (chromaticScale 4))
 
--- dummy implementation
--- todo: Create a valid midi file, currently the generated midi file doesn't work, check specification and correct serialization
--- todo: convert the array to an actual MIDI sequence by mapping to the correct MidiEvents according to http://package.elm-lang.org/packages/newlandsvalley/elm-comidi/3.0.0/Midi-Types#MidiEvent
+
+flatten : List (List a) -> List a
+flatten list =
+    List.foldr (++) [] list
+
+
+zipWithIndex : List a -> List ( a, Int )
+zipWithIndex list =
+    List.range 0 (List.length list) |> List.map2 (,) list
+
+
 toMidi : Array Pitch -> List Midi.Byte
 toMidi row =
-    Midi.SingleTrack 0
-        [ ( 0, Midi.ProgramChange 1 1 )
-        , ( 0, Midi.NoteOn 0 60 64 )
-        , ( 15, Midi.NoteOff 0 60 0 )
-        , ( 15, Midi.NoteOn 0 61 64 )
-        , ( 30, Midi.NoteOff 0 61 0 )
-        , ( 30, Midi.NoteOn 0 62 64 )
-        , ( 45, Midi.NoteOff 0 62 0 )
-        , ( 45, Midi.NoteOn 0 63 64 )
-        , ( 60, Midi.NoteOff 0 63 0 )
-        , ( 60, Midi.NoteOn 0 64 64 )
-        , ( 75, Midi.NoteOff 0 64 0 )
-        ]
+    let
+        track =
+            row
+                |> Array.toList
+                |> List.map toMidiNumber
+                |> zipWithIndex
+                |> List.map
+                    (\( midiNumber, i ) ->
+                        [ ( 0, Midi.NoteOn 0 midiNumber 64 )
+                        , ( 2, Midi.NoteOff 0 midiNumber 0 )
+                        ]
+                    )
+                |> flatten
+
+        _ =
+            Debug.log "" track
+    in
+        track
+            |> Midi.SingleTrack 4
             |> recording
 
 
@@ -147,10 +161,7 @@ rowWithControls row icon =
         , p []
             [ button [ onClick TogglePlay ] [ i [ class icon ] [] ]
             , generateButton
-            -- todo: adjust layout / element size
             , a [ href ("data:audio/midi;base64," ++ (encode (toMidi row))), downloadAs "luigi.midi", class "button" ] [ i [ class "fas fa-download" ] [] ]
-            -- the hardcoded version below seems to work
-            --, a [ href "data:audio/midi;base64,TVRoZAAAAAYAAAABAIBNVHJrAAAAhAGRPH88gTx/AJE+fzyBPn8AkUB/PIFAfwCRQn88gUJ/AJFDfzyBQ38AkUV/PIFFfwCRR388gUd/AJFIfzyBSH8AkUh/PIFIfwCRR388gUd/AJFFfzyBRX8AkUN/PIFDfwCRQn88gUJ/AJFAfzyBQH8AkT5/PIE+fwCRPH88gTx/AP8vAA==", downloadAs "luigi.midi", class "button" ] [ i [ class "fas fa-download" ] [] ]
             ]
         ]
 

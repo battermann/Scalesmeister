@@ -2,21 +2,27 @@ module Tests exposing (..)
 
 import Test exposing (..)
 import Expect
+import Types exposing (..)
 
 
 -- Check out http://package.elm-lang.org/packages/elm-community/elm-test/latest to learn more about testing in Elm!
 
-
 all : Test
 all =
-    describe "A Test Suite"
-        [ test "Addition" <|
+    describe "Pitch to MIDI number"
+        [ test "A0 should be 21" <|
             \_ ->
-                Expect.equal 10 (3 + 7)
-        , test "String.left" <|
+                Expect.equal (toMidiNumber (Pitch A Nothing 0)) 21
+        , test "C8 should be 108" <|
             \_ ->
-                Expect.equal "a" (String.left 1 "abcdefg")
-        , test "This test should fail" <|
+                Expect.equal (toMidiNumber (Pitch C Nothing 8)) 108
+        , test "C4 should be 60" <|
             \_ ->
-                Expect.fail "failed as expected!"
+                Expect.equal (toMidiNumber (Pitch C Nothing 4)) 60
+        , test "F#5 should be 78" <|
+            \_ ->
+                Expect.equal (toMidiNumber (Pitch F (Just Sharp) 5)) 78
+        , test "F#5 should be 78" <|
+            \_ ->
+                Expect.equal (toMidiNumber (Pitch F (Just Sharp) 5)) 78
         ]
