@@ -30,9 +30,10 @@ app.ports.loadSamples.subscribe(function(pitchToSampleUrlMapping){
 
 app.ports.startSequence.subscribe(function(seq){
   var noteLength = "8n"
-  sequence = new Sequence(function(time, note){
+  var subdivision = "8n"
+  sequence = new Sequence(function(_, note){
     sampler.triggerAttackRelease(note, noteLength)
-  }, seq, noteLength);
+  }, seq, subdivision);
   Transport.start()
   sequence.start();
 });

@@ -1,13 +1,16 @@
 module Main exposing (..)
 
-import Html exposing (Html, text, div, h1, button, p, i)
+import Html exposing (Html, text, div, h1, button, p, i, a)
 import Html.Events exposing (onMouseDown, onMouseUp, onClick)
-import Html.Attributes exposing (class)
+import Html.Attributes exposing (class, href, download, downloadAs)
 import Ports exposing (..)
 import Types exposing (..)
 import Random exposing (generate)
 import Array exposing (Array, fromList, toList, map)
 import Random.Array exposing (shuffle)
+import Midi.Types as Midi
+import Midi.Generate exposing (recording)
+import BinaryBase64 exposing (encode, decode)
 
 
 ---- MODEL ----
@@ -45,10 +48,10 @@ pitchToSampleUrlMapping (Pitch note accidental octave) =
 
 loadPianoSamples : Cmd msg
 loadPianoSamples =
-    [ Pitch C Nothing 4
-    , Pitch D (Just Sharp) 4
-    , Pitch F (Just Sharp) 4
-    , Pitch A Nothing 4
+    [ Pitch C Nothing middleOctave
+    , Pitch D (Just Sharp) middleOctave
+    , Pitch F (Just Sharp) middleOctave
+    , Pitch A Nothing middleOctave
     ]
         |> List.map pitchToSampleUrlMapping
         |> loadSamples
@@ -59,13 +62,36 @@ generate12ToneRow =
     Random.generate RowGenerated (Random.Array.shuffle (chromaticScale 4))
 
 
+flatten : List (List a) -> List a
+flatten list =
+    List.foldr (++) [] list
+
+
+zipWithIndex : List a -> List ( a, Int )
+zipWithIndex list =
+    List.range 0 (List.length list) |> List.map2 (,) list
+
+
+toMidi : Array Pitch -> List Midi.Byte
+toMidi row =
+    row
+        |> Array.toList
+        |> List.map toMidiNumber
+        |> zipWithIndex
+        |> List.map
+            (\( midiNumber, i ) ->
+                [ ( 0, Midi.NoteOn 0 midiNumber 64 )
+                , ( 2, Midi.NoteOff 0 midiNumber 0 )
+                ]
+            )
+        |> flatten
+        |> Midi.SingleTrack 4
+        |> recording
+
+
 init : ( Model, Cmd Msg )
 init =
-    let
-        cmd =
-            Cmd.batch [ loadPianoSamples, generate12ToneRow ]
-    in
-        ( Nothing, cmd )
+    ( Nothing, Cmd.batch [ loadPianoSamples, generate12ToneRow ] )
 
 
 
@@ -93,7 +119,7 @@ update msg model =
             ( Just (Stopped row), Cmd.none )
 
         GenerateNew12ToneRow ->
-            ( Nothing, Cmd.batch [ stopSequence (), generate12ToneRow ] )
+            ( model, Cmd.batch [ stopSequence (), generate12ToneRow ] )
 
         TogglePlay ->
             case model of
@@ -128,6 +154,7 @@ rowWithControls row icon =
         , p []
             [ button [ onClick TogglePlay ] [ i [ class icon ] [] ]
             , generateButton
+            , a [ href ("data:audio/midi;base64," ++ (encode (toMidi row))), downloadAs "luigi.midi", class "button" ] [ i [ class "fas fa-download" ] [] ]
             ]
         ]
 

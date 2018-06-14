@@ -7,7 +7,7 @@ body {
   color: #DFDFDF;
 }
 
-button {
+button, .button {
   border: 1px solid #666666;
   background-color: #858585;
   user-select: none;
