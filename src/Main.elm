@@ -90,6 +90,7 @@ type Msg
     | RowGenerated (Array Pitch)
     | GenerateNew12ToneRow
     | TogglePlay
+    | DownloadPdf
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -118,6 +119,9 @@ update msg model =
                 Just (Playing row) ->
                     ( Just (Stopped row), stopSequence () )
 
+        DownloadPdf ->
+            ( model, downloadPdf () )
+
 
 
 ---- VIEW ----
@@ -140,7 +144,10 @@ rowWithControls row icon =
         , p []
             [ button [ onClick TogglePlay ] [ i [ class icon ] [] ]
             , generateButton
-            , a [ href (toBase64EncodedMidi row |> toDataString), downloadAs "luigi.midi", class "button" ] [ i [ class "fas fa-download" ] [] ]
+            ]
+        , p []
+            [ a [ href (toBase64EncodedMidi row |> toDataString), downloadAs "luigi.midi", class "button" ] [ i [ class "fas fa-download" ] [], text " MIDI" ]
+            , button [ onClick DownloadPdf ] [ i [ class "fas fa-download" ] [], text " PDF" ]
             ]
         ]
 
