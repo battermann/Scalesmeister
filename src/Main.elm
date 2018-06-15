@@ -2,7 +2,7 @@ module Main exposing (..)
 
 import Html exposing (Html, text, div, h1, button, p, i, a)
 import Html.Events exposing (onMouseDown, onMouseUp, onClick)
-import Html.Attributes exposing (class, href, download, downloadAs)
+import Html.Attributes exposing (class, href, download, downloadAs, id)
 import Ports exposing (..)
 import Types exposing (..)
 import MidiConversions exposing (toBase64EncodedMidi, toDataString)
@@ -14,8 +14,8 @@ import Random.Array exposing (shuffle)
 ---- MODEL ----
 
 
-toPitchNotation : Pitch -> PitchNotation
-toPitchNotation (Pitch note accidental octave) =
+toPitchNotation_ : String -> Pitch -> PitchNotation
+toPitchNotation_ nat (Pitch note accidental octave) =
     let
         acc =
             case accidental of
@@ -26,9 +26,24 @@ toPitchNotation (Pitch note accidental octave) =
                     "b"
 
                 Nothing ->
-                    ""
+                    nat
     in
         (toString note) ++ acc ++ (toString octave)
+
+
+toPitchNotation : Pitch -> PitchNotation
+toPitchNotation pitch =
+    toPitchNotation_ "" pitch
+
+
+toEasyScorePitchNotation : Pitch -> PitchNotation
+toEasyScorePitchNotation pitch =
+    (toPitchNotation_ "n" pitch) ++ "/q"
+
+
+toEasyScoreNotation : Array Pitch -> String
+toEasyScoreNotation row =
+    row |> Array.map toEasyScorePitchNotation |> Array.toList |> String.join ", "
 
 
 pitchToSampleUrlMapping : Pitch -> ( PitchNotation, SampleUrl )
@@ -87,7 +102,7 @@ update msg model =
             ( model, noteOff (toPitchNotation pitch) )
 
         RowGenerated row ->
-            ( Just (Stopped row), Cmd.none )
+            ( Just (Stopped row), renderScore ( scoreElementId, toEasyScoreNotation row ) )
 
         GenerateNew12ToneRow ->
             ( model, Cmd.batch [ stopSequence (), generate12ToneRow ] )
@@ -148,6 +163,7 @@ view model =
     div []
         [ h1 [] [ text "luigi" ]
         , maybeRowWithControls model
+        , div [ id scoreElementId ] []
         ]
 
 

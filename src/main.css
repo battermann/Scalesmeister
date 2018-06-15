@@ -19,3 +19,7 @@ button, .button {
 h1 {
   font-size: 30px;
 }
+
+#score {
+  background-color: #eeeeee;
+}
