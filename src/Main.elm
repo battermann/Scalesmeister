@@ -5,7 +5,7 @@ import Html.Events exposing (onMouseDown, onMouseUp, onClick)
 import Html.Attributes exposing (class, href, download, downloadAs)
 import Ports exposing (..)
 import Types exposing (..)
-import MidiConversions exposing (toBase64EncodedMidi)
+import MidiConversions exposing (toBase64EncodedMidi, toDataString)
 import Random exposing (generate)
 import Array exposing (Array, fromList, toList, map)
 import Random.Array exposing (shuffle)
@@ -125,7 +125,7 @@ rowWithControls row icon =
         , p []
             [ button [ onClick TogglePlay ] [ i [ class icon ] [] ]
             , generateButton
-            , a [ href (toBase64EncodedMidi row), downloadAs "luigi.midi", class "button" ] [ i [ class "fas fa-download" ] [] ]
+            , a [ href (toBase64EncodedMidi row |> toDataString), downloadAs "luigi.midi", class "button" ] [ i [ class "fas fa-download" ] [] ]
             ]
         ]
 

@@ -1,4 +1,4 @@
-module MidiConversions exposing (toBase64EncodedMidi)
+module MidiConversions exposing (toBase64EncodedMidi, toDataString)
 
 import Types exposing (..)
 import Array exposing (Array, toList)
@@ -7,8 +7,28 @@ import Midi.Generate exposing (recording)
 import BinaryBase64 exposing (encode)
 
 
-type alias MidiNumber =
-    Int
+type alias ContentType =
+    String
+
+
+type alias ContentTransferEncoding =
+    String
+
+
+type alias MidiAsBase64EncodedString =
+    String
+
+
+type alias MidiEncoding =
+    { contentType : ContentType
+    , contentTransferEncoding : ContentTransferEncoding
+    , midiData : MidiAsBase64EncodedString
+    }
+
+
+toDataString : MidiEncoding -> String
+toDataString midi =
+    "data:" ++ midi.contentType ++ ";" ++ midi.contentTransferEncoding ++ "," ++ midi.midiData
 
 
 toMidiNumber : Pitch -> MidiNumber
@@ -75,5 +95,9 @@ toMidi row =
         |> recording
 
 
-toBase64EncodedMidi : Array Pitch -> String
-toBase64EncodedMidi bytes = "data:audio/midi;base64," ++ (encode (toMidi bytes))
+toBase64EncodedMidi : Array Pitch -> MidiEncoding
+toBase64EncodedMidi bytes =
+    { contentType = "audio/midi"
+    , contentTransferEncoding = "base64"
+    , midiData = (encode (toMidi bytes))
+    }

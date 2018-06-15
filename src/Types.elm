@@ -64,3 +64,7 @@ chromaticScale octave =
         , Pitch A (Just Sharp) octave
         , Pitch B Nothing octave
         ]
+
+
+type alias MidiNumber =
+    Int
