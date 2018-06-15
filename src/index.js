@@ -33,8 +33,6 @@ app.ports.renderScore.subscribe(function(input) {
   vf.draw();
 });
 
-// ************************************************************************
-
 app.ports.noteOn.subscribe(function(pitch) {
   sampler.triggerAttack(pitch)
 });
