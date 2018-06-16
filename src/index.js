@@ -2,6 +2,8 @@ require('./main.css');
 import registerServiceWorker from './registerServiceWorker';
 import {Sampler, Sequence, Transport} from 'tone';
 import Vex from 'vexflow';
+const svg2pdf = require('svg2pdf.js');
+const jsPDF = require('jspdf-yworks');
 
 var Elm = require('./Main.elm');
 
@@ -10,6 +12,24 @@ var app = Elm.Main.embed(root);
 
 var sampler = null;
 var sequence = null;
+
+app.ports.downloadPdf.subscribe(function() {
+  const svgElement = document.getElementById('score').lastChild;
+  const width = 600, height = 400;
+
+  // create a new jsPDF instance
+  const pdf = new jsPDF('l', 'pt', [width, height]);
+
+  // render the svg element
+  svg2pdf(svgElement, pdf, {
+    xOffset: 0,
+    yOffset: 0,
+    scale: 1
+  });
+
+  // or simply safe the created pdf
+  pdf.save('luigi-score.pdf');
+});
 
 app.ports.renderScore.subscribe(function(input) {
   var elementId = input[0]

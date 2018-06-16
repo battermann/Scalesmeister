@@ -33,3 +33,6 @@ type alias ScoreLine =
 
 
 port renderScore : ( ElementId, ScoreLine ) -> Cmd msg
+
+
+port downloadPdf : () -> Cmd msg
