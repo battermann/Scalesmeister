@@ -1,43 +1,21 @@
-module MidiConversions exposing (toBase64EncodedMidi, toDataString, toMidiNumber)
+module MidiConversions exposing (toMidiNumber, createDataLink)
 
 import Types exposing (..)
 import Array exposing (Array, toList)
-import Midi.Types as Midi
+import Midi.Types
 import Midi.Generate exposing (recording)
-import BinaryBase64 exposing (encode)
+import BinaryBase64
+import Octave exposing (..)
+import ListUtils exposing (flatten)
 
 
-type alias ContentType =
-    String
-
-
-type alias ContentTransferEncoding =
-    String
-
-
-type alias MidiAsBase64EncodedString =
-    String
-
-
-type alias MidiEncoding =
-    { contentType : ContentType
-    , contentTransferEncoding : ContentTransferEncoding
-    , midiData : MidiAsBase64EncodedString
-    }
-
-
-toDataString : MidiEncoding -> String
-toDataString midi =
-    "data:" ++ midi.contentType ++ ";" ++ midi.contentTransferEncoding ++ "," ++ midi.midiData
-
-
-toMidiNumber : Pitch -> MidiNumber
+toMidiNumber : Pitch -> Int
 toMidiNumber (Pitch letter accidental octave) =
-    (octave + 1) * 12 + (letterToInt letter) + (accidentalToInt accidental)
+    ((number octave) + 1) * 12 + (letterOffset letter) + (accidentalOffset accidental)
 
 
-letterToInt : Letter -> Int
-letterToInt letter =
+letterOffset : Letter -> Int
+letterOffset letter =
     case letter of
         C ->
             0
@@ -61,8 +39,8 @@ letterToInt letter =
             11
 
 
-accidentalToInt : Maybe Accidental -> Int
-accidentalToInt accidental =
+accidentalOffset : Maybe Accidental -> Int
+accidentalOffset accidental =
     case accidental of
         Just Sharp ->
             1
@@ -74,30 +52,27 @@ accidentalToInt accidental =
             0
 
 
-flatten : List (List a) -> List a
-flatten list =
-    List.foldr (++) [] list
-
-
-toMidi : Array Pitch -> List Midi.Byte
+toMidi : Array Pitch -> List Midi.Types.Byte
 toMidi row =
     row
         |> Array.toList
         |> List.map toMidiNumber
         |> List.map
             (\midiNumber ->
-                [ ( 0, Midi.NoteOn 0 midiNumber 64 )
-                , ( 2, Midi.NoteOff 0 midiNumber 0 )
+                [ ( 0, Midi.Types.NoteOn 0 midiNumber 64 )
+                , ( 2, Midi.Types.NoteOff 0 midiNumber 0 )
                 ]
             )
         |> flatten
-        |> Midi.SingleTrack 4
+        |> Midi.Types.SingleTrack 4
         |> recording
 
 
-toBase64EncodedMidi : Array Pitch -> MidiEncoding
-toBase64EncodedMidi bytes =
-    { contentType = "audio/midi"
-    , contentTransferEncoding = "base64"
-    , midiData = (encode (toMidi bytes))
-    }
+concatParts : String -> String -> String -> String
+concatParts contentType contentTransferEncoding midiData =
+    "data:" ++ contentType ++ ";" ++ contentTransferEncoding ++ "," ++ midiData
+
+
+createDataLink : Array Pitch -> String
+createDataLink =
+    toMidi >> BinaryBase64.encode >> concatParts "audio/midi" "base64"

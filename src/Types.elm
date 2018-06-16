@@ -1,15 +1,12 @@
-module Types exposing (..)
+module Types exposing (Accidental(..), Letter(..), Pitch(..), PitchNotation, Row(..), chromaticScale, toPitchNotation, toPitchNotationCustomNatural)
 
 import Array exposing (Array)
+import Octave exposing (..)
 
 
 type Accidental
     = Sharp
     | Flat
-
-
-type alias Octave =
-    Int
 
 
 type Letter
@@ -30,22 +27,9 @@ type alias PitchNotation =
     String
 
 
-type alias SampleUrl =
-    String
-
-
 type Row
     = Stopped (Array Pitch)
     | Playing (Array Pitch)
-
-
-type alias Model =
-    Maybe Row
-
-
-middleOctave : Int
-middleOctave =
-    4
 
 
 chromaticScale : Octave -> Array Pitch
@@ -66,5 +50,23 @@ chromaticScale octave =
         ]
 
 
-type alias MidiNumber =
-    Int
+toPitchNotationCustomNatural : String -> Pitch -> PitchNotation
+toPitchNotationCustomNatural natSymbol (Pitch note accidental octave) =
+    let
+        acc =
+            case accidental of
+                Just Sharp ->
+                    "#"
+
+                Just Flat ->
+                    "b"
+
+                Nothing ->
+                    natSymbol
+    in
+        (toString note) ++ acc ++ (toString (number octave))
+
+
+toPitchNotation : Pitch -> PitchNotation
+toPitchNotation pitch =
+    toPitchNotationCustomNatural "" pitch
