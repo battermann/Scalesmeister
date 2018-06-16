@@ -1,4 +1,4 @@
-module MidiConversions exposing (toBase64EncodedMidi, toDataString)
+module MidiConversions exposing (toBase64EncodedMidi, toDataString, toMidiNumber)
 
 import Types exposing (..)
 import Array exposing (Array, toList)
