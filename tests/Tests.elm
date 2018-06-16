@@ -2,7 +2,7 @@ module Tests exposing (..)
 
 import Test exposing (..)
 import Expect
-import Types exposing (..)
+import Pitch exposing (..)
 import MidiConversions exposing (toMidiNumber)
 import Octave exposing (..)
 

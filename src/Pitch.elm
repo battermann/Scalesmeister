@@ -1,4 +1,4 @@
-module Types exposing (Accidental(..), Letter(..), Pitch(..), PitchNotation, Row(..), chromaticScale, toPitchNotation, toPitchNotationCustomNatural)
+module Pitch exposing (Accidental(..), Letter(..), Pitch(..), PitchNotation, chromaticScale, toPitchNotation, toPitchNotationCustomNatural)
 
 import Array exposing (Array)
 import Octave exposing (..)
@@ -25,11 +25,6 @@ type Pitch
 
 type alias PitchNotation =
     String
-
-
-type Row
-    = Stopped (Array Pitch)
-    | Playing (Array Pitch)
 
 
 chromaticScale : Octave -> Array Pitch

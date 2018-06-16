@@ -7,7 +7,7 @@ import Random exposing (generate)
 import Array exposing (Array, fromList, toList, map)
 import Random.Array exposing (shuffle)
 import Audio
-import Types exposing (..)
+import Pitch exposing (..)
 import MidiConversions
 import Octave
 import Score
@@ -16,13 +16,18 @@ import Score
 ---- MODEL ----
 
 
+type PlayableRow
+    = Stopped (Array Pitch)
+    | Playing (Array Pitch)
+
+
 generate12ToneRow : Cmd Msg
 generate12ToneRow =
     Random.generate RowGenerated (Random.Array.shuffle (chromaticScale Octave.middleOctave))
 
 
 type alias Model =
-    Maybe Row
+    Maybe PlayableRow
 
 
 init : ( Model, Cmd Msg )

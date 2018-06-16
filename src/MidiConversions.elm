@@ -1,6 +1,6 @@
 module MidiConversions exposing (toMidiNumber, createDataLink)
 
-import Types exposing (..)
+import Pitch exposing (..)
 import Array exposing (Array, toList)
 import Midi.Types
 import Midi.Generate exposing (recording)

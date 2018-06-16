@@ -1,6 +1,6 @@
 port module Ports exposing (..)
 
-import Types exposing (..)
+import Pitch exposing (..)
 import Array exposing (Array)
 
 

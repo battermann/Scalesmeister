@@ -1,7 +1,7 @@
 module Audio exposing (loadPianoSamples, noteOn, noteOff, play, stop)
 
 import Array exposing (Array)
-import Types exposing (..)
+import Pitch exposing (..)
 import Ports exposing (SampleUrl)
 import Octave exposing (..)
 

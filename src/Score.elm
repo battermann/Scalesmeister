@@ -1,7 +1,7 @@
 module Score exposing (render, downloadPdf, elementId)
 
 import Array exposing (Array)
-import Types exposing (..)
+import Pitch exposing (..)
 import Ports
 
 
