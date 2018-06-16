@@ -24,4 +24,7 @@ all =
         , test "F#5 should be 78" <|
             \_ ->
                 Expect.equal (toMidiNumber (Pitch F (Just Sharp) 5)) 78
+        , test "Gb5 should be 78" <|
+            \_ ->
+                Expect.equal (toMidiNumber (Pitch G (Just Flat) 5)) 78
         ]
