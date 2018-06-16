@@ -27,11 +27,11 @@ type alias ElementId =
     String
 
 
-type alias ScoreLine =
+type alias Notes =
     String
 
 
-port renderScore : ( ElementId, ScoreLine ) -> Cmd msg
+port renderScore : ( ElementId, Notes ) -> Cmd msg
 
 
 port downloadPdf : () -> Cmd msg

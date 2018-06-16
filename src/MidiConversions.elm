@@ -53,8 +53,8 @@ accidentalOffset accidental =
 
 
 toMidi : Array Pitch -> List Midi.Types.Byte
-toMidi row =
-    row
+toMidi pitches =
+    pitches
         |> Array.toList
         |> List.map toMidiNumber
         |> List.map
