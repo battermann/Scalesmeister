@@ -17,3 +17,19 @@ port startSequence : Array PitchNotation -> Cmd msg
 
 
 port stopSequence : () -> Cmd msg
+
+
+type alias ElementId =
+    String
+
+
+scoreElementId : ElementId
+scoreElementId =
+    "score"
+
+
+type alias ScoreLine =
+    String
+
+
+port renderScore : ( ElementId, ScoreLine ) -> Cmd msg
