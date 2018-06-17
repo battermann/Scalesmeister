@@ -1,14 +1,14 @@
-require('./main.css');
+import './main.css';
 import registerServiceWorker from './registerServiceWorker';
 import {Sampler, Sequence, Transport} from 'tone';
 import Vex from 'vexflow';
-const svg2pdf = require('svg2pdf.js');
-const jsPDF = require('jspdf-yworks');
+import svg2pdf from 'svg2pdf.js';
+import jsPDF from 'jspdf-yworks';
 
-var Elm = require('./Main.elm');
+import Elm from './Main.elm';
 
-var root = document.getElementById('root');
-var app = Elm.Main.embed(root);
+const root = document.getElementById('root');
+const app = Elm.Main.embed(root);
 
 var sampler = null;
 var sequence = null;
@@ -32,19 +32,19 @@ app.ports.downloadPdf.subscribe(function() {
 });
 
 app.ports.renderScore.subscribe(function(input) {
-  var elementId = input[0]
-  var line = input[1]
+  const elementId = input[0]
+  const line = input[1]
 
   // remove previous score if exists
-  var div = document.getElementById(elementId);
-  var svg = div.lastChild;
+  const div = document.getElementById(elementId);
+  const svg = div.lastChild;
   if (svg != null) {
     div.removeChild(svg);
   }
 
-  var vf = new Vex.Flow.Factory({renderer: {elementId: elementId}});
-  var score = vf.EasyScore();
-  var system = vf.System();
+  const vf = new Vex.Flow.Factory({renderer: {elementId: elementId}});
+  const score = vf.EasyScore();
+  const system = vf.System();
 
   system.addStave({
     voices: [score.voice(score.notes(line), { time: '12/4' })]
@@ -72,8 +72,8 @@ app.ports.loadSamples.subscribe(function(pitchToSampleUrlMapping){
 });
 
 app.ports.startSequence.subscribe(function(seq){
-  var noteLength = "8n"
-  var subdivision = "8n"
+  const noteLength = "8n"
+  const subdivision = "8n"
   sequence = new Sequence(function(_, note){
     sampler.triggerAttackRelease(note, noteLength)
   }, seq, subdivision);

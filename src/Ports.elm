@@ -1,16 +1,20 @@
 port module Ports exposing (..)
 
-import Types exposing (..)
+import Pitch exposing (..)
 import Array exposing (Array)
+
+
+type alias SampleUrl =
+    String
+
+
+port loadSamples : List ( PitchNotation, SampleUrl ) -> Cmd msg
 
 
 port noteOn : PitchNotation -> Cmd msg
 
 
 port noteOff : PitchNotation -> Cmd msg
-
-
-port loadSamples : List ( PitchNotation, SampleUrl ) -> Cmd msg
 
 
 port startSequence : Array PitchNotation -> Cmd msg
@@ -23,16 +27,11 @@ type alias ElementId =
     String
 
 
-scoreElementId : ElementId
-scoreElementId =
-    "score"
-
-
-type alias ScoreLine =
+type alias Notes =
     String
 
 
-port renderScore : ( ElementId, ScoreLine ) -> Cmd msg
+port renderScore : ( ElementId, Notes ) -> Cmd msg
 
 
 port downloadPdf : () -> Cmd msg

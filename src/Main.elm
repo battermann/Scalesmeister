@@ -3,81 +3,36 @@ module Main exposing (..)
 import Html exposing (Html, text, div, h1, button, p, i, a)
 import Html.Events exposing (onMouseDown, onMouseUp, onClick)
 import Html.Attributes exposing (class, href, download, downloadAs, id)
-import Ports exposing (..)
-import Types exposing (..)
-import MidiConversions exposing (toBase64EncodedMidi, toDataString)
 import Random exposing (generate)
 import Array exposing (Array, fromList, toList, map)
 import Random.Array exposing (shuffle)
+import Audio
+import Pitch exposing (..)
+import MidiConversions
+import Octave
+import Score
 
 
 ---- MODEL ----
 
 
-toPitchNotation_ : String -> Pitch -> PitchNotation
-toPitchNotation_ nat (Pitch note accidental octave) =
-    let
-        acc =
-            case accidental of
-                Just Sharp ->
-                    "#"
-
-                Just Flat ->
-                    "b"
-
-                Nothing ->
-                    nat
-    in
-        (toString note) ++ acc ++ (toString octave)
-
-
-toPitchNotation : Pitch -> PitchNotation
-toPitchNotation pitch =
-    toPitchNotation_ "" pitch
-
-
-toEasyScorePitchNotation : Pitch -> PitchNotation
-toEasyScorePitchNotation pitch =
-    (toPitchNotation_ "n" pitch) ++ "/q"
-
-
-toEasyScoreNotation : Array Pitch -> String
-toEasyScoreNotation row =
-    row |> Array.map toEasyScorePitchNotation |> Array.toList |> String.join ", "
-
-
-pitchToSampleUrlMapping : Pitch -> ( PitchNotation, SampleUrl )
-pitchToSampleUrlMapping (Pitch note accidental octave) =
-    let
-        acc =
-            Maybe.map toString accidental
-                |> Maybe.withDefault ""
-
-        url =
-            "samples/" ++ (toString note) ++ acc ++ (toString octave) ++ ".mp3"
-    in
-        ( toPitchNotation (Pitch note accidental octave), url )
-
-
-loadPianoSamples : Cmd msg
-loadPianoSamples =
-    [ Pitch C Nothing middleOctave
-    , Pitch D (Just Sharp) middleOctave
-    , Pitch F (Just Sharp) middleOctave
-    , Pitch A Nothing middleOctave
-    ]
-        |> List.map pitchToSampleUrlMapping
-        |> loadSamples
+type PlayableRow
+    = Stopped (Array Pitch)
+    | Playing (Array Pitch)
 
 
 generate12ToneRow : Cmd Msg
 generate12ToneRow =
-    Random.generate RowGenerated (Random.Array.shuffle (chromaticScale 4))
+    Random.generate RowGenerated (Random.Array.shuffle (chromaticScale Octave.middleOctave))
+
+
+type alias Model =
+    Maybe PlayableRow
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( Nothing, Cmd.batch [ loadPianoSamples, generate12ToneRow ] )
+    ( Nothing, Cmd.batch [ Audio.loadPianoSamples, generate12ToneRow ] )
 
 
 
@@ -97,16 +52,16 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         NoteOn pitch ->
-            ( model, noteOn (toPitchNotation pitch) )
+            ( model, Audio.noteOn pitch )
 
         NoteOff pitch ->
-            ( model, noteOff (toPitchNotation pitch) )
+            ( model, Audio.noteOff pitch )
 
         RowGenerated row ->
-            ( Just (Stopped row), renderScore ( scoreElementId, toEasyScoreNotation row ) )
+            ( Just (Stopped row), Score.render row )
 
         GenerateNew12ToneRow ->
-            ( model, Cmd.batch [ stopSequence (), generate12ToneRow ] )
+            ( model, Cmd.batch [ Audio.stop, generate12ToneRow ] )
 
         TogglePlay ->
             case model of
@@ -114,13 +69,13 @@ update msg model =
                     ( model, Cmd.none )
 
                 Just (Stopped row) ->
-                    ( Just (Playing row), startSequence (Array.map toPitchNotation row) )
+                    ( Just (Playing row), Audio.play row )
 
                 Just (Playing row) ->
-                    ( Just (Stopped row), stopSequence () )
+                    ( Just (Stopped row), Audio.stop )
 
         DownloadPdf ->
-            ( model, downloadPdf () )
+            ( model, Score.downloadPdf )
 
 
 
@@ -146,7 +101,7 @@ rowWithControls row icon =
             , generateButton
             ]
         , p []
-            [ a [ href (toBase64EncodedMidi row |> toDataString), downloadAs "luigi.midi", class "button" ] [ i [ class "fas fa-download" ] [], text " MIDI" ]
+            [ a [ href (MidiConversions.createDataLink row), downloadAs "luigi.midi", class "button" ] [ i [ class "fas fa-download" ] [], text " MIDI" ]
             , button [ onClick DownloadPdf ] [ i [ class "fas fa-download" ] [], text " PDF" ]
             ]
         ]
@@ -170,7 +125,7 @@ view model =
     div []
         [ h1 [] [ text "luigi" ]
         , maybeRowWithControls model
-        , div [ id scoreElementId ] []
+        , div [ id Score.elementId ] []
         ]
 
 
