@@ -1,4 +1,4 @@
-module Octave exposing (..)
+module Types.Octave exposing (..)
 
 
 type Octave
@@ -7,7 +7,7 @@ type Octave
 
 octave : Int -> Maybe Octave
 octave n =
-    if (n >= 0 && n <= 8) then
+    if n >= 0 && n <= 8 then
         Octave n |> Just
     else
         Nothing

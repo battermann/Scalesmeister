@@ -1,26 +1,37 @@
 port module Ports exposing (..)
 
-import Pitch exposing (..)
+import Types.Tonal exposing (..)
 import Array exposing (Array)
+
+
+{- tone.js ports -}
 
 
 type alias SampleUrl =
     String
 
 
-port loadSamples : List ( PitchNotation, SampleUrl ) -> Cmd msg
+type alias ScientificPitchNotation =
+    String
 
 
-port noteOn : PitchNotation -> Cmd msg
+port loadSamples : List ( ScientificPitchNotation, SampleUrl ) -> Cmd msg
 
 
-port noteOff : PitchNotation -> Cmd msg
+port noteOn : ScientificPitchNotation -> Cmd msg
 
 
-port startSequence : Array PitchNotation -> Cmd msg
+port noteOff : ScientificPitchNotation -> Cmd msg
+
+
+port startSequence : Array ScientificPitchNotation -> Cmd msg
 
 
 port stopSequence : () -> Cmd msg
+
+
+
+{- vexflow.js ports -}
 
 
 type alias ElementId =
@@ -32,6 +43,10 @@ type alias Notes =
 
 
 port renderScore : ( ElementId, Notes ) -> Cmd msg
+
+
+
+{- svg2pdf.js ports -}
 
 
 port downloadPdf : () -> Cmd msg
