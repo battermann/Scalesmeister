@@ -1,7 +1,8 @@
 module Audio exposing (loadPianoSamples, noteOn, noteOff, play, stop)
 
 import Array exposing (Array)
-import Types.Tonal exposing (..)
+import Types.Pitch exposing (..)
+import Types.Note exposing (..)
 import Ports exposing (SampleUrl, ScientificPitchNotation)
 import Types.Octave exposing (..)
 

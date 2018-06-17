@@ -1,6 +1,5 @@
 port module Ports exposing (..)
 
-import Types.Tonal exposing (..)
 import Array exposing (Array)
 
 

@@ -4,7 +4,8 @@ import Html exposing (Html, text, div, h1, button, p, i, a)
 import Html.Events exposing (onMouseDown, onMouseUp, onClick)
 import Html.Attributes exposing (class, href, download, downloadAs, id)
 import Array exposing (Array)
-import Types.Tonal exposing (..)
+import Types.Pitch exposing (..)
+import Types.Note exposing (..)
 import MidiConversions
 import Types.Octave as Octave
 import Score

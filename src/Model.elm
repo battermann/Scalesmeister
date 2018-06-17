@@ -4,7 +4,7 @@ import Random exposing (generate)
 import Array exposing (Array)
 import Random.Array exposing (shuffle)
 import Audio
-import Types.Tonal exposing (..)
+import Types.Pitch exposing (..)
 import Types.Octave as Octave
 
 

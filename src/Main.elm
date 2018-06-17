@@ -3,7 +3,8 @@ module Main exposing (..)
 import Html
 import Array exposing (Array)
 import Audio
-import Types.Tonal exposing (..)
+import Types.Pitch exposing (..)
+import Types.Note exposing (..)
 import Types.Octave as Octave
 import Score
 import Model exposing (..)

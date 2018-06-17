@@ -2,7 +2,8 @@ module MidiConversionsTests exposing (..)
 
 import Test exposing (..)
 import Expect
-import Types.Tonal exposing (..)
+import Types.Note exposing (..)
+import Types.Pitch exposing (..)
 import MidiConversions exposing (toMidiNumber)
 import Types.Octave exposing (..)
 

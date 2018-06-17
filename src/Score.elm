@@ -1,7 +1,8 @@
 module Score exposing (render, downloadPdf, elementId)
 
 import Array exposing (Array)
-import Types.Tonal exposing (..)
+import Types.Pitch exposing (..)
+import Types.Note exposing (..)
 import Types.Octave as Octave
 import Ports
 
