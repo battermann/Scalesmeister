@@ -21,6 +21,12 @@ minorPentatonic =
         |> ScaleDef
 
 
+majorPentatonic : ScaleDef
+majorPentatonic =
+    [ majorSecond, majorThird, perfectFifth, majorSixth ]
+        |> ScaleDef
+
+
 type Scale
     = Scale Note ScaleDef
 

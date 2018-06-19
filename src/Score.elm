@@ -1,6 +1,5 @@
 module Score exposing (render, downloadPdf, elementId)
 
-import Array exposing (Array)
 import Types.Pitch exposing (..)
 import Types.Note exposing (..)
 import Types.Octave as Octave
@@ -19,7 +18,7 @@ toEasyScoreNote (Pitch (Note letter accidental) octave) =
                     "b"
 
                 Natural ->
-                    "n"
+                    ""
 
                 Sharp ->
                     "#"
@@ -30,9 +29,9 @@ toEasyScoreNote (Pitch (Note letter accidental) octave) =
         (toString letter) ++ acc ++ (toString (Octave.number octave)) ++ "/q"
 
 
-toEasyScoreNotation : Array Pitch -> String
+toEasyScoreNotation : List Pitch -> String
 toEasyScoreNotation =
-    Array.map toEasyScoreNote >> Array.toList >> String.join ", "
+    List.map toEasyScoreNote >> String.join ", "
 
 
 elementId : Ports.ElementId
@@ -40,9 +39,9 @@ elementId =
     "score"
 
 
-render : Array Pitch -> Cmd msg
+render : List Pitch -> Cmd msg
 render pitches =
-    Ports.renderScore ( elementId, toEasyScoreNotation pitches )
+    Ports.renderScore ( elementId, toEasyScoreNotation pitches, pitches |> List.length, 4 )
 
 
 downloadPdf : Cmd msg

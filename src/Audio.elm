@@ -1,6 +1,5 @@
 module Audio exposing (loadPianoSamples, noteOn, noteOff, play, stop)
 
-import Array exposing (Array)
 import Types.Pitch exposing (..)
 import Types.Note exposing (..)
 import Ports exposing (SampleUrl, ScientificPitchNotation)
@@ -65,9 +64,9 @@ noteOff pitch =
     Ports.noteOff (toScientificPitchNotation pitch)
 
 
-play : Array Pitch -> Cmd msg
+play : List Pitch -> Cmd msg
 play pitches =
-    Ports.startSequence (Array.map toScientificPitchNotation pitches)
+    Ports.startSequence (List.map toScientificPitchNotation pitches)
 
 
 stop : Cmd msg

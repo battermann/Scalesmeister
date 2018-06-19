@@ -34,6 +34,8 @@ app.ports.downloadPdf.subscribe(function() {
 app.ports.renderScore.subscribe(function(input) {
   const elementId = input[0]
   const line = input[1]
+  const numerator = input[2]
+  const denominator = input[3]
 
   // remove previous score if exists
   const div = document.getElementById(elementId);
@@ -47,7 +49,7 @@ app.ports.renderScore.subscribe(function(input) {
   const system = vf.System();
 
   system.addStave({
-    voices: [score.voice(score.notes(line), { time: '12/4' })]
+    voices: [score.voice(score.notes(line), { time: numerator + '/' + denominator })]
   }).addClef('treble');
 
   vf.draw();

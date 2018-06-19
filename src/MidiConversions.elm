@@ -1,7 +1,6 @@
 module MidiConversions exposing (toMidiNumber, createDataLink)
 
 import Types.Pitch as Pitch exposing (..)
-import Array exposing (Array, toList)
 import Midi.Types
 import Midi.Generate exposing (recording)
 import BinaryBase64
@@ -13,10 +12,9 @@ toMidiNumber =
     Pitch.semitoneOffset >> ((+) 12)
 
 
-toMidi : Array Pitch -> List Midi.Types.Byte
+toMidi : List Pitch -> List Midi.Types.Byte
 toMidi pitches =
     pitches
-        |> Array.toList
         |> List.map toMidiNumber
         |> List.concatMap
             (\midiNumber ->
@@ -33,6 +31,6 @@ concatParts contentType contentTransferEncoding midiData =
     "data:" ++ contentType ++ ";" ++ contentTransferEncoding ++ "," ++ midiData
 
 
-createDataLink : Array Pitch -> String
+createDataLink : List Pitch -> String
 createDataLink =
     toMidi >> BinaryBase64.encode >> concatParts "audio/midi" "base64"

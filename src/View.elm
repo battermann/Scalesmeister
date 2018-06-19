@@ -3,13 +3,12 @@ module View exposing (view)
 import Html exposing (Html, text, div, h1, button, p, i, a)
 import Html.Events exposing (onMouseDown, onMouseUp, onClick)
 import Html.Attributes exposing (class, href, download, downloadAs, id)
-import Array exposing (Array)
 import Types.Pitch exposing (..)
 import Types.Note exposing (..)
 import MidiConversions
-import Types.Octave as Octave
 import Score
 import Model exposing (..)
+import Types.Octave exposing (..)
 
 
 displayPitch : Pitch -> Html msg
@@ -32,51 +31,46 @@ displayPitch (Pitch (Note letter accidental) octave) =
                 DoubleSharp ->
                     "##"
     in
-        (toString letter) ++ acc |> text
+        (toString letter) ++ (octave |> number |> toString) ++ acc |> text
 
 
-rowView : Array Pitch -> Html Msg
-rowView row =
-    div [] (row |> Array.map (\p -> button [ onMouseDown (NoteOn p), onMouseUp (NoteOff p) ] [ displayPitch p ]) |> Array.toList)
+lineView : List Pitch -> Html Msg
+lineView line =
+    let
+        _ =
+            Debug.log (toString line)
+    in
+        div [] (line |> List.map (\p -> button [ onMouseDown (NoteOn p), onMouseUp (NoteOff p) ] [ displayPitch p ]))
 
 
-generateButton : Html Msg
-generateButton =
-    button [ onClick GenerateNew12ToneRow ] [ text "Generate new row" ]
-
-
-rowWithControls : Array Pitch -> String -> Html Msg
-rowWithControls row icon =
+lineWithControls : List Pitch -> String -> Html Msg
+lineWithControls line icon =
     div []
-        [ rowView row
+        [ lineView line
         , p []
             [ button [ onClick TogglePlay ] [ i [ class icon ] [] ]
-            , generateButton
             ]
         , p []
-            [ a [ href (MidiConversions.createDataLink row), downloadAs "luigi.midi", class "button" ] [ i [ class "fas fa-download" ] [], text " MIDI" ]
+            [ a [ href (MidiConversions.createDataLink line), downloadAs "luigi.midi", class "button" ] [ i [ class "fas fa-download" ] [], text " MIDI" ]
             , button [ onClick DownloadPdf ] [ i [ class "fas fa-download" ] [], text " PDF" ]
             ]
         ]
 
 
-maybeRowWithControls : Model -> Html Msg
-maybeRowWithControls model =
+controlPanel : Model -> Html Msg
+controlPanel model =
     case model of
-        Just (Stopped row) ->
-            rowWithControls row "fas fa-play"
+        Stopped line ->
+            lineWithControls line "fas fa-play"
 
-        Just (Playing row) ->
-            rowWithControls row "fas fa-stop"
-
-        Nothing ->
-            div [] [ generateButton ]
+        Playing line ->
+            lineWithControls line "fas fa-stop"
 
 
 view : Model -> Html Msg
 view model =
     div []
         [ h1 [] [ text "luigi" ]
-        , maybeRowWithControls model
+        , controlPanel model
         , div [ id Score.elementId ] []
         ]
