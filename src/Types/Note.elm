@@ -1,5 +1,7 @@
 module Types.Note exposing (..)
 
+import List.Extra exposing (..)
+
 
 type Accidental
     = DoubleFlat
@@ -25,6 +27,22 @@ type Note
 
 type alias Semitones =
     Int
+
+
+letters : List Letter
+letters =
+    [ C, D, E, F, G, A, B ]
+
+
+all : List Note
+all =
+    letters
+        |> List.concatMap (\letter -> [ Note letter Flat, Note letter Natural, Note letter Sharp ])
+
+
+semitoneOffset : Note -> Semitones
+semitoneOffset (Note letter accidental) =
+    (letterSemitoneOffset letter) + (accidentalSemitoneOffset accidental)
 
 
 letterSemitoneOffset : Letter -> Semitones

@@ -1,6 +1,6 @@
 module Types.Interval exposing (IntervalSize(..), IntervalQuality(..), Interval, addIntervalSizeToLetter, noteLetterDistance, addIntervalToNote, perfectUnison, minorSecond, majorSecond, minorThird, majorThird, perfectFourth, augmentedFourth, diminishedFifth, perfectFifth, minorSixth, majorSixth, minorSeventh, majorSeventh)
 
-import Types.Note exposing (..)
+import Types.Note as Note exposing (..)
 import List.Extra
 
 
@@ -28,19 +28,12 @@ type Interval
 
 addIntervalSizeToLetter : Letter -> IntervalSize -> Maybe Letter
 addIntervalSizeToLetter letter intervalSize =
-    let
-        letters =
-            [ C, D, E, F, G, A, B ]
-
-        intervalSizes =
-            [ Unison, Second, Third, Fourth, Fifth, Sixth, Seventh ]
-    in
-        letters
-            ++ letters
-            |> List.Extra.dropWhile ((/=) letter)
-            |> List.Extra.zip intervalSizes
-            |> List.Extra.find (Tuple.first >> ((==) intervalSize))
-            |> Maybe.map Tuple.second
+    Note.letters
+        ++ Note.letters
+        |> List.Extra.dropWhile ((/=) letter)
+        |> List.Extra.zip [ Unison, Second, Third, Fourth, Fifth, Sixth, Seventh ]
+        |> List.Extra.find (Tuple.first >> ((==) intervalSize))
+        |> Maybe.map Tuple.second
 
 
 noteLetterDistance : Note -> Letter -> Semitones

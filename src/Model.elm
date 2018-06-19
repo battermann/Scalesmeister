@@ -15,7 +15,7 @@ type PlayableRow
 
 generate12ToneRow : Cmd Msg
 generate12ToneRow =
-    Random.generate RowGenerated (Random.Array.shuffle (chromaticScale Octave.middleOctave))
+    Random.generate RowGenerated (Random.Array.shuffle (chromaticScale Octave.four))
 
 
 type alias Model =
