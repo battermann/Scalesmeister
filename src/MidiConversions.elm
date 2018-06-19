@@ -1,55 +1,17 @@
 module MidiConversions exposing (toMidiNumber, createDataLink)
 
-import Pitch exposing (..)
+import Types.Tonal exposing (..)
 import Array exposing (Array, toList)
 import Midi.Types
 import Midi.Generate exposing (recording)
 import BinaryBase64
-import Octave exposing (..)
+import Types.Octave exposing (..)
 import ListUtils exposing (flatten)
 
 
 toMidiNumber : Pitch -> Int
-toMidiNumber (Pitch letter accidental octave) =
-    ((number octave) + 1) * 12 + (letterOffset letter) + (accidentalOffset accidental)
-
-
-letterOffset : Letter -> Int
-letterOffset letter =
-    case letter of
-        C ->
-            0
-
-        D ->
-            2
-
-        E ->
-            4
-
-        F ->
-            5
-
-        G ->
-            7
-
-        A ->
-            9
-
-        B ->
-            11
-
-
-accidentalOffset : Maybe Accidental -> Int
-accidentalOffset accidental =
-    case accidental of
-        Just Sharp ->
-            1
-
-        Just Flat ->
-            -1
-
-        Nothing ->
-            0
+toMidiNumber (Pitch (Note letter accidental) octave) =
+    ((number octave) + 1) * 12 + (letterSemitoneOffset letter) + (accidentalSemitoneOffset accidental)
 
 
 toMidi : Array Pitch -> List Midi.Types.Byte
