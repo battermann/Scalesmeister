@@ -13,10 +13,10 @@ type alias Line =
 
 fromScale : Scale -> Line
 fromScale scale =
-    fromScalaWithinRange Range.piano scale
+    fromScaleWithinRange Range.piano scale
 
 
-fromScalaWithinRange : Range -> Scale -> Line
-fromScalaWithinRange range scale =
+fromScaleWithinRange : Range -> Scale -> Line
+fromScaleWithinRange range scale =
     Pitch.all
         |> List.filter (\pitch -> (range |> contains pitch) && (scale |> notes |> List.member (note pitch)))

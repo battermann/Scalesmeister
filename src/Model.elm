@@ -29,7 +29,7 @@ range =
 
 initLine : Line
 initLine =
-    Line.fromScalaWithinRange range (Scale (Note C Natural) minorPentatonic)
+    Line.fromScaleWithinRange range (Scale (Note C Natural) minorPentatonic)
 
 
 init : ( Model, Cmd Msg )

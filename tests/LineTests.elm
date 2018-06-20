@@ -20,6 +20,6 @@ all =
     describe "lines"
         [ test "C Minor pentatonic line within octave 4 should be C4, Eb4, F4, G4, Bb4" <|
             \_ ->
-                Expect.equal (fromScalaWithinRange middleOctaveRange (Scale (Note C Natural) minorPentatonic))
+                Expect.equal (fromScaleWithinRange middleOctaveRange (Scale (Note C Natural) minorPentatonic))
                     ([ Note C Natural, Note E Flat, Note F Natural, Note G Natural, Note B Flat ] |> List.map (\note -> Pitch note Octave.four))
         ]

@@ -27,21 +27,3 @@ all =
 semitoneOffset : Pitch -> Semitones
 semitoneOffset (Pitch note octave) =
     Note.semitoneOffset note + (Octave.number octave) * 12
-
-
-chromaticScale : Octave -> Array Pitch
-chromaticScale octave =
-    Array.fromList
-        [ Pitch (Note C Natural) octave
-        , Pitch (Note C Sharp) octave
-        , Pitch (Note C Natural) octave
-        , Pitch (Note D Sharp) octave
-        , Pitch (Note E Natural) octave
-        , Pitch (Note F Natural) octave
-        , Pitch (Note F Sharp) octave
-        , Pitch (Note G Natural) octave
-        , Pitch (Note G Sharp) octave
-        , Pitch (Note A Natural) octave
-        , Pitch (Note A Sharp) octave
-        , Pitch (Note B Natural) octave
-        ]
