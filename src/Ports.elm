@@ -1,9 +1,5 @@
 port module Ports exposing (..)
 
-import Types.Tonal exposing (..)
-import Array exposing (Array)
-
-
 {- tone.js ports -}
 
 
@@ -24,7 +20,7 @@ port noteOn : ScientificPitchNotation -> Cmd msg
 port noteOff : ScientificPitchNotation -> Cmd msg
 
 
-port startSequence : Array ScientificPitchNotation -> Cmd msg
+port startSequence : List ScientificPitchNotation -> Cmd msg
 
 
 port stopSequence : () -> Cmd msg
@@ -42,7 +38,7 @@ type alias Notes =
     String
 
 
-port renderScore : ( ElementId, Notes ) -> Cmd msg
+port renderScore : ( ElementId, Notes, Int, Int ) -> Cmd msg
 
 
 

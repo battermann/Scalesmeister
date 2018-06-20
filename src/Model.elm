@@ -1,36 +1,44 @@
 module Model exposing (..)
 
-import Random exposing (generate)
-import Array exposing (Array)
-import Random.Array exposing (shuffle)
 import Audio
-import Types.Tonal exposing (..)
+import Types.Pitch exposing (..)
 import Types.Octave as Octave
+import Types.Line as Line exposing (..)
+import Types.Scale exposing (..)
+import Types.Range exposing (..)
+import Types.Note exposing (..)
+import Score exposing (..)
 
 
-type PlayableRow
-    = Stopped (Array Pitch)
-    | Playing (Array Pitch)
-
-
-generate12ToneRow : Cmd Msg
-generate12ToneRow =
-    Random.generate RowGenerated (Random.Array.shuffle (chromaticScale Octave.middleOctave))
+type PlayableLine
+    = Stopped Line
+    | Playing Line
 
 
 type alias Model =
-    Maybe PlayableRow
+    PlayableLine
+
+
+range : Range
+range =
+    OfPitch
+        { lowest = Pitch (Note C Natural) Octave.four
+        , highest = Pitch (Note B Natural) Octave.five
+        }
+
+
+initLine : Line
+initLine =
+    Line.fromScaleWithinRange range (Scale (Note C Natural) minorPentatonic)
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( Nothing, Cmd.batch [ Audio.loadPianoSamples, generate12ToneRow ] )
+    ( Stopped initLine, Cmd.batch [ Audio.loadPianoSamples, Score.render initLine ] )
 
 
 type Msg
     = NoteOn Pitch
     | NoteOff Pitch
-    | RowGenerated (Array Pitch)
-    | GenerateNew12ToneRow
     | TogglePlay
     | DownloadPdf

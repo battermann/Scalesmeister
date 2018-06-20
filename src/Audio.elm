@@ -1,9 +1,9 @@
 module Audio exposing (loadPianoSamples, noteOn, noteOff, play, stop)
 
-import Array exposing (Array)
-import Types.Tonal exposing (..)
+import Types.Pitch exposing (..)
+import Types.Note exposing (..)
 import Ports exposing (SampleUrl, ScientificPitchNotation)
-import Types.Octave exposing (..)
+import Types.Octave as Octave exposing (..)
 
 
 toScientificPitchNotation : Pitch -> ScientificPitchNotation
@@ -45,10 +45,10 @@ pitchToSampleUrlMapping (Pitch (Note letter accidental) octave) =
 
 loadPianoSamples : Cmd msg
 loadPianoSamples =
-    [ Pitch (Note C Natural) middleOctave
-    , Pitch (Note D Sharp) middleOctave
-    , Pitch (Note F Sharp) middleOctave
-    , Pitch (Note A Natural) middleOctave
+    [ Pitch (Note C Natural) Octave.four
+    , Pitch (Note D Sharp) Octave.four
+    , Pitch (Note F Sharp) Octave.four
+    , Pitch (Note A Natural) Octave.four
     ]
         |> List.map pitchToSampleUrlMapping
         |> Ports.loadSamples
@@ -64,9 +64,9 @@ noteOff pitch =
     Ports.noteOff (toScientificPitchNotation pitch)
 
 
-play : Array Pitch -> Cmd msg
+play : List Pitch -> Cmd msg
 play pitches =
-    Ports.startSequence (Array.map toScientificPitchNotation pitches)
+    Ports.startSequence (List.map toScientificPitchNotation pitches)
 
 
 stop : Cmd msg
