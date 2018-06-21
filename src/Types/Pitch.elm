@@ -1,6 +1,5 @@
 module Types.Pitch exposing (..)
 
-import Array exposing (Array)
 import Types.Octave as Octave exposing (..)
 import Types.Note as Note exposing (..)
 

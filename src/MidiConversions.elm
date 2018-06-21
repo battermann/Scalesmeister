@@ -4,7 +4,6 @@ import Types.Pitch as Pitch exposing (..)
 import Midi.Types
 import Midi.Generate exposing (recording)
 import BinaryBase64
-import Types.Octave exposing (..)
 
 
 toMidiNumber : Pitch -> Int

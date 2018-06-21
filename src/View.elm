@@ -34,20 +34,10 @@ displayPitch (Pitch (Note letter accidental) octave) =
         (toString letter) ++ (octave |> number |> toString) ++ acc |> text
 
 
-lineView : List Pitch -> Html Msg
-lineView line =
-    let
-        _ =
-            Debug.log (toString line)
-    in
-        div [] (line |> List.map (\p -> button [ onMouseDown (NoteOn p), onMouseUp (NoteOff p) ] [ displayPitch p ]))
-
-
 lineWithControls : List Pitch -> String -> Html Msg
 lineWithControls line icon =
     div []
-        [ lineView line
-        , p []
+        [ p []
             [ button [ onClick TogglePlay ] [ i [ class icon ] [] ]
             ]
         , p []
