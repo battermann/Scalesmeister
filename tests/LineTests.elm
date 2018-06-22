@@ -18,36 +18,49 @@ middleOctaveRange =
 
 line : Line
 line =
-    [ Pitch (Note B Flat) Octave.two
-    , Pitch (Note C Natural) Octave.three
-    , Pitch (Note E Flat) Octave.three
-    , Pitch (Note F Natural) Octave.three
-    , Pitch (Note G Natural) Octave.three
-    , Pitch (Note B Flat) Octave.three
+    [ Pitch (Note B Flat) Octave.three
     , Pitch (Note C Natural) Octave.four
     , Pitch (Note E Flat) Octave.four
     , Pitch (Note F Natural) Octave.four
     , Pitch (Note G Natural) Octave.four
     , Pitch (Note B Flat) Octave.four
+    , Pitch (Note C Natural) Octave.five
+    , Pitch (Note E Flat) Octave.five
+    , Pitch (Note F Natural) Octave.five
+    , Pitch (Note G Natural) Octave.five
+    , Pitch (Note B Flat) Octave.five
+    , Pitch (Note C Natural) Octave.six
     ]
 
 
 formula : Formula
 formula =
-    [ -2, 3, -1, 2 ]
+    [ -2, -1, 2, -1 ]
 
 
 expected : Line
 expected =
-    [ Pitch (Note C Natural) Octave.four
-    , Pitch (Note G Natural) Octave.three
-    , Pitch (Note E Flat) Octave.four
-    , Pitch (Note C Natural) Octave.four
+    [ Pitch (Note C Natural) Octave.six
+    , Pitch (Note G Natural) Octave.five
+    , Pitch (Note F Natural) Octave.five
+    , Pitch (Note B Flat) Octave.five
+    , Pitch (Note G Natural) Octave.five
+    , Pitch (Note E Flat) Octave.five
+    , Pitch (Note C Natural) Octave.five
+    , Pitch (Note F Natural) Octave.five
+    , Pitch (Note E Flat) Octave.five
+    , Pitch (Note B Flat) Octave.four
+    , Pitch (Note G Natural) Octave.four
+    , Pitch (Note C Natural) Octave.five
+    , Pitch (Note B Flat) Octave.four
     , Pitch (Note F Natural) Octave.four
-    , Pitch (Note C Natural) Octave.four
+    , Pitch (Note E Flat) Octave.four
     , Pitch (Note G Natural) Octave.four
     , Pitch (Note F Natural) Octave.four
-    , Pitch (Note B Flat) Octave.four
+    , Pitch (Note C Natural) Octave.four
+    , Pitch (Note B Flat) Octave.three
+    , Pitch (Note E Flat) Octave.four
+    , Pitch (Note C Natural) Octave.four
     ]
 
 
@@ -58,7 +71,7 @@ all =
             \_ ->
                 Expect.equal (fromScaleWithinRange middleOctaveRange (Scale (Note C Natural) minorPentatonic))
                     ([ Note C Natural, Note E Flat, Note F Natural, Note G Natural, Note B Flat ] |> List.map (\note -> Pitch note Octave.four))
-        , test "apply formula -2, 3, -1, 2 to C minor pentatonic from Bb2 - Bb4 starting with C" <|
+        , test "apply formula -2, -1, 1, -2 to C minor pentatonic from Bb3 - C6 starting with C" <|
             \_ ->
                 Expect.equal (Line.applyFormula (Note C Natural) formula line) expected
         ]

@@ -26,6 +26,9 @@ port startSequence : List ScientificPitchNotation -> Cmd msg
 port stopSequence : () -> Cmd msg
 
 
+port onCallback : (String -> msg) -> Sub msg
+
+
 
 {- vexflow.js ports -}
 

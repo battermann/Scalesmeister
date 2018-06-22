@@ -53,25 +53,15 @@ possibleStartingIndices direction note line =
 
 fitFormulaRecursively : List Int -> List a -> List a -> Int -> List a
 fitFormulaRecursively formula line acc startingIndex =
-    let
-        maybeNextPart =
-            fitFormula startingIndex formula line
+    case ( fitFormula startingIndex formula line, direction formula ) of
+        ( Just nextPart, Static ) ->
+            acc ++ nextPart
 
-        maybeNextStartingIndex =
-            formula |> last |> Maybe.map ((+) startingIndex)
-    in
-        case ( maybeNextPart, maybeNextStartingIndex, direction formula ) of
-            ( Just nextPart, _, Static ) ->
-                acc ++ nextPart
+        ( Just nextPart, _ ) ->
+            fitFormulaRecursively formula line (acc ++ nextPart) ((formula |> List.sum) + startingIndex)
 
-            ( Just nextPart, Just nextStartingIndex, _ ) ->
-                fitFormulaRecursively formula line (acc ++ nextPart) nextStartingIndex
-
-            ( Just nextPart, _, _ ) ->
-                acc ++ nextPart
-
-            _ ->
-                acc
+        ( Nothing, _ ) ->
+            acc
 
 
 applyFormulaFromFirstViableIndex : List Int -> List a -> List Int -> List a
