@@ -23,7 +23,7 @@ type alias Model =
 range : Range
 range =
     OfPitch
-        { lowest = Pitch (Note B Flat) Octave.four
+        { lowest = Pitch (Note B Flat) Octave.two
         , highest = Pitch (Note C Natural) Octave.six
         }
 

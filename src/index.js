@@ -1,9 +1,10 @@
 import './main.css';
 import registerServiceWorker from './registerServiceWorker';
 import {Sampler, Sequence, Transport} from 'tone';
-import Vex from 'vexflow';
 import svg2pdf from 'svg2pdf.js';
 import jsPDF from 'jspdf-yworks';
+import abcjs from "abcjs/midi";
+import 'abcjs/abcjs-midi.css';
 
 import Elm from './Main.elm';
 
@@ -33,26 +34,10 @@ app.ports.downloadPdf.subscribe(function() {
 
 app.ports.renderScore.subscribe(function(input) {
   const elementId = input[0]
-  const line = input[1]
-  const numerator = input[2]
-  const denominator = input[3]
-
-  // remove previous score if exists
-  const div = document.getElementById(elementId);
-  const svg = div.lastChild;
-  if (svg != null) {
-    div.removeChild(svg);
-  }
-
-  const vf = new Vex.Flow.Factory({renderer: {elementId: elementId}});
-  const score = vf.EasyScore();
-  const system = vf.System();
-
-  system.addStave({
-    voices: [score.voice(score.notes(line), { time: numerator + '/' + denominator })]
-  }).addClef('treble');
-
-  vf.draw();
+  const score = input[1]
+  console.log(score)
+  abcjs.renderAbc(elementId, score );
+  abcjs.renderMidi('midi-player', score, { generateDownload: true });
 });
 
 app.ports.noteOn.subscribe(function(pitch) {

@@ -24,4 +24,10 @@ h1 {
 
 #score {
   background-color: #eeeeee;
+  margin: 10px;
+}
+
+#midi-player {
+  max-width: 400px;
+  margin: 10px;
 }

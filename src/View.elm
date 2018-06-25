@@ -62,5 +62,6 @@ view model =
     div []
         [ h1 [] [ text "luigi" ]
         , controlPanel model
+        , p [] [ div [ id "midi-player" ] [] ]
         , div [ id Score.elementId ] []
         ]
