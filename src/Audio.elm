@@ -23,7 +23,7 @@ toScientificPitchNotation (Pitch (Note letter accidental) octave) =
                 _ ->
                     Debug.crash "double flats and sharps are not defined in scientific pitch notation, notes have to be replaced with a proper equivalent note with the same pitch"
     in
-        (toString letter) ++ acc ++ (toString (number octave))
+        (toString letter) ++ acc ++ (toString (Octave.number octave))
 
 
 pitchToSampleUrlMapping : Pitch -> ( ScientificPitchNotation, SampleUrl )
@@ -38,7 +38,7 @@ pitchToSampleUrlMapping (Pitch (Note letter accidental) octave) =
                     toString accidental
 
         url =
-            "samples/" ++ (toString letter) ++ acc ++ (toString (number octave)) ++ ".mp3"
+            "samples/" ++ (toString letter) ++ acc ++ (toString (Octave.number octave)) ++ ".mp3"
     in
         ( toScientificPitchNotation (Pitch (Note letter accidental) octave), url )
 

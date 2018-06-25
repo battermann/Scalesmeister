@@ -1,7 +1,5 @@
 module Types.Note exposing (..)
 
-import List.Extra exposing (..)
-
 
 type Accidental
     = DoubleFlat

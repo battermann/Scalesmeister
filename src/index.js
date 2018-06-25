@@ -79,8 +79,9 @@ app.ports.startSequence.subscribe(function(seq){
   sequence = new Sequence(function(_, note){
     sampler.triggerAttackRelease(note, noteLength)
   }, seq, subdivision);
-  Transport.start()
+
   sequence.start();
+  Transport.start("+0.1")
 });
 
 app.ports.stopSequence.subscribe(function(){
