@@ -23,3 +23,33 @@ direction formula =
             Descending
         else
             Static
+
+
+invert : Formula -> Formula
+invert formula =
+    formula |> List.map ((*) -1)
+
+
+formula1 : Formula
+formula1 =
+    [ -2, -1, 2, -1 ]
+
+
+formula2 : Formula
+formula2 =
+    [ -1, 2, -1, -2 ]
+
+
+formula3 : Formula
+formula3 =
+    [ 2, -1, -2, -1 ]
+
+
+formula4 : Formula
+formula4 =
+    [ -1, -2, -1, 2 ]
+
+
+formula5 : Formula
+formula5 =
+    [ 3, -2, -2, 3 ]

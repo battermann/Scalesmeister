@@ -36,8 +36,8 @@ app.ports.renderScore.subscribe(function(input) {
   const elementId = input[0]
   const score = input[1]
   console.log(score)
-  abcjs.renderAbc(elementId, score );
-  abcjs.renderMidi('midi-player', score, { generateDownload: true });
+  abcjs.renderAbc(elementId, score, { staffwidth: 1000, scale: 1.5 });
+  // abcjs.renderMidi('midi-player', score, { generateDownload: true });
 });
 
 app.ports.noteOn.subscribe(function(pitch) {

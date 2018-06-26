@@ -43,4 +43,7 @@ all =
         , test "addIntervalToNote Gb Minor Second should Abb" <|
             \_ ->
                 Expect.equal (addIntervalToNote (Note G Flat) minorSecond) (Just (Note A DoubleFlat))
+        , test "addIntervalToNote Eb diminished fifth should Bbb" <|
+            \_ ->
+                Expect.equal (addIntervalToNote (Note E Flat) diminishedFifth) (Just (Note B DoubleFlat))
         ]

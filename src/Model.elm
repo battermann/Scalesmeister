@@ -8,7 +8,7 @@ import Types.Scale exposing (..)
 import Types.Range exposing (..)
 import Types.Note exposing (..)
 import Score exposing (..)
-import Types.Formula exposing (..)
+import Types.Formula as Formula exposing (..)
 
 
 type PlayableLine
@@ -23,20 +23,20 @@ type alias Model =
 range : Range
 range =
     OfPitch
-        { lowest = Pitch (Note B Flat) Octave.two
+        { lowest = Pitch (Note C Natural) Octave.four
         , highest = Pitch (Note C Natural) Octave.six
         }
 
 
 formula : Formula
 formula =
-    [ -2, -1, 2, -1 ]
+    [ 1, 1, 1, 1 ]
 
 
 initLine : Line
 initLine =
-    Line.fromScaleWithinRange range (Scale (Note C Natural) minorPentatonic)
-        |> Line.applyFormula (Note C Natural) formula
+    Line.fromScaleWithinRange range (Scale (Note A Flat) minorSevenDiminishedFifthPentatonic)
+        |> Line.applyFormula (Note A Flat) formula
 
 
 init : ( Model, Cmd Msg )

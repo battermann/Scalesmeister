@@ -81,14 +81,16 @@ toAbcScoreNotes pitches =
     List.Extra.greedyGroupsOf 4 pitches
         |> List.map (\groupOfFour -> groupOfFour |> List.map toAbcScoreNote |> String.join "")
         |> List.Extra.greedyGroupsOf 2
-        |> List.map (String.join " ")
-        |> List.intersperse "|"
+        |> List.map (\notes -> (notes |> String.join " ") ++ "|")
+        |> List.Extra.greedyGroupsOf 2
+        |> List.map (String.join "")
+        |> List.intersperse "\n"
         |> String.join ""
 
 
 headerToString : Header -> String
 headerToString (Header (ReferenceNumber x) (Title title) (Meter beatsPerBar beatUnit) (BasicNoteLength numerator denominator)) =
-    "X: " ++ (toString x) ++ "\n" ++ "T: " ++ title ++ "\n" ++ "M: " ++ (toString beatsPerBar) ++ "/" ++ (toString beatUnit) ++ "\n" ++ "L: " ++ (toString numerator) ++ "/" ++ (toString denominator) ++ "\n" ++ "K: C"
+    "X: " ++ (toString x) ++ "\n" ++ "T: " ++ title ++ "\n" ++ "M: " ++ (toString beatsPerBar) ++ "/" ++ (toString beatUnit) ++ "\n" ++ "L: " ++ (toString numerator) ++ "/" ++ (toString denominator) ++ "\n" ++ "S: created with luigi\n" ++ "K: C"
 
 
 toAbcNotation : List Pitch -> String

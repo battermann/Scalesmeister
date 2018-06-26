@@ -35,7 +35,7 @@ letters =
 all : List Note
 all =
     letters
-        |> List.concatMap (\letter -> [ Note letter Flat, Note letter Natural, Note letter Sharp ])
+        |> List.concatMap (\letter -> [ Note letter DoubleFlat, Note letter Flat, Note letter Natural, Note letter Sharp ])
 
 
 semitoneOffset : Note -> Semitones
