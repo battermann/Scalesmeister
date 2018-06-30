@@ -1,67 +1,114 @@
 module View exposing (view)
 
-import Html exposing (Html, text, div, h1, button, p, i, a)
-import Html.Events exposing (onMouseDown, onMouseUp, onClick)
-import Html.Attributes exposing (class, href, download, downloadAs, id)
-import Types.Pitch exposing (..)
-import Types.Note exposing (..)
-import MidiConversions
-import Score
+import Html exposing (i, div, Html)
+import Html.Attributes exposing (class)
 import Model exposing (..)
-import Types.Octave exposing (..)
+import Styles exposing (..)
+import Element exposing (..)
+import Styles exposing (..)
+import Element.Events exposing (..)
+import Element.Attributes exposing (..)
+import Score
+import Types.Note exposing (..)
 
 
-displayPitch : Pitch -> Html msg
-displayPitch (Pitch (Note letter accidental) octave) =
+displayNote (Note letter accidental) =
     let
         acc =
             case accidental of
                 DoubleFlat ->
-                    "bb"
+                    "♭♭"
 
                 Flat ->
-                    "b"
+                    "♭"
 
                 Natural ->
                     ""
 
                 Sharp ->
-                    "#"
+                    "♯"
 
                 DoubleSharp ->
-                    "##"
+                    "♯♯"
     in
-        (toString letter) ++ (octave |> number |> toString) ++ acc |> text
+        (toString letter) ++ acc |> text
 
 
-lineWithControls : List Pitch -> String -> Html Msg
-lineWithControls line icon =
-    div []
-        [ p []
-            [ button [ onClick TogglePlay ] [ i [ class icon ] [] ]
+playAndDownload line =
+    let
+        icon =
+            case line of
+                Stopped _ ->
+                    "fas fa-play"
+
+                Playing _ ->
+                    "fas fa-stop"
+    in
+        row None
+            [ spacing 10, alignBottom ]
+            [ button Button
+                [ onClick TogglePlay
+                , padding 10
+                , userSelectNone
+                ]
+                (html (i [ Html.Attributes.class icon ] []))
+            , button Button
+                [ onClick DownloadPdf
+                , padding 10
+                , userSelectNone
+                ]
+                (html (div [] [ i [ Html.Attributes.class "fas fa-download" ] [], Html.text " PDF" ]))
             ]
-        , p []
-            [ a [ href (MidiConversions.createDataLink line), downloadAs "luigi.midi", class "button" ] [ i [ class "fas fa-download" ] [], text " MIDI" ]
-            , button [ onClick DownloadPdf ] [ i [ class "fas fa-download" ] [], text " PDF" ]
+
+
+settings model =
+    column None
+        [ spacing 10 ]
+        [ button Root
+            [ padding 10
+            , alignLeft
+            , userSelectNone
+            , onClick OpenSelectRootDialog
             ]
+            (displayNote model.root)
         ]
 
 
-controlPanel : Model -> Html Msg
-controlPanel model =
-    case model of
-        Stopped line ->
-            lineWithControls line "fas fa-play"
+notePicker note =
+    button Root [ padding 10, userSelectNone, onClick (RootSelected note) ] (displayNote note)
 
-        Playing line ->
-            lineWithControls line "fas fa-stop"
+
+selectRoot model =
+    modal Dialog
+        [ width fill
+        , height fill
+        , padding 100
+        , onClick CloseDialog
+        ]
+        (el DialogBox
+            [ center
+            , padding 20
+            ]
+            (column None
+                [ spacing 10 ]
+                [ row None [ spacing 10 ] [ notePicker (Note C Natural), notePicker (Note D Flat) ]
+                , row None [ spacing 10 ] [ notePicker (Note E Natural) ]
+                , row None [ spacing 10 ] []
+                ]
+            )
+        )
 
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ h1 [] [ text "luigi" ]
-        , controlPanel model
-        , p [] [ div [ id "midi-player" ] [] ]
-        , div [ id Score.elementId ] []
-        ]
+    Element.viewport stylesheet <|
+        (column Page
+            [ spacing 20, padding 20 ]
+            [ h1 Title [ padding 10, center ] (text "luigi")
+            , paragraph Subtitle [ center ] [ (text "Generate lines for jazz improvisation based on scales and formulas.") ]
+            , column None [ spacing 30 ] [ settings model, playAndDownload model.line ]
+            , el Score [ id Score.elementId ] empty
+            , footer Footer [] (text "created with Elm")
+            , when (model.dialog == Just SelectRoot) (selectRoot model)
+            ]
+        )

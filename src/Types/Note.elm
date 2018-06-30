@@ -23,6 +23,11 @@ type Note
     = Note Letter Accidental
 
 
+accidental : Note -> Accidental
+accidental (Note _ accidental) =
+    accidental
+
+
 type alias Semitones =
     Int
 

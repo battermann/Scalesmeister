@@ -16,32 +16,40 @@ type PlayableLine
     | Playing Line
 
 
+type Dialog
+    = SelectRoot
+
+
 type alias Model =
-    PlayableLine
-
-
-range : Range
-range =
-    OfPitch
-        { lowest = Pitch (Note C Natural) Octave.four
-        , highest = Pitch (Note C Natural) Octave.six
-        }
-
-
-formula : Formula
-formula =
-    [ 1, 1, 1, 1 ]
-
-
-initLine : Line
-initLine =
-    Line.fromScaleWithinRange range (Scale (Note A Flat) minorSevenDiminishedFifthPentatonic)
-        |> Line.applyFormula (Note A Flat) formula
+    { range : Range
+    , formula : Formula
+    , root : Note
+    , line : PlayableLine
+    , dialog : Maybe Dialog
+    }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( Stopped initLine, Cmd.batch [ Audio.loadPianoSamples, Score.render initLine ] )
+    let
+        range =
+            OfPitch
+                { lowest = Pitch (Note C Natural) Octave.three
+                , highest = Pitch (Note C Natural) Octave.six
+                }
+
+        formula =
+            formula3
+
+        root =
+            Note E Flat
+
+        initLine : Line
+        initLine =
+            Line.fromScaleWithinRange range (Scale root majorMinorSixthPentatonic)
+                |> Line.applyFormula root formula
+    in
+        ( { range = range, formula = formula, root = root, line = Stopped initLine, dialog = Nothing }, Cmd.batch [ Audio.loadPianoSamples, Score.render initLine ] )
 
 
 type Msg
@@ -49,3 +57,6 @@ type Msg
     | NoteOff Pitch
     | TogglePlay
     | DownloadPdf
+    | RootSelected Note
+    | OpenSelectRootDialog
+    | CloseDialog

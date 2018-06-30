@@ -15,12 +15,21 @@ update msg model =
             ( model, Audio.noteOff pitch )
 
         TogglePlay ->
-            case model of
+            case model.line of
                 Stopped line ->
-                    ( Playing line, Audio.play line )
+                    ( { model | line = Playing line }, Audio.play line )
 
                 Playing line ->
-                    ( Stopped line, Audio.stop )
+                    ( { model | line = Stopped line }, Audio.stop )
 
         DownloadPdf ->
             ( model, Score.downloadPdf )
+
+        OpenSelectRootDialog ->
+            ( { model | dialog = Just SelectRoot }, Cmd.none )
+
+        CloseDialog ->
+            ( { model | dialog = Nothing }, Cmd.none )
+
+        RootSelected note ->
+            ( { model | root = note }, Cmd.none )
