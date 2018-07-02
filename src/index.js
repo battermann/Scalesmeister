@@ -64,6 +64,7 @@ app.ports.startSequence.subscribe(function(seq){
   }, seq, subdivision);
 
   sequence.start();
+  Transport.bpm.value = 160;
   Transport.start("+0.1")
 });
 

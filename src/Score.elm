@@ -82,7 +82,7 @@ toAbcScoreNotes pitches =
         |> List.map (\groupOfFour -> groupOfFour |> List.map toAbcScoreNote |> String.join "")
         |> List.Extra.greedyGroupsOf 2
         |> List.map (\notes -> (notes |> String.join " ") ++ "|")
-        |> List.Extra.greedyGroupsOf 2
+        |> List.Extra.greedyGroupsOf 4
         |> List.map (String.join "")
         |> List.intersperse "\n"
         |> String.join ""
