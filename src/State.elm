@@ -23,6 +23,7 @@ scales =
         , ( "Minor 7 ♭5 Pentatonic", minorSevenDiminishedFifthPentatonic )
         , ( "Major 6 Pentatonic", majorMinorSixthPentatonic )
         , ( "Major ♭2 Pentatonic", majorMinorSecondPentatonic )
+        , ( "Ionian Mode", ionian )
         ]
 
 
@@ -85,13 +86,23 @@ init =
         range =
             OfPitch
                 { lowest = Pitch (Note C Natural) Octave.three
-                , highest = Pitch (Note C Natural) Octave.six
+                , highest = Pitch (Note C Natural) Octave.seven
                 }
 
         model =
             { range = range, formulas = formulas, roots = roots, scales = scales, playingState = Stopped, dialog = Nothing }
     in
         ( model, Cmd.batch [ Audio.loadPianoSamples, Score.render (line model) ] )
+
+
+renderNew : PlayingState -> Model -> ( Model, Cmd msg )
+renderNew playingState model =
+    case playingState of
+        Stopped ->
+            ( model, render (line model) )
+
+        Playing ->
+            ( model, Cmd.batch [ Audio.stop, render (line model) ] )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -121,37 +132,10 @@ update msg model =
             ( { model | dialog = Nothing }, Cmd.none )
 
         RootSelected note ->
-            let
-                newModel =
-                    { model | roots = model.roots |> SelectList.select (((==) note)), playingState = Stopped }
-            in
-                case model.playingState of
-                    Stopped ->
-                        ( newModel, render (line newModel) )
-
-                    Playing ->
-                        ( newModel, Cmd.batch [ Audio.stop, render (line newModel) ] )
+            renderNew model.playingState { model | roots = model.roots |> SelectList.select (((==) note)), playingState = Stopped }
 
         ScaleSelected scale ->
-            let
-                newModel =
-                    { model | scales = model.scales |> SelectList.select (Tuple.second >> ((==) scale)), playingState = Stopped }
-            in
-                case model.playingState of
-                    Stopped ->
-                        ( newModel, render (line newModel) )
-
-                    Playing ->
-                        ( newModel, Cmd.batch [ Audio.stop, render (line newModel) ] )
+            renderNew model.playingState { model | scales = model.scales |> SelectList.select (Tuple.second >> ((==) scale)), playingState = Stopped }
 
         FormulaSelected formula ->
-            let
-                newModel =
-                    { model | formulas = model.formulas |> SelectList.select ((==) formula), playingState = Stopped }
-            in
-                case model.playingState of
-                    Stopped ->
-                        ( newModel, render (line newModel) )
-
-                    Playing ->
-                        ( newModel, Cmd.batch [ Audio.stop, render (line newModel) ] )
+            renderNew model.playingState { model | formulas = model.formulas |> SelectList.select ((==) formula), playingState = Stopped }

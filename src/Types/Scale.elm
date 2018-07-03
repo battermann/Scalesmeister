@@ -1,4 +1,4 @@
-module Types.Scale exposing (ScaleDef, intervals, notes, Scale(..), minorPentatonic, majorPentatonic, minorSevenDiminishedFifthPentatonic, minorSixthPentatonic, majorMinorSecondPentatonic, majorMinorSixthPentatonic)
+module Types.Scale exposing (ScaleDef, intervals, notes, Scale(..), minorPentatonic, majorPentatonic, minorSevenDiminishedFifthPentatonic, minorSixthPentatonic, majorMinorSecondPentatonic, majorMinorSixthPentatonic, ionian)
 
 import Types.Note as Note exposing (..)
 import Types.Interval exposing (..)
@@ -48,6 +48,12 @@ majorMinorSecondPentatonic =
 majorMinorSixthPentatonic : ScaleDef
 majorMinorSixthPentatonic =
     [ majorSecond, majorThird, perfectFifth, minorSixth ]
+        |> ScaleDef
+
+
+ionian : ScaleDef
+ionian =
+    [ majorSecond, majorThird, perfectFourth, perfectFifth, majorSixth, majorSeventh ]
         |> ScaleDef
 
 

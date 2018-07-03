@@ -90,12 +90,16 @@ toAbcScoreNotes pitches =
 
 headerToString : Header -> String
 headerToString (Header (ReferenceNumber x) (Title title) (Meter beatsPerBar beatUnit) (BasicNoteLength numerator denominator)) =
-    "X: " ++ (toString x) ++ "\n" ++ "T: " ++ title ++ "\n" ++ "M: " ++ (toString beatsPerBar) ++ "/" ++ (toString beatUnit) ++ "\n" ++ "L: " ++ (toString numerator) ++ "/" ++ (toString denominator) ++ "\n" ++ "S: created with luigi\n" ++ "K: C"
+    "X: " ++ (toString x) ++ "\n%%stretchlast 1\n" ++ "T: " ++ title ++ "\n" ++ "M: " ++ (toString beatsPerBar) ++ "/" ++ (toString beatUnit) ++ "\n" ++ "L: " ++ (toString numerator) ++ "/" ++ (toString denominator) ++ "\n" ++ "S: created with luigi\n" ++ "K: C"
 
 
 toAbcNotation : List Pitch -> String
 toAbcNotation pitches =
     (mkHeader "line" |> headerToString) ++ "\n" ++ (toAbcScoreNotes pitches)
+
+
+
+--(mkHeader "line" |> headerToString) ++ "\n" ++ """"8va"C D E F G A"""
 
 
 elementId : Ports.ElementId
