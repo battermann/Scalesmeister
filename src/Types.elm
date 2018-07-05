@@ -8,6 +8,7 @@ import Score exposing (..)
 import Types.Formula as Formula exposing (..)
 import Types.Scale exposing (..)
 import SelectList exposing (SelectList)
+import Types.Interval exposing (..)
 
 
 type PlayingState
@@ -40,4 +41,12 @@ type Msg
     | ScaleSelected ScaleDef
     | FormulaSelected Formula
     | Open Dialog
+    | RangeMinStepDown
+    | RangeMinStepUp
+    | RangeMinSkipDown
+    | RangeMinSkipUp
+    | RangeMaxStepDown
+    | RangeMaxStepUp
+    | RangeMaxSkipDown
+    | RangeMaxSkipUp
     | CloseDialog

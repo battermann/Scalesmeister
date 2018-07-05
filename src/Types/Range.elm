@@ -5,25 +5,25 @@ import Types.Note exposing (..)
 import Types.Octave as Octave exposing (..)
 
 
-type Range
-    = OfPitch
-        { lowest : Pitch
-        , highest : Pitch
-        }
-    | OfSemitones
-        { lowest : Semitones
-        , highest : Semitones
-        }
+type alias Range =
+    { lowest : Pitch
+    , highest : Pitch
+    }
+
+
+setLowest : Range -> Pitch -> Range
+setLowest range pitch =
+    { range | lowest = pitch }
+
+
+setHighest : Range -> Pitch -> Range
+setHighest range pitch =
+    { range | highest = pitch }
 
 
 toSemitoneOffsetRange : Range -> ( Semitones, Semitones )
 toSemitoneOffsetRange range =
-    case range of
-        OfPitch { lowest, highest } ->
-            ( Pitch.semitoneOffset lowest, Pitch.semitoneOffset highest )
-
-        OfSemitones { lowest, highest } ->
-            ( lowest, highest )
+    ( Pitch.semitoneOffset range.lowest, Pitch.semitoneOffset range.highest )
 
 
 contains : Pitch -> Range -> Bool
@@ -37,15 +37,13 @@ contains pitch range =
 
 doubleBass : Range
 doubleBass =
-    OfPitch
-        { lowest = Pitch (Note E Natural) Octave.one
-        , highest = Pitch (Note G Natural) Octave.four
-        }
+    { lowest = Pitch (Note E Natural) Octave.one
+    , highest = Pitch (Note G Natural) Octave.four
+    }
 
 
 piano : Range
 piano =
-    OfPitch
-        { lowest = Pitch (Note A Natural) Octave.zero
-        , highest = Pitch (Note C Natural) Octave.eight
-        }
+    { lowest = Pitch (Note A Natural) Octave.zero
+    , highest = Pitch (Note C Natural) Octave.eight
+    }

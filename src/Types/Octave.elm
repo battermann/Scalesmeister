@@ -1,4 +1,4 @@
-module Types.Octave exposing (Octave, number, all, zero, one, two, three, four, five, six, seven, eight)
+module Types.Octave exposing (Octave, number, add, all, zero, one, two, three, four, five, six, seven, eight)
 
 
 type Octave
@@ -16,6 +16,11 @@ octave n =
 number : Octave -> Int
 number (Octave n) =
     n
+
+
+add : Int -> Octave -> Maybe Octave
+add n (Octave number) =
+    octave (n + number)
 
 
 all : List Octave

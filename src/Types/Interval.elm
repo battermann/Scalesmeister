@@ -1,10 +1,9 @@
-module Types.Interval exposing (IntervalSize(..), IntervalQuality(..), Interval, addIntervalSizeToLetter, noteLetterDistance, addIntervalToNote, perfectUnison, minorSecond, majorSecond, minorThird, majorThird, perfectFourth, augmentedFourth, diminishedFifth, perfectFifth, minorSixth, majorSixth, minorSeventh, majorSeventh)
+module Types.Interval exposing (IntervalNumber(..), IntervalQuality(..), Interval, perfectUnison, minorSecond, majorSecond, minorThird, majorThird, perfectFourth, augmentedFourth, diminishedFifth, perfectFifth, minorSixth, majorSixth, minorSeventh, majorSeventh, quality, number, semitones, complementary, octave)
 
-import Types.Note as Note exposing (..)
 import List.Extra
 
 
-type IntervalSize
+type IntervalNumber
     = Unison
     | Second
     | Third
@@ -12,6 +11,7 @@ type IntervalSize
     | Fifth
     | Sixth
     | Seventh
+    | Octave
 
 
 type IntervalQuality
@@ -23,70 +23,81 @@ type IntervalQuality
 
 
 type Interval
-    = Interval IntervalQuality IntervalSize Semitones
+    = Interval IntervalQuality IntervalNumber Int
 
 
-addIntervalSizeToLetter : Letter -> IntervalSize -> Maybe Letter
-addIntervalSizeToLetter letter intervalSize =
-    Note.letters
-        ++ Note.letters
-        |> List.Extra.dropWhile ((/=) letter)
-        |> List.Extra.zip [ Unison, Second, Third, Fourth, Fifth, Sixth, Seventh ]
-        |> List.Extra.find (Tuple.first >> ((==) intervalSize))
-        |> Maybe.map Tuple.second
+quality : Interval -> IntervalQuality
+quality (Interval q _ _) =
+    q
 
 
-noteLetterDistance : Note -> Letter -> Semitones
-noteLetterDistance (Note letter accidental) targetLetter =
+number : Interval -> IntervalNumber
+number (Interval _ n _) =
+    n
+
+
+semitones : Interval -> Int
+semitones (Interval _ _ n) =
+    n
+
+
+complementaryIntervalNumber : IntervalNumber -> IntervalNumber
+complementaryIntervalNumber interval =
+    case interval of
+        Unison ->
+            Octave
+
+        Second ->
+            Seventh
+
+        Third ->
+            Sixth
+
+        Fourth ->
+            Fifth
+
+        Fifth ->
+            Fourth
+
+        Sixth ->
+            Third
+
+        Seventh ->
+            Second
+
+        Octave ->
+            Unison
+
+
+complementaryIntervalQuality : IntervalQuality -> IntervalQuality
+complementaryIntervalQuality intervalQuality =
+    case intervalQuality of
+        Diminished ->
+            Augmented
+
+        Minor ->
+            Major
+
+        Perfect ->
+            Perfect
+
+        Major ->
+            Minor
+
+        Augmented ->
+            Diminished
+
+
+complementary : Interval -> Interval
+complementary (Interval quality number semitones) =
     let
-        rootOffset =
-            (letterSemitoneOffset letter) + (accidentalSemitoneOffset accidental)
+        complNumber =
+            complementaryIntervalNumber number
 
-        targetOffset =
-            letterSemitoneOffset targetLetter
+        complQuality =
+            complementaryIntervalQuality quality
     in
-        if rootOffset < targetOffset then
-            targetOffset - rootOffset
-        else
-            12 - rootOffset + targetOffset
-
-
-accidentalBySemitoneOffset : Semitones -> Maybe Accidental
-accidentalBySemitoneOffset semitones =
-    case semitones of
-        (-2) ->
-            Just DoubleFlat
-
-        (-1) ->
-            Just Flat
-
-        0 ->
-            Just Natural
-
-        1 ->
-            Just Sharp
-
-        2 ->
-            Just DoubleSharp
-
-        _ ->
-            Nothing
-
-
-addIntervalToNote : Note -> Interval -> Maybe Note
-addIntervalToNote (Note letter accidental) (Interval intervalQuality intervalSize semitones) =
-    let
-        maybeTargetLetter =
-            addIntervalSizeToLetter letter intervalSize
-    in
-        maybeTargetLetter
-            |> Maybe.map (noteLetterDistance (Note letter accidental))
-            |> Maybe.map ((-) semitones)
-            |> Maybe.andThen accidentalBySemitoneOffset
-            |> Maybe.andThen
-                (\accidental ->
-                    maybeTargetLetter |> Maybe.map (\letter -> (Note letter accidental))
-                )
+        (Interval complQuality complNumber (12 - semitones))
 
 
 perfectUnison : Interval
@@ -157,3 +168,8 @@ minorSeventh =
 majorSeventh : Interval
 majorSeventh =
     Interval Major Seventh 11
+
+
+octave : Interval
+octave =
+    Interval Perfect Octave 12

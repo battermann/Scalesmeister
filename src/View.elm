@@ -14,31 +14,57 @@ import List.Extra
 import Types.Scale exposing (ScaleDef)
 import Types.Formula exposing (Formula)
 import View.FontAwesome as Icons
+import Types.Range exposing (..)
+import Types.Pitch exposing (..)
+import Types.Octave as Octave
 
 
-displayNote : Note -> Element style variation msg
+accidentalToString : Accidental -> String
+accidentalToString accidental =
+    case accidental of
+        DoubleFlat ->
+            "♭♭"
+
+        Flat ->
+            "♭"
+
+        Natural ->
+            ""
+
+        Sharp ->
+            "♯"
+
+        DoubleSharp ->
+            "♯♯"
+
+
+displayPitch : Pitch -> String
+displayPitch (Pitch note octave) =
+    (displayNote note) ++ (Octave.number octave |> toString)
+
+
+displayNote : Note -> String
 displayNote (Note letter accidental) =
-    let
-        acc =
-            case accidental of
-                DoubleFlat ->
-                    "♭♭"
-
-                Flat ->
-                    "♭"
-
-                Natural ->
-                    ""
-
-                Sharp ->
-                    "♯"
-
-                DoubleSharp ->
-                    "♯♯"
-    in
-        (toString letter) ++ acc |> text
+    (toString letter) ++ (accidental |> accidentalToString)
 
 
+rangeView : Range -> Element MyStyles variation Msg
+rangeView { lowest, highest } =
+    row None
+        [ spacing 5, verticalCenter ]
+        [ button RangeButton [ padding 3, onClick RangeMinSkipDown ] Icons.doubleAngleLeft
+        , button RangeButton [ padding 3, onClick RangeMinStepDown ] Icons.angleLeft
+        , button RangeButton [ padding 3, onClick RangeMinStepUp ] Icons.angleRight
+        , button RangeButton [ padding 3, onClick RangeMinSkipUp ] Icons.doubleAngleRight
+        , column None [ verticalCenter, center, padding 10, spacing 2 ] [ el SmallText [] (text "Range"), text ((displayPitch lowest) ++ " - " ++ (displayPitch highest)) ]
+        , button RangeButton [ padding 3, onClick RangeMaxSkipDown ] Icons.doubleAngleLeft
+        , button RangeButton [ padding 3, onClick RangeMaxStepDown ] Icons.angleLeft
+        , button RangeButton [ padding 3, onClick RangeMaxStepUp ] Icons.angleRight
+        , button RangeButton [ padding 3, onClick RangeMaxSkipUp ] Icons.doubleAngleRight
+        ]
+
+
+formulaPartToString : Int -> Element style variation msg
 formulaPartToString n =
     case n < 0 of
         False ->
@@ -96,7 +122,7 @@ settings model =
             , width (px 60)
             , height (px 60)
             ]
-            (displayNote (SelectList.selected model.roots))
+            (displayNote (SelectList.selected model.roots) |> text)
         , button LargeFontButton
             [ padding 10
             , onClick (Open SelectScale)
@@ -128,7 +154,7 @@ modalDialog model element =
 
 selectNoteButton : Note -> Element MyStyles variation Msg
 selectNoteButton note =
-    button LargeFontButton [ userSelectNone, onClick (RootSelected note), width (px 65), height (px 65) ] (displayNote note)
+    button LargeFontButton [ userSelectNone, onClick (RootSelected note), width (px 65), height (px 65) ] (displayNote note |> text)
 
 
 selectScaleButton : ( String, ScaleDef ) -> Element MyStyles variation Msg
@@ -197,7 +223,7 @@ view model =
             [ spacing 40, padding 20 ]
             [ h1 H1 [ padding 10, center ] (text "luigi")
             , paragraph Subtitle [ center ] [ (text "Generate lines for jazz improvisation based on scales and formulas.") ]
-            , el None [ center ] (column None [ spacing 30 ] [ settings model, playAndDownload model.playingState ])
+            , column None [ spacing 30, center ] [ settings model, rangeView model.range, playAndDownload model.playingState ]
             , el Score [ id Score.elementId ] empty
             , column Footer
                 [ spacing 5 ]

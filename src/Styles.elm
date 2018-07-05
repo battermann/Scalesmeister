@@ -22,6 +22,8 @@ type MyStyles
     | Link
     | GitHubIcon
     | SkipsNSteps
+    | SmallText
+    | RangeButton
     | None
 
 
@@ -89,4 +91,14 @@ stylesheet =
         , Style.style GitHubIcon
             [ Font.size 30
             ]
+        , Style.style SmallText
+            [ Font.size 12
+            ]
+        , Style.style RangeButton
+            (buttonStyle
+                ++ [ Font.size 12
+                   , Color.background (greyscale 0.75)
+                   , Color.text (greyscale 0.35)
+                   ]
+            )
         ]

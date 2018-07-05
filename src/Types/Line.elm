@@ -2,7 +2,7 @@ module Types.Line exposing (..)
 
 import List.Extra exposing (..)
 import Types.Scale exposing (Scale, notes)
-import Types.Pitch as Pitch exposing (..)
+import Types.Pitch as Pitch exposing (Pitch(..), note)
 import Types.Note as Note exposing (..)
 import Types.Range as Range exposing (..)
 import Types.Formula as Formula exposing (..)

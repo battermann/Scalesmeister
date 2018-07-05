@@ -8,7 +8,7 @@ import Types.Octave as Octave exposing (..)
 
 toScientificPitchNotation : Pitch -> Maybe ScientificPitchNotation
 toScientificPitchNotation pitch =
-    case toClosestEnharmonicEquivalent pitch of
+    case toBestEnharmonicEquivalent pitch of
         Nothing ->
             Nothing
 

@@ -3,7 +3,7 @@ module State exposing (..)
 import Audio
 import Score
 import Types exposing (..)
-import Types.Pitch exposing (..)
+import Types.Pitch as Pitch exposing (..)
 import Types.Octave as Octave
 import Types.Line as Line exposing (..)
 import Types.Scale exposing (..)
@@ -12,6 +12,7 @@ import Types.Note exposing (..)
 import Score exposing (..)
 import Types.Formula as Formula exposing (..)
 import SelectList exposing (SelectList)
+import Types.Interval as Interval
 
 
 scales : SelectList ( String, ScaleDef )
@@ -23,7 +24,7 @@ scales =
         , ( "Minor 7 ♭5 Pentatonic", minorSevenDiminishedFifthPentatonic )
         , ( "Major 6 Pentatonic", majorMinorSixthPentatonic )
         , ( "Major ♭2 Pentatonic", majorMinorSecondPentatonic )
-        , ( "Ionian Mode", ionian )
+        , ( "Diatonic Major", ionian )
         ]
 
 
@@ -84,10 +85,9 @@ init : ( Model, Cmd Msg )
 init =
     let
         range =
-            OfPitch
-                { lowest = Pitch (Note C Natural) Octave.three
-                , highest = Pitch (Note C Natural) Octave.seven
-                }
+            { lowest = Pitch (Note C Natural) Octave.three
+            , highest = Pitch (Note B Natural) Octave.six
+            }
 
         model =
             { range = range, formulas = formulas, roots = roots, scales = scales, playingState = Stopped, dialog = Nothing }
@@ -139,3 +139,67 @@ update msg model =
 
         FormulaSelected formula ->
             renderNew model.playingState { model | formulas = model.formulas |> SelectList.select ((==) formula), playingState = Stopped }
+
+        RangeMinStepDown ->
+            let
+                min =
+                    enharmonicEquivalent Pitch.transpose model.range.lowest Pitch.down Interval.minorSecond
+                        |> Maybe.withDefault model.range.lowest
+            in
+                ( { model | range = setLowest model.range min }, Cmd.none )
+
+        RangeMinStepUp ->
+            let
+                min =
+                    enharmonicEquivalent Pitch.transpose model.range.lowest Pitch.up Interval.minorSecond
+                        |> Maybe.withDefault model.range.lowest
+            in
+                ( { model | range = setLowest model.range min }, Cmd.none )
+
+        RangeMinSkipDown ->
+            let
+                min =
+                    enharmonicEquivalent Pitch.transpose model.range.lowest Pitch.down Interval.octave
+                        |> Maybe.withDefault model.range.lowest
+            in
+                ( { model | range = setLowest model.range min }, Cmd.none )
+
+        RangeMinSkipUp ->
+            let
+                min =
+                    enharmonicEquivalent Pitch.transpose model.range.lowest Pitch.up Interval.octave
+                        |> Maybe.withDefault model.range.lowest
+            in
+                ( { model | range = setLowest model.range min }, Cmd.none )
+
+        RangeMaxStepDown ->
+            let
+                max =
+                    enharmonicEquivalent Pitch.transpose model.range.highest Pitch.down Interval.minorSecond
+                        |> Maybe.withDefault model.range.highest
+            in
+                ( { model | range = setHighest model.range max }, Cmd.none )
+
+        RangeMaxStepUp ->
+            let
+                max =
+                    enharmonicEquivalent Pitch.transpose model.range.highest Pitch.up Interval.minorSecond
+                        |> Maybe.withDefault model.range.highest
+            in
+                ( { model | range = setHighest model.range max }, Cmd.none )
+
+        RangeMaxSkipDown ->
+            let
+                max =
+                    enharmonicEquivalent Pitch.transpose model.range.highest Pitch.down Interval.octave
+                        |> Maybe.withDefault model.range.highest
+            in
+                ( { model | range = setHighest model.range max }, Cmd.none )
+
+        RangeMaxSkipUp ->
+            let
+                max =
+                    enharmonicEquivalent Pitch.transpose model.range.highest Pitch.up Interval.octave
+                        |> Maybe.withDefault model.range.highest
+            in
+                ( { model | range = setHighest model.range max }, Cmd.none )

@@ -21,13 +21,21 @@ stop =
     toEl "fas fa-stop"
 
 
-arrowUp =
-    toEl "fas fa-arrow-up"
-
-
-arrowDown =
-    toEl "fas fa-arrow-down"
-
-
 github =
     toEl "fab fa-github"
+
+
+angleLeft =
+    toEl "fas fa-angle-left"
+
+
+angleRight =
+    toEl "fas fa-angle-right"
+
+
+doubleAngleRight =
+    toEl "fas fa-angle-double-right"
+
+
+doubleAngleLeft =
+    toEl "fas fa-angle-double-left"

@@ -1,9 +1,7 @@
 module Types.Scale exposing (ScaleDef, intervals, notes, Scale(..), minorPentatonic, majorPentatonic, minorSevenDiminishedFifthPentatonic, minorSixthPentatonic, majorMinorSecondPentatonic, majorMinorSixthPentatonic, ionian)
 
 import Types.Note as Note exposing (..)
-import Types.Interval exposing (..)
-import Types.Pitch as Pitch exposing (..)
-import List.Extra exposing (..)
+import Types.Interval as Interval exposing (..)
 
 
 type ScaleDef
@@ -75,4 +73,4 @@ root (Scale rootNote _) =
 
 notes : Scale -> List Note
 notes (Scale note (ScaleDef intervals)) =
-    note :: (intervals |> List.filterMap (addIntervalToNote note))
+    note :: (intervals |> List.filterMap (\interval -> Note.transpose interval note))
