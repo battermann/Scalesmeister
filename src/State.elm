@@ -7,7 +7,7 @@ import Types.Pitch as Pitch exposing (..)
 import Types.Octave as Octave
 import Types.Line as Line exposing (..)
 import Types.Scale exposing (..)
-import Types.Range exposing (..)
+import Types.Range as Range exposing (Range)
 import Types.Note exposing (..)
 import Score exposing (..)
 import Types.Formula as Formula exposing (..)
@@ -85,9 +85,9 @@ init : ( Model, Cmd Msg )
 init =
     let
         range =
-            { lowest = Pitch (Note C Natural) Octave.three
-            , highest = Pitch (Note B Natural) Octave.six
-            }
+            Range.piano
+                |> Range.setLowest (Pitch (Note C Natural) Octave.three)
+                |> Range.setHighest (Pitch (Note B Natural) Octave.six)
 
         model =
             { range = range, formulas = formulas, roots = roots, scales = scales, playingState = Stopped, dialog = Nothing }
@@ -143,63 +143,63 @@ update msg model =
         RangeMinStepDown ->
             let
                 min =
-                    enharmonicEquivalent Pitch.transpose model.range.lowest Pitch.down Interval.minorSecond
-                        |> Maybe.withDefault model.range.lowest
+                    Pitch.transpose [ natural, flat ] (Range.lowest model.range) -1
+                        |> Maybe.withDefault (Range.lowest model.range)
             in
-                ( { model | range = setLowest model.range min }, Cmd.none )
+                ( { model | range = Range.setLowest min model.range }, Cmd.none )
 
         RangeMinStepUp ->
             let
                 min =
-                    enharmonicEquivalent Pitch.transpose model.range.lowest Pitch.up Interval.minorSecond
-                        |> Maybe.withDefault model.range.lowest
+                    Pitch.transpose [ natural, sharp ] (Range.lowest model.range) 1
+                        |> Maybe.withDefault (Range.lowest model.range)
             in
-                ( { model | range = setLowest model.range min }, Cmd.none )
+                ( { model | range = Range.setLowest min model.range }, Cmd.none )
 
         RangeMinSkipDown ->
             let
                 min =
-                    enharmonicEquivalent Pitch.transpose model.range.lowest Pitch.down Interval.octave
-                        |> Maybe.withDefault model.range.lowest
+                    Pitch.transpose [ natural, flat ] (Range.lowest model.range) -12
+                        |> Maybe.withDefault (Range.lowest model.range)
             in
-                ( { model | range = setLowest model.range min }, Cmd.none )
+                ( { model | range = Range.setLowest min model.range }, Cmd.none )
 
         RangeMinSkipUp ->
             let
                 min =
-                    enharmonicEquivalent Pitch.transpose model.range.lowest Pitch.up Interval.octave
-                        |> Maybe.withDefault model.range.lowest
+                    Pitch.transpose [ natural, sharp ] (Range.lowest model.range) 12
+                        |> Maybe.withDefault (Range.lowest model.range)
             in
-                ( { model | range = setLowest model.range min }, Cmd.none )
+                ( { model | range = Range.setLowest min model.range }, Cmd.none )
 
         RangeMaxStepDown ->
             let
                 max =
-                    enharmonicEquivalent Pitch.transpose model.range.highest Pitch.down Interval.minorSecond
-                        |> Maybe.withDefault model.range.highest
+                    Pitch.transpose [ natural, flat ] (Range.highest model.range) -1
+                        |> Maybe.withDefault (Range.highest model.range)
             in
-                ( { model | range = setHighest model.range max }, Cmd.none )
+                ( { model | range = Range.setHighest max model.range }, Cmd.none )
 
         RangeMaxStepUp ->
             let
                 max =
-                    enharmonicEquivalent Pitch.transpose model.range.highest Pitch.up Interval.minorSecond
-                        |> Maybe.withDefault model.range.highest
+                    Pitch.transpose [ natural, sharp ] (Range.highest model.range) 1
+                        |> Maybe.withDefault (Range.highest model.range)
             in
-                ( { model | range = setHighest model.range max }, Cmd.none )
+                ( { model | range = Range.setHighest max model.range }, Cmd.none )
 
         RangeMaxSkipDown ->
             let
                 max =
-                    enharmonicEquivalent Pitch.transpose model.range.highest Pitch.down Interval.octave
-                        |> Maybe.withDefault model.range.highest
+                    Pitch.transpose [ natural, flat ] (Range.highest model.range) -12
+                        |> Maybe.withDefault (Range.highest model.range)
             in
-                ( { model | range = setHighest model.range max }, Cmd.none )
+                ( { model | range = Range.setHighest max model.range }, Cmd.none )
 
         RangeMaxSkipUp ->
             let
                 max =
-                    enharmonicEquivalent Pitch.transpose model.range.highest Pitch.up Interval.octave
-                        |> Maybe.withDefault model.range.highest
+                    Pitch.transpose [ natural, sharp ] (Range.highest model.range) 12
+                        |> Maybe.withDefault (Range.highest model.range)
             in
-                ( { model | range = setHighest model.range max }, Cmd.none )
+                ( { model | range = Range.setHighest max model.range }, Cmd.none )

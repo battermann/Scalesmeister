@@ -1,14 +1,15 @@
 module Audio exposing (loadPianoSamples, noteOn, noteOff, play, stop)
 
-import Types.Pitch exposing (..)
+import Types.Pitch as Pitch exposing (..)
 import Types.Note exposing (..)
 import Ports exposing (SampleUrl, ScientificPitchNotation)
 import Types.Octave as Octave exposing (..)
+import List.Extra
 
 
 toScientificPitchNotation : Pitch -> Maybe ScientificPitchNotation
 toScientificPitchNotation pitch =
-    case toBestEnharmonicEquivalent pitch of
+    case Pitch.enharmonicEquivalents (pitch |> Pitch.semitoneOffset) |> List.Extra.find (\(Pitch (Note letter acc) o) -> acc == Sharp) of
         Nothing ->
             Nothing
 

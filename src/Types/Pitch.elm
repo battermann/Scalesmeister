@@ -36,74 +36,48 @@ semitoneOffset (Pitch note octave) =
     Note.semitoneOffset note + (Octave.number octave) * 12
 
 
-type alias Direction =
-    Note -> Note -> Octave -> Maybe Octave
+natural : List Pitch -> Maybe Pitch
+natural pitches =
+    pitches |> List.Extra.find (\(Pitch (Note _ accidental) _) -> accidental == Natural)
 
 
-up : Note -> Note -> Octave -> Maybe Octave
-up startingNote targetNote octave =
-    if Note.semitoneOffset targetNote > Note.semitoneOffset startingNote then
-        Just octave
-    else
-        octave |> Octave.add 1
+sharp : List Pitch -> Maybe Pitch
+sharp pitches =
+    pitches |> List.Extra.find (\(Pitch (Note _ accidental) _) -> accidental == Sharp)
 
 
-down : Note -> Note -> Octave -> Maybe Octave
-down startingNote targetNote octave =
-    if Note.semitoneOffset targetNote > Note.semitoneOffset startingNote then
-        octave |> Octave.add -1
-    else
-        Just octave
+flat : List Pitch -> Maybe Pitch
+flat pitches =
+    pitches |> List.Extra.find (\(Pitch (Note _ accidental) _) -> accidental == Flat)
 
 
-transpose : Pitch -> Direction -> Interval -> Maybe Pitch
-transpose (Pitch note octave) dir interval =
-    Note.transpose interval note
-        |> Maybe.andThen
-            (\targetNote ->
-                dir note targetNote octave |> Maybe.map (Pitch targetNote)
-            )
+transpose : List (List Pitch -> Maybe Pitch) -> Pitch -> Semitones -> Maybe Pitch
+transpose xs pitch semitones =
+    let
+        all =
+            enharmonicEquivalents (semitoneOffset pitch + semitones)
+    in
+        xs
+            |> List.foldl (\choose b -> b |> Maybe.Extra.orElse (all |> choose)) Nothing
+            |> Maybe.Extra.orElse (all |> List.head)
 
 
-enharmonicEquivalent : (Pitch -> Direction -> Interval -> Maybe Pitch) -> (Pitch -> Direction -> Interval -> Maybe Pitch)
-enharmonicEquivalent f =
-    (\pitch dir interval -> toBestEnharmonicEquivalent pitch |> Maybe.andThen (\p -> transpose p dir interval) |> Maybe.andThen toBestEnharmonicEquivalent)
+enharmonicEquivalents : Semitones -> List Pitch
+enharmonicEquivalents semitones =
+    let
+        octave =
+            semitones // 12
 
+        remainder =
+            semitones % 12
 
-
--- this is broken, needs to be fixed
-
-
-toBestEnharmonicEquivalent : Pitch -> Maybe Pitch
-toBestEnharmonicEquivalent (Pitch (Note letter acc) octave) =
-    case acc of
-        Natural ->
-            Just (Pitch (Note letter acc) octave)
-
-        Flat ->
-            Just (Pitch (Note letter acc) octave)
-
-        Sharp ->
-            Just (Pitch (Note letter acc) octave)
-
-        DoubleFlat ->
-            all
-                |> List.Extra.find
-                    (\pitch ->
-                        semitoneOffset pitch == semitoneOffset (Pitch (Note letter acc) octave) && accidental pitch == Natural
-                    )
-                |> Maybe.Extra.orElseLazy
-                    (\() ->
-                        all
-                            |> List.Extra.find
-                                (\pitch ->
-                                    semitoneOffset pitch == semitoneOffset (Pitch (Note letter acc) octave) && accidental pitch == Flat
-                                )
-                    )
-
-        DoubleSharp ->
-            all
-                |> List.Extra.find
-                    (\pitch ->
-                        semitoneOffset pitch == semitoneOffset (Pitch (Note letter acc) octave) && ((accidental pitch == Natural || accidental pitch == Sharp))
-                    )
+        notes =
+            Note.all |> List.filter (Note.semitoneOffset >> ((==) remainder))
+    in
+        notes
+            |> List.filterMap
+                (\n ->
+                    Octave.all
+                        |> List.Extra.find (\o -> (Octave.number o) * 12 + (Note.semitoneOffset n) == semitones)
+                        |> Maybe.map (Pitch n)
+                )

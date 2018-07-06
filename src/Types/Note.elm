@@ -26,6 +26,10 @@ type Note
     = Note Letter Accidental
 
 
+type alias PitchClass =
+    Note
+
+
 accidental : Note -> Accidental
 accidental (Note _ accidental) =
     accidental
@@ -170,3 +174,8 @@ transpose interval (Note letter accidental) =
                 (\accidental ->
                     maybeTargetLetter |> Maybe.map (\letter -> (Note letter accidental))
                 )
+
+
+enharmonicEquivalents : Note -> List Note
+enharmonicEquivalents note =
+    all |> List.filter (\n -> (semitoneOffset n) % 12 == (semitoneOffset note) % 2)

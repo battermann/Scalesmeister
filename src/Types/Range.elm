@@ -1,49 +1,45 @@
-module Types.Range exposing (..)
+module Types.Range exposing (Range, setLowest, setHighest, highest, lowest, contains, piano)
 
 import Types.Pitch as Pitch exposing (..)
-import Types.Note exposing (..)
-import Types.Octave as Octave exposing (..)
+import Types.Octave as Octave
+import Types.Note exposing (Note(..), Letter(..), Accidental(..))
 
 
-type alias Range =
-    { lowest : Pitch
-    , highest : Pitch
-    }
+type Range
+    = Range Pitch Pitch
 
 
-setLowest : Range -> Pitch -> Range
-setLowest range pitch =
-    { range | lowest = pitch }
+highest : Range -> Pitch
+highest (Range l h) =
+    h
 
 
-setHighest : Range -> Pitch -> Range
-setHighest range pitch =
-    { range | highest = pitch }
-
-
-toSemitoneOffsetRange : Range -> ( Semitones, Semitones )
-toSemitoneOffsetRange range =
-    ( Pitch.semitoneOffset range.lowest, Pitch.semitoneOffset range.highest )
+lowest : Range -> Pitch
+lowest (Range l _) =
+    l
 
 
 contains : Pitch -> Range -> Bool
-contains pitch range =
-    let
-        ( lowest, highest ) =
-            toSemitoneOffsetRange range
-    in
-        lowest <= Pitch.semitoneOffset pitch && highest >= Pitch.semitoneOffset pitch
+contains pitch (Range l h) =
+    semitoneOffset l <= Pitch.semitoneOffset pitch && semitoneOffset h >= Pitch.semitoneOffset pitch
 
 
-doubleBass : Range
-doubleBass =
-    { lowest = Pitch (Note E Natural) Octave.one
-    , highest = Pitch (Note G Natural) Octave.four
-    }
+setLowest : Pitch -> Range -> Range
+setLowest pitch (Range l h) =
+    if semitoneOffset pitch >= semitoneOffset h then
+        (Range l h)
+    else
+        Range pitch h
+
+
+setHighest : Pitch -> Range -> Range
+setHighest pitch (Range l h) =
+    if semitoneOffset pitch <= semitoneOffset l then
+        (Range l h)
+    else
+        Range l pitch
 
 
 piano : Range
 piano =
-    { lowest = Pitch (Note A Natural) Octave.zero
-    , highest = Pitch (Note C Natural) Octave.eight
-    }
+    Range (Pitch (Note A Natural) Octave.zero) (Pitch (Note C Natural) Octave.eight)

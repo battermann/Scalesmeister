@@ -14,7 +14,7 @@ import List.Extra
 import Types.Scale exposing (ScaleDef)
 import Types.Formula exposing (Formula)
 import View.FontAwesome as Icons
-import Types.Range exposing (..)
+import Types.Range as Range exposing (Range)
 import Types.Pitch exposing (..)
 import Types.Octave as Octave
 
@@ -49,14 +49,23 @@ displayNote (Note letter accidental) =
 
 
 rangeView : Range -> Element MyStyles variation Msg
-rangeView { lowest, highest } =
+rangeView range =
     row None
         [ spacing 5, verticalCenter ]
         [ button RangeButton [ padding 3, onClick RangeMinSkipDown ] Icons.doubleAngleLeft
         , button RangeButton [ padding 3, onClick RangeMinStepDown ] Icons.angleLeft
         , button RangeButton [ padding 3, onClick RangeMinStepUp ] Icons.angleRight
         , button RangeButton [ padding 3, onClick RangeMinSkipUp ] Icons.doubleAngleRight
-        , column None [ verticalCenter, center, padding 10, spacing 2 ] [ el SmallText [] (text "Range"), text ((displayPitch lowest) ++ " - " ++ (displayPitch highest)) ]
+        , column None
+            [ verticalCenter, center, padding 10, spacing 2, width (px 100) ]
+            [ el SmallText [] (text "Range")
+            , row None
+                [ spacing 10 ]
+                [ text (displayPitch (Range.lowest range))
+                , text "-"
+                , text (displayPitch (Range.highest range))
+                ]
+            ]
         , button RangeButton [ padding 3, onClick RangeMaxSkipDown ] Icons.doubleAngleLeft
         , button RangeButton [ padding 3, onClick RangeMaxStepDown ] Icons.angleLeft
         , button RangeButton [ padding 3, onClick RangeMaxStepUp ] Icons.angleRight
