@@ -9,7 +9,7 @@ import List.Extra
 
 toScientificPitchNotation : Pitch -> Maybe ScientificPitchNotation
 toScientificPitchNotation pitch =
-    case Pitch.enharmonicEquivalents (pitch |> Pitch.semitoneOffset) |> List.Extra.find (\(Pitch (Note letter acc) o) -> acc == Sharp) of
+    case Pitch.enharmonicEquivalents (pitch |> Pitch.semitoneOffset) |> choice [ natural, sharp, flat ] of
         Nothing ->
             Nothing
 

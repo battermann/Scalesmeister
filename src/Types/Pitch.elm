@@ -36,30 +36,41 @@ semitoneOffset (Pitch note octave) =
     Note.semitoneOffset note + (Octave.number octave) * 12
 
 
+choose : Accidental -> List Pitch -> Maybe Pitch
+choose acc pitches =
+    pitches |> List.Extra.find (\(Pitch (Note _ accidental) _) -> accidental == acc)
+
+
 natural : List Pitch -> Maybe Pitch
-natural pitches =
-    pitches |> List.Extra.find (\(Pitch (Note _ accidental) _) -> accidental == Natural)
+natural =
+    choose Natural
 
 
 sharp : List Pitch -> Maybe Pitch
-sharp pitches =
-    pitches |> List.Extra.find (\(Pitch (Note _ accidental) _) -> accidental == Sharp)
+sharp =
+    choose Sharp
 
 
 flat : List Pitch -> Maybe Pitch
-flat pitches =
-    pitches |> List.Extra.find (\(Pitch (Note _ accidental) _) -> accidental == Flat)
+flat =
+    choose Flat
+
+
+any : List Pitch -> Maybe Pitch
+any =
+    List.head
 
 
 transpose : List (List Pitch -> Maybe Pitch) -> Pitch -> Semitones -> Maybe Pitch
-transpose xs pitch semitones =
-    let
-        all =
-            enharmonicEquivalents (semitoneOffset pitch + semitones)
-    in
-        xs
-            |> List.foldl (\choose b -> b |> Maybe.Extra.orElse (all |> choose)) Nothing
-            |> Maybe.Extra.orElse (all |> List.head)
+transpose choices pitch semitones =
+    enharmonicEquivalents (semitoneOffset pitch + semitones)
+        |> choice choices
+
+
+choice : List (List Pitch -> Maybe Pitch) -> List Pitch -> Maybe Pitch
+choice choices pitches =
+    choices
+        |> List.foldl (\choose pitch -> pitch |> Maybe.Extra.orElse (pitches |> choose)) Nothing
 
 
 enharmonicEquivalents : Semitones -> List Pitch

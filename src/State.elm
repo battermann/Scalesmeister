@@ -145,61 +145,85 @@ update msg model =
                 min =
                     Pitch.transpose [ natural, flat ] (Range.lowest model.range) -1
                         |> Maybe.withDefault (Range.lowest model.range)
+
+                newModel =
+                    { model | range = Range.setLowest min model.range }
             in
-                ( { model | range = Range.setLowest min model.range }, Cmd.none )
+                ( newModel, render (line newModel) )
 
         RangeMinStepUp ->
             let
                 min =
                     Pitch.transpose [ natural, sharp ] (Range.lowest model.range) 1
                         |> Maybe.withDefault (Range.lowest model.range)
+
+                newModel =
+                    { model | range = Range.setLowest min model.range }
             in
-                ( { model | range = Range.setLowest min model.range }, Cmd.none )
+                ( newModel, render (line newModel) )
 
         RangeMinSkipDown ->
             let
                 min =
                     Pitch.transpose [ natural, flat ] (Range.lowest model.range) -12
                         |> Maybe.withDefault (Range.lowest model.range)
+
+                newModel =
+                    { model | range = Range.setLowest min model.range }
             in
-                ( { model | range = Range.setLowest min model.range }, Cmd.none )
+                ( newModel, render (line newModel) )
 
         RangeMinSkipUp ->
             let
                 min =
                     Pitch.transpose [ natural, sharp ] (Range.lowest model.range) 12
                         |> Maybe.withDefault (Range.lowest model.range)
+
+                newModel =
+                    { model | range = Range.setLowest min model.range }
             in
-                ( { model | range = Range.setLowest min model.range }, Cmd.none )
+                ( newModel, render (line newModel) )
 
         RangeMaxStepDown ->
             let
                 max =
                     Pitch.transpose [ natural, flat ] (Range.highest model.range) -1
                         |> Maybe.withDefault (Range.highest model.range)
+
+                newModel =
+                    { model | range = Range.setHighest max model.range }
             in
-                ( { model | range = Range.setHighest max model.range }, Cmd.none )
+                ( newModel, render (line newModel) )
 
         RangeMaxStepUp ->
             let
                 max =
                     Pitch.transpose [ natural, sharp ] (Range.highest model.range) 1
                         |> Maybe.withDefault (Range.highest model.range)
+
+                newModel =
+                    { model | range = Range.setHighest max model.range }
             in
-                ( { model | range = Range.setHighest max model.range }, Cmd.none )
+                ( newModel, render (line newModel) )
 
         RangeMaxSkipDown ->
             let
                 max =
                     Pitch.transpose [ natural, flat ] (Range.highest model.range) -12
                         |> Maybe.withDefault (Range.highest model.range)
+
+                newModel =
+                    { model | range = Range.setHighest max model.range }
             in
-                ( { model | range = Range.setHighest max model.range }, Cmd.none )
+                ( newModel, render (line newModel) )
 
         RangeMaxSkipUp ->
             let
                 max =
                     Pitch.transpose [ natural, sharp ] (Range.highest model.range) 12
                         |> Maybe.withDefault (Range.highest model.range)
+
+                newModel =
+                    { model | range = Range.setHighest max model.range }
             in
-                ( { model | range = Range.setHighest max model.range }, Cmd.none )
+                ( newModel, render (line newModel) )
