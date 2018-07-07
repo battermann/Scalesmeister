@@ -2,8 +2,7 @@ import registerServiceWorker from './registerServiceWorker';
 import {Sampler, Sequence, Transport} from 'tone';
 import svg2pdf from 'svg2pdf.js';
 import jsPDF from 'jspdf-yworks';
-import abcjs from "abcjs/midi";
-import 'abcjs/abcjs-midi.css';
+import abcjs from "abcjs";
 
 import Elm from './Main.elm';
 
