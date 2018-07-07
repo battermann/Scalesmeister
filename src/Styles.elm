@@ -23,6 +23,7 @@ type MyStyles
     | GitHubIcon
     | SkipsNSteps
     | SmallText
+    | VerySmallText
     | RangeButton
     | Settings
     | LightButton
@@ -96,6 +97,9 @@ stylesheet =
             ]
         , Style.style SmallText
             [ Font.size 14
+            ]
+        , Style.style VerySmallText
+            [ Font.size 11
             ]
         , Style.style Settings
             [ Color.background (greyscale 0.75)
