@@ -17,6 +17,7 @@ import View.FontAwesome as Icons
 import Types.Range as Range exposing (Range)
 import Types.Pitch exposing (..)
 import Types.Octave as Octave
+import Types.Scale as Scale exposing (Scale(..))
 
 
 accidentalToString : Accidental -> String
@@ -50,26 +51,29 @@ displayNote (Note letter accidental) =
 
 rangeView : Range -> Element MyStyles variation Msg
 rangeView range =
-    row None
-        [ spacing 5, verticalCenter ]
-        [ button RangeButton [ padding 3, onClick RangeMinSkipDown ] Icons.doubleAngleLeft
-        , button RangeButton [ padding 3, onClick RangeMinStepDown ] Icons.angleLeft
-        , button RangeButton [ padding 3, onClick RangeMinStepUp ] Icons.angleRight
-        , button RangeButton [ padding 3, onClick RangeMinSkipUp ] Icons.doubleAngleRight
-        , column None
-            [ verticalCenter, center, padding 10, spacing 2, width (px 100) ]
-            [ el SmallText [] (text "Range")
-            , row None
-                [ spacing 10 ]
-                [ text (displayPitch (Range.lowest range))
-                , text "-"
-                , text (displayPitch (Range.highest range))
+    column None
+        [ width fill, spacing 2, userSelectNone ]
+        [ el SmallText [] (text "Range")
+        , row None
+            [ spacing 2 ]
+            [ button Page [ width fill, padding 10, onClick RangeMinSkipDown ] Icons.doubleAngleLeft
+            , button Page [ width fill, padding 10, onClick RangeMinStepDown ] Icons.angleLeft
+            , button Page [ width fill, padding 10, onClick RangeMinStepUp ] Icons.angleRight
+            , button Page [ width fill, padding 10, onClick RangeMinSkipUp ] Icons.doubleAngleRight
+            , column Page
+                [ verticalCenter, center, padding 10, spacing 2, width (px 120) ]
+                [ row None
+                    [ spacing 10 ]
+                    [ text (displayPitch (Range.lowest range))
+                    , text "-"
+                    , text (displayPitch (Range.highest range))
+                    ]
                 ]
+            , button Page [ width fill, padding 10, onClick RangeMaxSkipDown ] Icons.doubleAngleLeft
+            , button Page [ width fill, padding 10, onClick RangeMaxStepDown ] Icons.angleLeft
+            , button Page [ width fill, padding 10, onClick RangeMaxStepUp ] Icons.angleRight
+            , button Page [ width fill, padding 10, onClick RangeMaxSkipUp ] Icons.doubleAngleRight
             ]
-        , button RangeButton [ padding 3, onClick RangeMaxSkipDown ] Icons.doubleAngleLeft
-        , button RangeButton [ padding 3, onClick RangeMaxStepDown ] Icons.angleLeft
-        , button RangeButton [ padding 3, onClick RangeMaxStepUp ] Icons.angleRight
-        , button RangeButton [ padding 3, onClick RangeMaxSkipUp ] Icons.doubleAngleRight
         ]
 
 
@@ -103,17 +107,20 @@ playAndDownload line =
                     Icons.stop
     in
         row None
-            [ spacing 10, alignBottom, center ]
-            [ button Button
+            [ spacing 2, alignBottom ]
+            [ button LightButton
                 [ onClick TogglePlay
                 , padding 10
                 , userSelectNone
+                , height (px 60)
+                , width (px 60)
                 ]
                 icon
-            , button Button
+            , button Page
                 [ onClick DownloadPdf
                 , padding 10
                 , userSelectNone
+                , verticalCenter
                 ]
                 (row None [] [ Icons.download, text " PDF" ])
             ]
@@ -122,26 +129,49 @@ playAndDownload line =
 settings : Model -> Element MyStyles variation Msg
 settings model =
     row None
-        [ spacing 10 ]
-        [ button LargeFontButton
-            [ padding 10
-            , alignLeft
-            , userSelectNone
-            , onClick (Open SelectRoot)
-            , width (px 60)
-            , height (px 60)
+        [ spacing 2 ]
+        [ column None
+            [ width fill, spacing 2 ]
+            [ el SmallText [] (text "Root")
+            , button Page
+                [ padding 10
+                , alignLeft
+                , userSelectNone
+                , onClick (Open SelectRoot)
+                , width fill
+                ]
+                (displayNote (SelectList.selected model.roots) |> text)
             ]
-            (displayNote (SelectList.selected model.roots) |> text)
-        , button LargeFontButton
-            [ padding 10
-            , onClick (Open SelectScale)
+        , column None
+            [ width fill, spacing 2 ]
+            [ el SmallText [] (text "Scale")
+            , button Page
+                [ padding 10
+                , onClick (Open SelectScale)
+                , width fill
+                ]
+                (text (model.scales |> SelectList.selected |> Tuple.first))
             ]
-            (text (model.scales |> SelectList.selected |> Tuple.first))
-        , button SkipsNSteps
-            [ padding 10
-            , onClick (Open SelectFormula)
+        , column None
+            [ width fill, spacing 2 ]
+            [ el SmallText [] (text "Formula")
+            , button Page
+                [ padding 10
+                , onClick (Open SelectFormula)
+                , width fill
+                ]
+                (displayFormula (model.formulas |> SelectList.selected))
             ]
-            (displayFormula (model.formulas |> SelectList.selected))
+        , column None
+            [ width fill, spacing 2 ]
+            [ el SmallText [] (text "Starting note")
+            , button Page
+                [ padding 10
+                , width fill
+                , onClick (Open SelectStartingNote)
+                ]
+                (displayNote model.startingNote |> text)
+            ]
         ]
 
 
@@ -150,10 +180,10 @@ modalDialog model element =
     modal Dialog
         [ width fill
         , height fill
-        , padding 100
+        , padding 200
         , onClick CloseDialog
         ]
-        (el DialogBox
+        (el Page
             [ center
             , padding 20
             ]
@@ -161,26 +191,26 @@ modalDialog model element =
         )
 
 
-selectNoteButton : Note -> Element MyStyles variation Msg
-selectNoteButton note =
-    button LargeFontButton [ userSelectNone, onClick (RootSelected note), width (px 65), height (px 65) ] (displayNote note |> text)
+selectNoteButton : (Note -> Msg) -> Note -> Element MyStyles variation Msg
+selectNoteButton event note =
+    button DarkButton [ userSelectNone, onClick (event note), padding 10, width fill ] (displayNote note |> text)
 
 
 selectScaleButton : ( String, ScaleDef ) -> Element MyStyles variation Msg
 selectScaleButton ( name, scale ) =
-    button LargeFontButton [ padding 10, userSelectNone, onClick (ScaleSelected scale) ] (text name)
+    button DarkButton [ padding 10, userSelectNone, onClick (ScaleSelected scale) ] (text name)
 
 
 selectFormulaButton : Formula -> Element MyStyles variation Msg
 selectFormulaButton formula =
-    button Button [ padding 10, userSelectNone, onClick (FormulaSelected formula), width (px 150) ] (displayFormula formula)
+    button DarkButton [ padding 10, userSelectNone, onClick (FormulaSelected formula), width fill ] (displayFormula formula)
 
 
 selectScaleDialog : Model -> Element MyStyles variation Msg
 selectScaleDialog model =
     modalDialog model
         (column None
-            [ spacing 10 ]
+            [ spacing 2 ]
             ((h2 H2 [ center ] (text "Scale"))
                 :: (SelectList.toList model.scales |> List.map selectScaleButton)
             )
@@ -191,9 +221,20 @@ selectRootDialog : Model -> Element MyStyles variation Msg
 selectRootDialog model =
     modalDialog model
         (column None
-            [ spacing 10 ]
-            ((h2 H2 [ center ] (text "Root Note"))
-                :: (SelectList.toList model.roots |> List.map selectNoteButton |> List.Extra.greedyGroupsOf 3 |> List.map (row None [ spacing 10 ]))
+            [ spacing 2, width (px 400) ]
+            ((h2 H2 [ center ] (text "Root"))
+                :: (SelectList.toList model.roots |> List.map (selectNoteButton RootSelected) |> List.Extra.greedyGroupsOf 3 |> List.map (row None [ spacing 2 ]))
+            )
+        )
+
+
+selectStartingNoteDialog : Model -> Element MyStyles variation Msg
+selectStartingNoteDialog model =
+    modalDialog model
+        (column None
+            [ spacing 2, width (px 400) ]
+            ((h2 H2 [ center ] (text "Starting note"))
+                :: (SelectList.selected model.scales |> (Tuple.second >> (Scale (SelectList.selected model.roots)) >> Scale.notes) |> List.map (selectNoteButton StartingNoteSelected) |> List.Extra.greedyGroupsOf 3 |> List.map (row None [ spacing 2 ]))
             )
         )
 
@@ -202,9 +243,9 @@ selectFormulaDialog : Model -> Element MyStyles variation Msg
 selectFormulaDialog model =
     modalDialog model
         (column None
-            [ spacing 10 ]
+            [ spacing 2 ]
             ((h2 H2 [ center ] (text "Formula"))
-                :: (SelectList.toList model.formulas |> List.map selectFormulaButton |> List.Extra.greedyGroupsOf 2 |> List.map (row None [ spacing 10 ]))
+                :: (SelectList.toList model.formulas |> List.map selectFormulaButton |> List.Extra.greedyGroupsOf 2 |> List.map (row None [ spacing 2 ]))
             )
         )
 
@@ -221,6 +262,9 @@ chooseDialog model =
         Just SelectFormula ->
             selectFormulaDialog model
 
+        Just SelectStartingNote ->
+            selectStartingNoteDialog model
+
         Nothing ->
             empty
 
@@ -229,11 +273,28 @@ view : Model -> Html Msg
 view model =
     Element.viewport stylesheet <|
         (column Page
-            [ spacing 40, padding 20 ]
-            [ h1 H1 [ padding 10, center ] (text "luigi")
-            , paragraph Subtitle [ center ] [ (text "Generate lines for jazz improvisation based on scales and formulas.") ]
-            , column None [ spacing 30, center ] [ settings model, rangeView model.range, playAndDownload model.playingState ]
-            , el Score [ id Score.elementId ] empty
+            [ spacing 40, padding 20, paddingTop 100 ]
+            [ h1 H1 [ padding 10, center ] (text "Luigi")
+            , paragraph Subtitle [ center, paddingBottom 40 ] [ (text "Generate lines for jazz improvisation based on scales and formulas.") ]
+            , column None
+                [ spacing 2 ]
+                [ column None
+                    []
+                    [ row None
+                        [ center, width fill ]
+                        [ column None
+                            [ spacing 2, width (px 800) ]
+                            [ playAndDownload model.playingState
+                            , column Settings
+                                [ padding 20, spacing 6 ]
+                                [ settings model
+                                , rangeView model.range
+                                ]
+                            ]
+                        ]
+                    ]
+                , row Score [ center ] [ el Score [ id Score.elementId, center ] empty ]
+                ]
             , column Footer
                 [ spacing 5 ]
                 [ row None

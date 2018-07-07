@@ -92,7 +92,7 @@ headerToString (Header (ReferenceNumber x) (Title title) (Meter beatsPerBar beat
 
 toAbcNotation : List Pitch -> String
 toAbcNotation pitches =
-    (mkHeader "line" |> headerToString) ++ "\n" ++ (toAbcScoreNotes pitches)
+    (mkHeader "" |> headerToString) ++ "\n" ++ (toAbcScoreNotes pitches)
 
 
 

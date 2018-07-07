@@ -20,6 +20,7 @@ type Dialog
     = SelectRoot
     | SelectScale
     | SelectFormula
+    | SelectStartingNote
 
 
 type alias Model =
@@ -27,6 +28,7 @@ type alias Model =
     , scales : SelectList ( String, ScaleDef )
     , formulas : SelectList Formula
     , roots : SelectList Note
+    , startingNote : Note
     , dialog : Maybe Dialog
     , playingState : PlayingState
     }
@@ -38,6 +40,7 @@ type Msg
     | TogglePlay
     | DownloadPdf
     | RootSelected Note
+    | StartingNoteSelected Note
     | ScaleSelected ScaleDef
     | FormulaSelected Formula
     | Open Dialog

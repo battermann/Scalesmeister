@@ -67,10 +67,10 @@ formulas =
         ]
 
 
-mkLine : Range -> ScaleDef -> Formula -> Note -> Line
-mkLine range scale formula root =
+mkLine : Range -> ScaleDef -> Formula -> Note -> Note -> Line
+mkLine range scale formula root startingNote =
     Line.fromScaleWithinRange range (Scale root scale)
-        |> Line.applyFormula root formula
+        |> Line.applyFormula startingNote formula
 
 
 line : Model -> Line
@@ -79,6 +79,7 @@ line model =
         (model.scales |> SelectList.selected |> Tuple.second)
         (model.formulas |> SelectList.selected)
         (model.roots |> SelectList.selected)
+        model.startingNote
 
 
 init : ( Model, Cmd Msg )
@@ -90,7 +91,7 @@ init =
                 |> Range.setHighest (Pitch (Note B Natural) Octave.six)
 
         model =
-            { range = range, formulas = formulas, roots = roots, scales = scales, playingState = Stopped, dialog = Nothing }
+            { range = range, formulas = formulas, roots = roots, startingNote = SelectList.selected roots, scales = scales, playingState = Stopped, dialog = Nothing }
     in
         ( model, Cmd.batch [ Audio.loadPianoSamples, Score.render (line model) ] )
 
@@ -132,10 +133,13 @@ update msg model =
             ( { model | dialog = Nothing }, Cmd.none )
 
         RootSelected note ->
-            renderNew model.playingState { model | roots = model.roots |> SelectList.select (((==) note)), playingState = Stopped }
+            renderNew model.playingState { model | roots = model.roots |> SelectList.select (((==) note)), playingState = Stopped, startingNote = note }
+
+        StartingNoteSelected note ->
+            renderNew model.playingState { model | startingNote = note, playingState = Stopped }
 
         ScaleSelected scale ->
-            renderNew model.playingState { model | scales = model.scales |> SelectList.select (Tuple.second >> ((==) scale)), playingState = Stopped }
+            renderNew model.playingState { model | scales = model.scales |> SelectList.select (Tuple.second >> ((==) scale)), playingState = Stopped, startingNote = SelectList.selected model.roots }
 
         FormulaSelected formula ->
             renderNew model.playingState { model | formulas = model.formulas |> SelectList.select ((==) formula), playingState = Stopped }
