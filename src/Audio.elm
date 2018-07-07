@@ -1,32 +1,38 @@
 module Audio exposing (loadPianoSamples, noteOn, noteOff, play, stop)
 
-import Types.Pitch exposing (..)
+import Types.Pitch as Pitch exposing (..)
 import Types.Note exposing (..)
 import Ports exposing (SampleUrl, ScientificPitchNotation)
 import Types.Octave as Octave exposing (..)
+import List.Extra
 
 
-toScientificPitchNotation : Pitch -> ScientificPitchNotation
-toScientificPitchNotation (Pitch (Note letter accidental) octave) =
-    let
-        acc =
-            case accidental of
-                Flat ->
-                    "b"
+toScientificPitchNotation : Pitch -> Maybe ScientificPitchNotation
+toScientificPitchNotation pitch =
+    case Pitch.enharmonicEquivalents (pitch |> Pitch.semitoneOffset) |> choice [ natural, sharp, flat ] of
+        Nothing ->
+            Nothing
 
-                Natural ->
-                    ""
+        Just (Pitch (Note letter accidental) octave) ->
+            let
+                acc =
+                    case accidental of
+                        Flat ->
+                            Just "b"
 
-                Sharp ->
-                    "#"
+                        Natural ->
+                            Just ""
 
-                _ ->
-                    Debug.crash "double flats and sharps are not defined in scientific pitch notation, notes have to be replaced with a proper equivalent note with the same pitch"
-    in
-        (toString letter) ++ acc ++ (toString (Octave.number octave))
+                        Sharp ->
+                            Just "#"
+
+                        _ ->
+                            Nothing
+            in
+                acc |> Maybe.map (\accidental -> (toString letter) ++ accidental ++ (toString (Octave.number octave)))
 
 
-pitchToSampleUrlMapping : Pitch -> ( ScientificPitchNotation, SampleUrl )
+pitchToSampleUrlMapping : Pitch -> Maybe ( ScientificPitchNotation, SampleUrl )
 pitchToSampleUrlMapping (Pitch (Note letter accidental) octave) =
     let
         acc =
@@ -40,7 +46,8 @@ pitchToSampleUrlMapping (Pitch (Note letter accidental) octave) =
         url =
             "samples/" ++ (toString letter) ++ acc ++ (toString (Octave.number octave)) ++ ".mp3"
     in
-        ( toScientificPitchNotation (Pitch (Note letter accidental) octave), url )
+        toScientificPitchNotation (Pitch (Note letter accidental) octave)
+            |> Maybe.map (\key -> ( key, url ))
 
 
 loadPianoSamples : Cmd msg
@@ -50,23 +57,27 @@ loadPianoSamples =
     , Pitch (Note F Sharp) Octave.four
     , Pitch (Note A Natural) Octave.four
     ]
-        |> List.map pitchToSampleUrlMapping
+        |> List.filterMap pitchToSampleUrlMapping
         |> Ports.loadSamples
 
 
 noteOn : Pitch -> Cmd msg
 noteOn pitch =
-    Ports.noteOn (toScientificPitchNotation pitch)
+    toScientificPitchNotation pitch
+        |> Maybe.map Ports.noteOn
+        |> Maybe.withDefault Cmd.none
 
 
 noteOff : Pitch -> Cmd msg
 noteOff pitch =
-    Ports.noteOff (toScientificPitchNotation pitch)
+    toScientificPitchNotation pitch
+        |> Maybe.map Ports.noteOff
+        |> Maybe.withDefault Cmd.none
 
 
 play : List Pitch -> Cmd msg
 play pitches =
-    Ports.startSequence (List.map toScientificPitchNotation pitches)
+    Ports.startSequence (List.filterMap toScientificPitchNotation pitches)
 
 
 stop : Cmd msg

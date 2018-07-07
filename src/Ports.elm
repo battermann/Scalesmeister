@@ -26,9 +26,6 @@ port startSequence : List ScientificPitchNotation -> Cmd msg
 port stopSequence : () -> Cmd msg
 
 
-port onCallback : (String -> msg) -> Sub msg
-
-
 
 {- vexflow.js ports -}
 
@@ -37,11 +34,11 @@ type alias ElementId =
     String
 
 
-type alias Notes =
+type alias AbcNotation =
     String
 
 
-port renderScore : ( ElementId, Notes, Int, Int ) -> Cmd msg
+port renderScore : ( ElementId, AbcNotation ) -> Cmd msg
 
 
 

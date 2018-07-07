@@ -5,7 +5,7 @@ import Expect
 import Types.Scale exposing (..)
 import Types.Note exposing (..)
 import Types.Line as Line exposing (..)
-import Types.Range exposing (..)
+import Types.Range as Range exposing (..)
 import Types.Octave as Octave exposing (..)
 import Types.Pitch as Pitch exposing (..)
 import Types.Formula as Formula exposing (..)
@@ -13,7 +13,9 @@ import Types.Formula as Formula exposing (..)
 
 middleOctaveRange : Range
 middleOctaveRange =
-    OfPitch { lowest = Pitch (Note C Natural) Octave.four, highest = Pitch (Note B Natural) Octave.four }
+    Range.piano
+        |> Range.setLowest (Pitch (Note C Natural) Octave.four)
+        |> Range.setHighest (Pitch (Note B Natural) Octave.four)
 
 
 line : Line

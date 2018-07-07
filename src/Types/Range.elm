@@ -1,51 +1,45 @@
-module Types.Range exposing (..)
+module Types.Range exposing (Range, setLowest, setHighest, highest, lowest, contains, piano)
 
 import Types.Pitch as Pitch exposing (..)
-import Types.Note exposing (..)
-import Types.Octave as Octave exposing (..)
+import Types.Octave as Octave
+import Types.Note exposing (Note(..), Letter(..), Accidental(..))
 
 
 type Range
-    = OfPitch
-        { lowest : Pitch
-        , highest : Pitch
-        }
-    | OfSemitones
-        { lowest : Semitones
-        , highest : Semitones
-        }
+    = Range Pitch Pitch
 
 
-toSemitoneOffsetRange : Range -> ( Semitones, Semitones )
-toSemitoneOffsetRange range =
-    case range of
-        OfPitch { lowest, highest } ->
-            ( Pitch.semitoneOffset lowest, Pitch.semitoneOffset highest )
+highest : Range -> Pitch
+highest (Range l h) =
+    h
 
-        OfSemitones { lowest, highest } ->
-            ( lowest, highest )
+
+lowest : Range -> Pitch
+lowest (Range l _) =
+    l
 
 
 contains : Pitch -> Range -> Bool
-contains pitch range =
-    let
-        ( lowest, highest ) =
-            toSemitoneOffsetRange range
-    in
-        lowest <= Pitch.semitoneOffset pitch && highest >= Pitch.semitoneOffset pitch
+contains pitch (Range l h) =
+    semitoneOffset l <= Pitch.semitoneOffset pitch && semitoneOffset h >= Pitch.semitoneOffset pitch
 
 
-doubleBass : Range
-doubleBass =
-    OfPitch
-        { lowest = Pitch (Note E Natural) Octave.one
-        , highest = Pitch (Note G Natural) Octave.four
-        }
+setLowest : Pitch -> Range -> Range
+setLowest pitch (Range l h) =
+    if semitoneOffset pitch >= semitoneOffset h then
+        (Range l h)
+    else
+        Range pitch h
+
+
+setHighest : Pitch -> Range -> Range
+setHighest pitch (Range l h) =
+    if semitoneOffset pitch <= semitoneOffset l then
+        (Range l h)
+    else
+        Range l pitch
 
 
 piano : Range
 piano =
-    OfPitch
-        { lowest = Pitch (Note A Natural) Octave.zero
-        , highest = Pitch (Note C Natural) Octave.eight
-        }
+    Range (Pitch (Note A Natural) Octave.zero) (Pitch (Note C Natural) Octave.eight)

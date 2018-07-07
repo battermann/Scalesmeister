@@ -49,8 +49,8 @@
     "webpack-dev-server": "^2.11.1"
   },
   "dependencies": {
+    "abcjs": "^5.1.2",
     "svg2pdf.js": "^1.2.1",
-    "tone": "^0.12.80",
-    "vexflow": "^1.2.84"
+    "tone": "^0.12.80"
   }
 }
