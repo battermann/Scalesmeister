@@ -16,7 +16,7 @@ type MyStyles
     | Button
     | Footer
     | Subtitle
-    | LargeFontButton
+    | DarkButton
     | Dialog
     | DialogBox
     | Link
@@ -24,6 +24,8 @@ type MyStyles
     | SkipsNSteps
     | SmallText
     | RangeButton
+    | Settings
+    | LightButton
     | None
 
 
@@ -34,11 +36,7 @@ userSelectNone =
 font : Style.Property class variation
 font =
     Font.typeface
-        [ Font.font "Source Sans Pro"
-        , Font.font "Trebuchet MS"
-        , Font.font "Lucida Grande"
-        , Font.font "Bitstream Vera Sans"
-        , Font.font "Helvetica Neue"
+        [ Font.font "Raleway"
         , Font.font "sans-serif"
         ]
 
@@ -47,7 +45,6 @@ buttonStyle : List (Style.Property class variation)
 buttonStyle =
     [ Color.background (grayscale 0.4)
     , Color.text white
-    , Border.rounded 4
     ]
 
 
@@ -60,6 +57,7 @@ stylesheet =
             , Color.background (grayscale 0.6)
             , font
             , Font.size 18
+            , Font.weight 300
             ]
         , Style.style H1
             [ Font.size 60
@@ -68,11 +66,17 @@ stylesheet =
             [ Font.size 40
             ]
         , Style.style Button buttonStyle
+        , Style.style LightButton
+            [ Color.background (grayscale 0.05)
+            , Color.text (greyscale 0.6)
+            ]
         , Style.style Score [ Color.background white ]
         , Style.style Footer [ Font.size 16 ]
         , Style.style Subtitle [ Font.light, Font.size 20 ]
-        , Style.style LargeFontButton
-            ((Font.size 30) :: buttonStyle)
+        , Style.style DarkButton
+            [ Color.background (grayscale 0.75)
+            , Color.text (greyscale 0.1)
+            ]
         , Style.style Dialog
             [ Color.background (rgba 0 0 0 0.8)
             , Color.text (greyscale 0.1)
@@ -81,7 +85,6 @@ stylesheet =
             ]
         , Style.style DialogBox
             [ Color.background (grayscale 0.6)
-            , Border.rounded 4
             ]
         , Style.style Link
             [ Font.underline
@@ -92,7 +95,10 @@ stylesheet =
             [ Font.size 30
             ]
         , Style.style SmallText
-            [ Font.size 12
+            [ Font.size 14
+            ]
+        , Style.style Settings
+            [ Color.background (greyscale 0.75)
             ]
         , Style.style RangeButton
             (buttonStyle

@@ -18,7 +18,7 @@ play =
 
 
 stop =
-    toEl "fas fa-stop"
+    toEl "fas fa-pause"
 
 
 github =
