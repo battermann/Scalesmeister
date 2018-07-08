@@ -13,6 +13,9 @@ import Score exposing (..)
 import Types.Formula as Formula exposing (..)
 import SelectList exposing (SelectList)
 import Types.Interval as Interval
+import Json.Encode exposing (Value)
+import Json.Decode as Decode
+import Ports
 
 
 scales : SelectList ( String, ScaleDef )
@@ -91,7 +94,15 @@ init =
                 |> Range.setHighest (Pitch (Note B Natural) Octave.six)
 
         model =
-            { range = range, formulas = formulas, roots = roots, startingNote = SelectList.selected roots, scales = scales, playingState = Stopped, dialog = Nothing }
+            { range = range
+            , formulas = formulas
+            , roots = roots
+            , startingNote = SelectList.selected roots
+            , scales = scales
+            , playingState = Stopped
+            , dialog = Nothing
+            , samplesLoaded = False
+            }
     in
         ( model, Cmd.batch [ Audio.loadPianoSamples, Score.render (line model) ] )
 
@@ -231,3 +242,31 @@ update msg model =
                     { model | range = Range.setHighest max model.range }
             in
                 ( newModel, render (line newModel) )
+
+        SamplesLoaded ->
+            ( { model | samplesLoaded = True }, Cmd.none )
+
+        UnknownSub _ ->
+            ( model, Cmd.none )
+
+
+decodeValue : Value -> Msg
+decodeValue x =
+    let
+        result =
+            Decode.decodeValue Decode.string x
+    in
+        case result of
+            Ok "samples loaded" ->
+                SamplesLoaded
+
+            Ok string ->
+                UnknownSub string
+
+            Err err ->
+                UnknownSub err
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Ports.samplesLoaded decodeValue

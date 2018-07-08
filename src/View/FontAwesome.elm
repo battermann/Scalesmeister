@@ -2,11 +2,13 @@ module View.FontAwesome exposing (..)
 
 import Html exposing (div, i)
 import Html.Attributes
-import Element exposing (html)
+import Element exposing (html, el)
+import Styles exposing (..)
+import Element.Attributes exposing (..)
 
 
 toEl iconStr =
-    (html (div [] [ i [ Html.Attributes.class iconStr ] [] ]))
+    el None [ center, verticalCenter ] (html (div [] [ i [ Html.Attributes.class iconStr ] [] ]))
 
 
 download =
@@ -39,3 +41,7 @@ doubleAngleRight =
 
 doubleAngleLeft =
     toEl "fas fa-angle-double-left"
+
+
+spinner =
+    toEl "fas fa-spinner fa-spin"

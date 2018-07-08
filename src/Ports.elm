@@ -1,5 +1,8 @@
 port module Ports exposing (..)
 
+import Json.Encode exposing (Value)
+
+
 {- tone.js ports -}
 
 
@@ -24,6 +27,9 @@ port startSequence : List ScientificPitchNotation -> Cmd msg
 
 
 port stopSequence : () -> Cmd msg
+
+
+port samplesLoaded : (Value -> msg) -> Sub msg
 
 
 

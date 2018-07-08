@@ -31,6 +31,7 @@ type alias Model =
     , startingNote : Note
     , dialog : Maybe Dialog
     , playingState : PlayingState
+    , samplesLoaded : Bool
     }
 
 
@@ -44,6 +45,8 @@ type Msg
     | ScaleSelected ScaleDef
     | FormulaSelected Formula
     | Open Dialog
+    | SamplesLoaded
+    | UnknownSub String
     | RangeMinStepDown
     | RangeMinStepUp
     | RangeMinSkipDown

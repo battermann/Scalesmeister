@@ -95,26 +95,30 @@ displayFormula formula =
         |> (row None [])
 
 
-playAndDownload : PlayingState -> Element MyStyles variation Msg
-playAndDownload line =
+playAndDownload : Model -> Element MyStyles variation Msg
+playAndDownload model =
     let
-        icon =
-            case line of
-                Stopped ->
-                    Icons.play
+        ( icon, control, event ) =
+            case ( model.playingState, model.samplesLoaded ) of
+                ( _, False ) ->
+                    ( column None [ center, verticalCenter, spacing 4 ] [ Icons.spinner, el VerySmallText [] (text "loading…") ], el, [] )
 
-                Playing ->
-                    Icons.stop
+                ( Stopped, _ ) ->
+                    ( Icons.play, button, [ onClick TogglePlay ] )
+
+                ( Playing, _ ) ->
+                    ( Icons.stop, button, [ onClick TogglePlay ] )
     in
         row None
             [ spacing 2, alignBottom ]
-            [ button LightButton
-                [ onClick TogglePlay
-                , padding 10
-                , userSelectNone
-                , height (px 60)
-                , width (px 60)
-                ]
+            [ control LightButton
+                ([ padding 10
+                 , userSelectNone
+                 , height (px 60)
+                 , width (px 60)
+                 ]
+                    ++ event
+                )
                 icon
             , button Page
                 [ onClick DownloadPdf
@@ -284,7 +288,7 @@ view model =
                         [ center, width fill ]
                         [ column None
                             [ spacing 2, width (px 800) ]
-                            [ playAndDownload model.playingState
+                            [ playAndDownload model
                             , column Settings
                                 [ padding 20, spacing 6 ]
                                 [ settings model

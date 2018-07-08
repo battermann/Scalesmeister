@@ -33,7 +33,6 @@ app.ports.downloadPdf.subscribe(function() {
 app.ports.renderScore.subscribe(function(input) {
   const elementId = input[0]
   const score = input[1]
-  console.log(score)
   abcjs.renderAbc(elementId, score);
   // abcjs.renderMidi('midi-player', score, { generateDownload: true });
 });
@@ -52,7 +51,9 @@ app.ports.loadSamples.subscribe(function(pitchToSampleUrlMapping){
        obj[item[0]] = item[1]
        return obj
      }, {})
-  sampler = new Sampler(toObj(pitchToSampleUrlMapping)).toMaster();
+  sampler = new Sampler(toObj(pitchToSampleUrlMapping), function() {
+    app.ports.samplesLoaded.send("samples loaded");
+  } ).toMaster();
 });
 
 app.ports.startSequence.subscribe(function(seq){

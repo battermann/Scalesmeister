@@ -52,11 +52,24 @@ pitchToSampleUrlMapping (Pitch (Note letter accidental) octave) =
 
 loadPianoSamples : Cmd msg
 loadPianoSamples =
-    [ Pitch (Note C Natural) Octave.four
-    , Pitch (Note D Sharp) Octave.four
-    , Pitch (Note F Sharp) Octave.four
-    , Pitch (Note A Natural) Octave.four
+    [ Note C Natural
+    , Note D Sharp
+    , Note F Sharp
+    , Note A Natural
     ]
+        |> List.concatMap
+            (\note ->
+                [ Octave.one
+                , Octave.two
+                , Octave.three
+                , Octave.four
+                , Octave.five
+                , Octave.six
+                , Octave.seven
+                ]
+                    |> List.map (Pitch note)
+            )
+        |> ((++) [ Pitch (Note A Natural) Octave.zero, Pitch (Note C Natural) Octave.eight ])
         |> List.filterMap pitchToSampleUrlMapping
         |> Ports.loadSamples
 
