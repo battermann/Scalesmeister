@@ -75,4 +75,4 @@ app.ports.stopSequence.subscribe(function(){
   }
 });
 
-registerServiceWorker();
+// registerServiceWorker();

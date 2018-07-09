@@ -23,6 +23,17 @@ type Dialog
     | SelectStartingNote
 
 
+type alias Device =
+    { width : Int
+    , height : Int
+    , phone : Bool
+    , tablet : Bool
+    , desktop : Bool
+    , bigDesktop : Bool
+    , portrait : Bool
+    }
+
+
 type alias Model =
     { range : Range
     , scales : SelectList ( String, ScaleDef )
@@ -32,6 +43,7 @@ type alias Model =
     , dialog : Maybe Dialog
     , playingState : PlayingState
     , samplesLoaded : Bool
+    , device : Device
     }
 
 
@@ -47,6 +59,7 @@ type Msg
     | Open Dialog
     | SamplesLoaded
     | UnknownSub String
+    | WindowResize Device
     | RangeMinStepDown
     | RangeMinStepUp
     | RangeMinSkipDown
