@@ -128,7 +128,7 @@ renderNew playingState model =
             ( model, render (line model) )
 
         Playing ->
-            ( model, Cmd.batch [ Audio.stop, render (line model) ] )
+            ( { model | playingState = Stopped }, Cmd.batch [ Audio.stop, render (line model) ] )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -178,7 +178,7 @@ update msg model =
                 newModel =
                     { model | range = Range.setLowest min model.range }
             in
-                ( newModel, render (line newModel) )
+                renderNew model.playingState newModel
 
         RangeMinStepUp ->
             let
@@ -189,7 +189,7 @@ update msg model =
                 newModel =
                     { model | range = Range.setLowest min model.range }
             in
-                ( newModel, render (line newModel) )
+                renderNew model.playingState newModel
 
         RangeMinSkipDown ->
             let
@@ -200,7 +200,7 @@ update msg model =
                 newModel =
                     { model | range = Range.setLowest min model.range }
             in
-                ( newModel, render (line newModel) )
+                renderNew model.playingState newModel
 
         RangeMinSkipUp ->
             let
@@ -211,7 +211,7 @@ update msg model =
                 newModel =
                     { model | range = Range.setLowest min model.range }
             in
-                ( newModel, render (line newModel) )
+                renderNew model.playingState newModel
 
         RangeMaxStepDown ->
             let
@@ -222,7 +222,7 @@ update msg model =
                 newModel =
                     { model | range = Range.setHighest max model.range }
             in
-                ( newModel, render (line newModel) )
+                renderNew model.playingState newModel
 
         RangeMaxStepUp ->
             let
@@ -233,7 +233,7 @@ update msg model =
                 newModel =
                     { model | range = Range.setHighest max model.range }
             in
-                ( newModel, render (line newModel) )
+                renderNew model.playingState newModel
 
         RangeMaxSkipDown ->
             let
@@ -244,7 +244,7 @@ update msg model =
                 newModel =
                     { model | range = Range.setHighest max model.range }
             in
-                ( newModel, render (line newModel) )
+                renderNew model.playingState newModel
 
         RangeMaxSkipUp ->
             let
@@ -255,7 +255,7 @@ update msg model =
                 newModel =
                     { model | range = Range.setHighest max model.range }
             in
-                ( newModel, render (line newModel) )
+                renderNew model.playingState newModel
 
         SamplesLoaded ->
             ( { model | samplesLoaded = True }, Cmd.none )
