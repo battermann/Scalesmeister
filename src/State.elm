@@ -17,6 +17,7 @@ import Json.Encode exposing (Value)
 import Json.Decode as Decode
 import Ports
 import Window
+import Task
 
 
 scales : SelectList ( String, ScaleDef )
@@ -86,6 +87,11 @@ line model =
         model.startingNote
 
 
+initialSizeCmd : Cmd Msg
+initialSizeCmd =
+    Task.perform (classifyDevice >> WindowResize) Window.size
+
+
 init : ( Model, Cmd Msg )
 init =
     let
@@ -106,7 +112,7 @@ init =
             , device = classifyDevice { width = 0, height = 0 }
             }
     in
-        ( model, Cmd.batch [ Audio.loadPianoSamples, Score.render (line model) ] )
+        ( model, Cmd.batch [ initialSizeCmd, Audio.loadPianoSamples, Score.render (line model) ] )
 
 
 classifyDevice : Window.Size -> Device
