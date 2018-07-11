@@ -8,7 +8,7 @@ import Color exposing (..)
 import Element.Attributes exposing (inlineStyle)
 
 
-type MyStyles
+type AppStyles
     = Page
     | H1
     | H2

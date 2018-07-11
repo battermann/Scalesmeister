@@ -16,6 +16,8 @@ import Types.Interval as Interval
 import Json.Encode exposing (Value)
 import Json.Decode as Decode
 import Ports
+import Window
+import Task
 
 
 scales : SelectList ( String, ScaleDef )
@@ -85,6 +87,11 @@ line model =
         model.startingNote
 
 
+initialSizeCmd : Cmd Msg
+initialSizeCmd =
+    Task.perform (classifyDevice >> WindowResize) Window.size
+
+
 init : ( Model, Cmd Msg )
 init =
     let
@@ -102,9 +109,22 @@ init =
             , playingState = Stopped
             , dialog = Nothing
             , samplesLoaded = False
+            , device = classifyDevice { width = 0, height = 0 }
             }
     in
-        ( model, Cmd.batch [ Audio.loadPianoSamples, Score.render (line model) ] )
+        ( model, Cmd.batch [ initialSizeCmd, Audio.loadPianoSamples, Score.render (line model) ] )
+
+
+classifyDevice : Window.Size -> Device
+classifyDevice { width, height } =
+    { width = width
+    , height = height
+    , phone = width <= 600
+    , tablet = width > 600 && width <= 1200
+    , desktop = width > 1200 && width <= 1800
+    , bigDesktop = width > 1800
+    , portrait = width < height
+    }
 
 
 renderNew : PlayingState -> Model -> ( Model, Cmd msg )
@@ -249,6 +269,9 @@ update msg model =
         UnknownSub _ ->
             ( model, Cmd.none )
 
+        WindowResize device ->
+            ( { model | device = device }, Cmd.none )
+
 
 decodeValue : Value -> Msg
 decodeValue x =
@@ -269,4 +292,7 @@ decodeValue x =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Ports.samplesLoaded decodeValue
+    Sub.batch
+        [ Ports.samplesLoaded decodeValue
+        , Window.resizes (classifyDevice >> WindowResize)
+        ]

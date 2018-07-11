@@ -1,4 +1,3 @@
-import registerServiceWorker from './registerServiceWorker';
 import {Sampler, Sequence, Transport} from 'tone';
 import svg2pdf from 'svg2pdf.js';
 import jsPDF from 'jspdf-yworks';
@@ -74,5 +73,3 @@ app.ports.stopSequence.subscribe(function(){
     sequence.removeAll();
   }
 });
-
-registerServiceWorker();

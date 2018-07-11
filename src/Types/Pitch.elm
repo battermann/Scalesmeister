@@ -92,3 +92,8 @@ enharmonicEquivalents semitones =
                         |> List.Extra.find (\o -> (Octave.number o) * 12 + (Note.semitoneOffset n) == semitones)
                         |> Maybe.map (Pitch n)
                 )
+
+
+displayPitch : Pitch -> String
+displayPitch (Pitch note octave) =
+    (noteToString note) ++ (Octave.number octave |> toString)
