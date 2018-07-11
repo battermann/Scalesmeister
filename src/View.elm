@@ -228,7 +228,7 @@ selectStartingNoteDialog : Model -> Element AppStyles variation Msg
 selectStartingNoteDialog model =
     modalDialog model
         (column None
-            [ spacing 2, width (px 400) ]
+            [ spacing 2, width (px 220) ]
             ((h2 H2 [ center ] (text "Starting note"))
                 :: (SelectList.selected model.scales |> (Tuple.second >> (Scale (SelectList.selected model.roots)) >> Scale.notes) |> List.map (selectNoteButton StartingNoteSelected) |> List.Extra.greedyGroupsOf 3 |> List.map (row None [ spacing 2 ]))
             )
