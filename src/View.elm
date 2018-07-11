@@ -16,7 +16,6 @@ import Types.Formula exposing (Formula)
 import View.FontAwesome as Icons
 import Types.Range as Range exposing (Range)
 import Types.Pitch exposing (..)
-import Types.Octave as Octave
 import Types.Scale as Scale exposing (Scale(..))
 
 
@@ -24,7 +23,7 @@ rangeView : Model -> Element AppStyles variation Msg
 rangeView model =
     let
         myLayout =
-            if model.device.phone || model.device.tablet then
+            if model.device.phone || (model.device.tablet && model.device.portrait) then
                 column
             else
                 row
