@@ -48,9 +48,7 @@ type alias Model =
 
 
 type Msg
-    = NoteOn Pitch
-    | NoteOff Pitch
-    | TogglePlay
+    = TogglePlay
     | DownloadPdf
     | RootSelected Note
     | StartingNoteSelected Note

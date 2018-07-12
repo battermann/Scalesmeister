@@ -1,10 +1,28 @@
-module Score exposing (render, downloadPdf, elementId)
+port module Score exposing (render, downloadAsPdf, elementId)
 
 import Types.Pitch exposing (..)
 import Types.Note exposing (..)
 import Types.Octave as Octave
 import List.Extra
-import Ports
+
+
+type alias ElementId =
+    String
+
+
+type alias AbcNotation =
+    String
+
+
+elementId : ElementId
+elementId =
+    "score"
+
+
+port renderScore : ( ElementId, AbcNotation ) -> Cmd msg
+
+
+port downloadPdf : () -> Cmd msg
 
 
 type Header
@@ -95,20 +113,11 @@ toAbcNotation pitches =
     (mkHeader "" |> headerToString) ++ "\n" ++ (toAbcScoreNotes pitches)
 
 
-
---(mkHeader "line" |> headerToString) ++ "\n" ++ """"8va"C D E F G A"""
-
-
-elementId : Ports.ElementId
-elementId =
-    "score"
-
-
 render : List Pitch -> Cmd msg
 render pitches =
-    Ports.renderScore ( elementId, toAbcNotation pitches )
+    renderScore ( elementId, toAbcNotation pitches )
 
 
-downloadPdf : Cmd msg
-downloadPdf =
-    Ports.downloadPdf ()
+downloadAsPdf : Cmd msg
+downloadAsPdf =
+    downloadPdf ()

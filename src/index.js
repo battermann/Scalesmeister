@@ -36,13 +36,6 @@ app.ports.renderScore.subscribe(function(input) {
   // abcjs.renderMidi('midi-player', score, { generateDownload: true });
 });
 
-app.ports.noteOn.subscribe(function(pitch) {
-  sampler.triggerAttack(pitch)
-});
-
-app.ports.noteOff.subscribe(function(pitch) {
-  sampler.triggerRelease(pitch)
-});
 
 app.ports.loadSamples.subscribe(function(pitchToSampleUrlMapping){
   const toObj = (array) =>

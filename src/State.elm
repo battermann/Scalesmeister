@@ -7,7 +7,7 @@ import Types.Pitch as Pitch exposing (..)
 import Types.Octave as Octave
 import Types.Line as Line exposing (..)
 import Types.Scale exposing (..)
-import Types.Range as Range exposing (Range)
+import Types.Range as Range exposing (..)
 import Types.Note exposing (..)
 import Score exposing (..)
 import Types.Formula as Formula exposing (..)
@@ -15,7 +15,6 @@ import SelectList exposing (SelectList)
 import Types.Interval as Interval
 import Json.Encode exposing (Value)
 import Json.Decode as Decode
-import Ports
 import Window
 import Task
 
@@ -140,12 +139,6 @@ renderNew playingState model =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        NoteOn pitch ->
-            ( model, Audio.noteOn pitch )
-
-        NoteOff pitch ->
-            ( model, Audio.noteOff pitch )
-
         TogglePlay ->
             case model.playingState of
                 Stopped ->
@@ -155,7 +148,7 @@ update msg model =
                     ( { model | playingState = Stopped }, Audio.stop )
 
         DownloadPdf ->
-            ( model, Score.downloadPdf )
+            ( model, Score.downloadAsPdf )
 
         Open dialog ->
             ( { model | dialog = Just dialog }, Cmd.none )
@@ -164,104 +157,103 @@ update msg model =
             ( { model | dialog = Nothing }, Cmd.none )
 
         RootSelected note ->
-            renderNew model.playingState { model | roots = model.roots |> SelectList.select (((==) note)), playingState = Stopped, startingNote = note }
+            { model
+                | roots = model.roots |> SelectList.select (((==) note))
+                , playingState = Stopped
+                , startingNote = note
+            }
+                |> renderNew model.playingState
 
         StartingNoteSelected note ->
-            renderNew model.playingState { model | startingNote = note, playingState = Stopped }
+            { model | startingNote = note, playingState = Stopped }
+                |> renderNew model.playingState
 
         ScaleSelected scale ->
-            renderNew model.playingState { model | scales = model.scales |> SelectList.select (Tuple.second >> ((==) scale)), playingState = Stopped, startingNote = SelectList.selected model.roots }
+            { model
+                | scales = model.scales |> SelectList.select (Tuple.second >> ((==) scale))
+                , playingState = Stopped
+                , startingNote = SelectList.selected model.roots
+            }
+                |> renderNew model.playingState
 
         FormulaSelected formula ->
-            renderNew model.playingState { model | formulas = model.formulas |> SelectList.select ((==) formula), playingState = Stopped }
+            { model
+                | formulas = model.formulas |> SelectList.select ((==) formula)
+                , playingState = Stopped
+            }
+                |> renderNew model.playingState
 
         RangeMinStepDown ->
             let
                 min =
-                    Pitch.transpose [ natural, flat ] (Range.lowest model.range) -1
-                        |> Maybe.withDefault (Range.lowest model.range)
-
-                newModel =
-                    { model | range = Range.setLowest min model.range }
+                    Pitch.transpose [ natural, flat ] (lowest model.range) -1
+                        |> Maybe.withDefault (lowest model.range)
             in
-                renderNew model.playingState newModel
+                { model | range = Range.setLowest min model.range }
+                    |> renderNew model.playingState
 
         RangeMinStepUp ->
             let
                 min =
-                    Pitch.transpose [ natural, sharp ] (Range.lowest model.range) 1
-                        |> Maybe.withDefault (Range.lowest model.range)
-
-                newModel =
-                    { model | range = Range.setLowest min model.range }
+                    Pitch.transpose [ natural, sharp ] (lowest model.range) 1
+                        |> Maybe.withDefault (lowest model.range)
             in
-                renderNew model.playingState newModel
+                { model | range = Range.setLowest min model.range }
+                    |> renderNew model.playingState
 
         RangeMinSkipDown ->
             let
                 min =
-                    Pitch.transpose [ natural, flat ] (Range.lowest model.range) -12
-                        |> Maybe.withDefault (Range.lowest model.range)
-
-                newModel =
-                    { model | range = Range.setLowest min model.range }
+                    Pitch.transpose [ natural, flat ] (lowest model.range) -12
+                        |> Maybe.withDefault (lowest model.range)
             in
-                renderNew model.playingState newModel
+                { model | range = Range.setLowest min model.range }
+                    |> renderNew model.playingState
 
         RangeMinSkipUp ->
             let
                 min =
-                    Pitch.transpose [ natural, sharp ] (Range.lowest model.range) 12
-                        |> Maybe.withDefault (Range.lowest model.range)
-
-                newModel =
-                    { model | range = Range.setLowest min model.range }
+                    Pitch.transpose [ natural, sharp ] (lowest model.range) 12
+                        |> Maybe.withDefault (lowest model.range)
             in
-                renderNew model.playingState newModel
+                { model | range = Range.setLowest min model.range }
+                    |> renderNew model.playingState
 
         RangeMaxStepDown ->
             let
                 max =
-                    Pitch.transpose [ natural, flat ] (Range.highest model.range) -1
-                        |> Maybe.withDefault (Range.highest model.range)
-
-                newModel =
-                    { model | range = Range.setHighest max model.range }
+                    Pitch.transpose [ natural, flat ] (highest model.range) -1
+                        |> Maybe.withDefault (highest model.range)
             in
-                renderNew model.playingState newModel
+                { model | range = Range.setHighest max model.range }
+                    |> renderNew model.playingState
 
         RangeMaxStepUp ->
             let
                 max =
-                    Pitch.transpose [ natural, sharp ] (Range.highest model.range) 1
-                        |> Maybe.withDefault (Range.highest model.range)
-
-                newModel =
-                    { model | range = Range.setHighest max model.range }
+                    Pitch.transpose [ natural, sharp ] (highest model.range) 1
+                        |> Maybe.withDefault (highest model.range)
             in
-                renderNew model.playingState newModel
+                { model | range = Range.setHighest max model.range }
+                    |> renderNew model.playingState
 
         RangeMaxSkipDown ->
             let
                 max =
-                    Pitch.transpose [ natural, flat ] (Range.highest model.range) -12
-                        |> Maybe.withDefault (Range.highest model.range)
-
-                newModel =
-                    { model | range = Range.setHighest max model.range }
+                    Pitch.transpose [ natural, flat ] (highest model.range) -12
+                        |> Maybe.withDefault (highest model.range)
             in
-                renderNew model.playingState newModel
+                { model | range = Range.setHighest max model.range }
+                    |> renderNew model.playingState
 
         RangeMaxSkipUp ->
             let
                 max =
-                    Pitch.transpose [ natural, sharp ] (Range.highest model.range) 12
-                        |> Maybe.withDefault (Range.highest model.range)
-
-                newModel =
-                    { model | range = Range.setHighest max model.range }
+                    Pitch.transpose [ natural, sharp ] (highest model.range) 12
+                        |> Maybe.withDefault (highest model.range)
             in
-                renderNew model.playingState newModel
+                { model | range = Range.setHighest max model.range }
+                    |> renderNew model.playingState
 
         SamplesLoaded ->
             ( { model | samplesLoaded = True }, Cmd.none )
@@ -293,6 +285,6 @@ decodeValue x =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ Ports.samplesLoaded decodeValue
+        [ Audio.samplesLoaded decodeValue
         , Window.resizes (classifyDevice >> WindowResize)
         ]

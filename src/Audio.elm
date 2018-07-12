@@ -1,10 +1,31 @@
-module Audio exposing (loadPianoSamples, noteOn, noteOff, play, stop)
+port module Audio exposing (loadPianoSamples, play, stop, samplesLoaded)
 
 import Types.Pitch as Pitch exposing (..)
 import Types.Note exposing (..)
-import Ports exposing (SampleUrl, ScientificPitchNotation)
 import Types.Octave as Octave exposing (..)
 import List.Extra
+import Json.Encode exposing (Value)
+import Json.Decode as Decode
+
+
+type alias SampleUrl =
+    String
+
+
+type alias ScientificPitchNotation =
+    String
+
+
+port loadSamples : List ( ScientificPitchNotation, SampleUrl ) -> Cmd msg
+
+
+port startSequence : List ScientificPitchNotation -> Cmd msg
+
+
+port stopSequence : () -> Cmd msg
+
+
+port samplesLoaded : (Value -> msg) -> Sub msg
 
 
 toScientificPitchNotation : Pitch -> Maybe ScientificPitchNotation
@@ -71,28 +92,14 @@ loadPianoSamples =
             )
         |> ((++) [ Pitch (Note A Natural) Octave.zero, Pitch (Note C Natural) Octave.eight ])
         |> List.filterMap pitchToSampleUrlMapping
-        |> Ports.loadSamples
-
-
-noteOn : Pitch -> Cmd msg
-noteOn pitch =
-    toScientificPitchNotation pitch
-        |> Maybe.map Ports.noteOn
-        |> Maybe.withDefault Cmd.none
-
-
-noteOff : Pitch -> Cmd msg
-noteOff pitch =
-    toScientificPitchNotation pitch
-        |> Maybe.map Ports.noteOff
-        |> Maybe.withDefault Cmd.none
+        |> loadSamples
 
 
 play : List Pitch -> Cmd msg
 play pitches =
-    Ports.startSequence (List.filterMap toScientificPitchNotation pitches)
+    startSequence (List.filterMap toScientificPitchNotation pitches)
 
 
 stop : Cmd msg
 stop =
-    Ports.stopSequence ()
+    stopSequence ()

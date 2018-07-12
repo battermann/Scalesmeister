@@ -176,11 +176,6 @@ transpose interval (Note letter accidental) =
                 )
 
 
-enharmonicEquivalents : Note -> List Note
-enharmonicEquivalents note =
-    all |> List.filter (\n -> (semitoneOffset n) % 12 == (semitoneOffset note) % 2)
-
-
 accidentalToString : Accidental -> String
 accidentalToString accidental =
     case accidental of
