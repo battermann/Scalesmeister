@@ -1,9 +1,15 @@
 port module Score exposing (render, downloadAsPdf, elementId)
 
 import Types.Pitch exposing (..)
-import Types.Note exposing (..)
+import Types.PitchClass exposing (..)
 import Types.Octave as Octave
 import List.Extra
+import Types.Orchestration exposing (..)
+import Types.Note exposing (..)
+import Types.Orchestration as Orchestration
+import Helpers exposing (Either(..))
+import Types.TimeSignature as TimeSignature exposing (..)
+import Types.Note as Note
 
 
 type alias ElementId =
@@ -26,7 +32,7 @@ port downloadPdf : () -> Cmd msg
 
 
 type Header
-    = Header ReferenceNumber Title Meter BasicNoteLength
+    = Header ReferenceNumber Title Meter
 
 
 type Title
@@ -41,13 +47,9 @@ type ReferenceNumber
     = ReferenceNumber Int
 
 
-type BasicNoteLength
-    = BasicNoteLength Int Int
-
-
-mkHeader : String -> Header
-mkHeader title =
-    Header (ReferenceNumber 1) (Title title) (Meter 4 4) (BasicNoteLength 1 8)
+mkHeader : String -> TimeSignature -> Header
+mkHeader title ts =
+    Header (ReferenceNumber 1) (Title title) (timeSignature ts)
 
 
 
@@ -69,7 +71,7 @@ mkHeader title =
 
 
 toAbcScoreNote : Pitch -> String
-toAbcScoreNote (Pitch (Note letter accidental) octave) =
+toAbcScoreNote (Pitch (PitchClass letter accidental) octave) =
     let
         acc =
             case accidental of
@@ -104,20 +106,48 @@ toAbcScoreNotes pitches =
 
 
 headerToString : Header -> String
-headerToString (Header (ReferenceNumber x) (Title title) (Meter beatsPerBar beatUnit) (BasicNoteLength numerator denominator)) =
-    "X: " ++ (toString x) ++ "\n%%stretchlast 1\n" ++ "T: " ++ title ++ "\n" ++ "M: " ++ (toString beatsPerBar) ++ "/" ++ (toString beatUnit) ++ "\n" ++ "L: " ++ (toString numerator) ++ "/" ++ (toString denominator) ++ "\n" ++ "K: C"
+headerToString (Header (ReferenceNumber x) (Title title) (Meter beatsPerBar beatUnit)) =
+    "X: " ++ (toString x) ++ "\n%%stretchlast 1\n" ++ "T: " ++ title ++ "\n" ++ "M: " ++ (toString beatsPerBar) ++ "/" ++ (toString beatUnit) ++ "\n" ++ "L: 1/16" ++ "\n" ++ "K: C"
 
 
-toAbcNotation : List Pitch -> String
-toAbcNotation pitches =
-    (mkHeader "" |> headerToString) ++ "\n" ++ (toAbcScoreNotes pitches)
+render : Orchestration -> Cmd msg
+render orchestration =
+    renderScore ( elementId, orchestration |> orchestrationToAbcNotation )
 
 
-render : List Pitch -> Cmd msg
-render pitches =
-    renderScore ( elementId, toAbcNotation pitches )
+timeSignature : TimeSignature -> Meter
+timeSignature (TimeSignature numBeats beatDuration) =
+    Meter (numBeats |> numberOfBeats) (beatDuration |> beatDurationToInt)
 
 
 downloadAsPdf : Cmd msg
 downloadAsPdf =
     downloadPdf ()
+
+
+durationToString : Duration -> String
+durationToString duration =
+    Note.numberOfSixteenth duration |> toString
+
+
+noteOrRestToAbcNotation : Either Note Rest -> String
+noteOrRestToAbcNotation noteOrRest =
+    case noteOrRest of
+        Left (Note pitch duration) ->
+            (toAbcScoreNote pitch) ++ (duration |> durationToString)
+
+        Right (Rest duration) ->
+            "z" ++ (duration |> durationToString)
+
+
+barToAbcNotation : Bar -> String
+barToAbcNotation (Bar _ beamed) =
+    beamed
+        |> List.map (List.map noteOrRestToAbcNotation >> String.join "")
+        |> String.join " "
+        |> (\bar -> bar ++ "|")
+
+
+orchestrationToAbcNotation : Orchestration -> String
+orchestrationToAbcNotation (Orchestration timeSignature bars) =
+    (mkHeader "" timeSignature |> headerToString) ++ "\n" ++ (bars |> List.map barToAbcNotation |> String.join "")

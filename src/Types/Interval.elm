@@ -1,4 +1,27 @@
-module Types.Interval exposing (IntervalNumber(..), IntervalQuality(..), Interval, perfectUnison, minorSecond, majorSecond, minorThird, majorThird, perfectFourth, augmentedFourth, diminishedFifth, perfectFifth, minorSixth, majorSixth, minorSeventh, majorSeventh, quality, number, semitones, complementary, octave)
+module Types.Interval
+    exposing
+        ( IntervalNumber(..)
+        , IntervalQuality(..)
+        , Interval
+        , perfectUnison
+        , minorSecond
+        , majorSecond
+        , minorThird
+        , majorThird
+        , perfectFourth
+        , augmentedFourth
+        , diminishedFifth
+        , perfectFifth
+        , minorSixth
+        , majorSixth
+        , minorSeventh
+        , majorSeventh
+        , quality
+        , number
+        , semitones
+        , complementary
+        , octave
+        )
 
 import List.Extra
 

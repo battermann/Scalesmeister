@@ -30,8 +30,9 @@ app.ports.downloadPdf.subscribe(function() {
 });
 
 app.ports.renderScore.subscribe(function(input) {
-  const elementId = input[0]
-  const score = input[1]
+  const elementId = input[0];
+  const score = input[1];
+  console.log(score);
   abcjs.renderAbc(elementId, score);
   // abcjs.renderMidi('midi-player', score, { generateDownload: true });
 });
@@ -42,7 +43,7 @@ app.ports.loadSamples.subscribe(function(pitchToSampleUrlMapping){
      array.reduce((obj, item) => {
        obj[item[0]] = item[1]
        return obj
-     }, {})
+     }, {});
   sampler = new Sampler(toObj(pitchToSampleUrlMapping), function() {
     app.ports.samplesLoaded.send("samples loaded");
   } ).toMaster();
@@ -57,12 +58,12 @@ app.ports.startSequence.subscribe(function(seq){
 
   sequence.start();
   Transport.bpm.value = 160;
-  Transport.start("+0.1")
+  Transport.start("+0.1");
 });
 
 app.ports.stopSequence.subscribe(function(){
   Transport.stop()
   if (sequence != null)  {
     sequence.removeAll();
-  }
+  };
 });

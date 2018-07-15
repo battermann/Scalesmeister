@@ -8,7 +8,7 @@ import Types.Octave as Octave
 import Types.Line as Line exposing (..)
 import Types.Scale exposing (..)
 import Types.Range as Range exposing (..)
-import Types.Note exposing (..)
+import Types.PitchClass exposing (..)
 import Score exposing (..)
 import Types.Formula as Formula exposing (..)
 import SelectList exposing (SelectList)
@@ -17,6 +17,9 @@ import Json.Encode exposing (Value)
 import Json.Decode as Decode
 import Window
 import Task
+import Types.Orchestration as Orchestration
+import Types.TimeSignature as TimeSignature exposing (TimeSignature(..), NumberOfBeats(..), BeatDuration(..))
+import Types.Note as Note
 
 
 scales : SelectList ( String, ScaleDef )
@@ -32,22 +35,22 @@ scales =
         ]
 
 
-roots : SelectList Note
+roots : SelectList PitchClass
 roots =
     SelectList.fromLists
         []
-        (Note C Natural)
-        [ (Note D Flat)
-        , (Note D Natural)
-        , (Note E Flat)
-        , (Note E Natural)
-        , (Note F Natural)
-        , (Note G Flat)
-        , (Note G Natural)
-        , (Note A Flat)
-        , (Note A Natural)
-        , (Note B Flat)
-        , (Note B Natural)
+        (PitchClass C Natural)
+        [ (PitchClass D Flat)
+        , (PitchClass D Natural)
+        , (PitchClass E Flat)
+        , (PitchClass E Natural)
+        , (PitchClass F Natural)
+        , (PitchClass G Flat)
+        , (PitchClass G Natural)
+        , (PitchClass A Flat)
+        , (PitchClass A Natural)
+        , (PitchClass B Flat)
+        , (PitchClass B Natural)
         ]
 
 
@@ -71,7 +74,7 @@ formulas =
         ]
 
 
-mkLine : Range -> ScaleDef -> Formula -> Note -> Note -> Line
+mkLine : Range -> ScaleDef -> Formula -> PitchClass -> PitchClass -> Line
 mkLine range scale formula root startingNote =
     Line.fromScaleWithinRange range (Scale root scale)
         |> Line.applyFormula startingNote formula
@@ -96,8 +99,8 @@ init =
     let
         range =
             Range.piano
-                |> Range.setLowest (Pitch (Note C Natural) Octave.three)
-                |> Range.setHighest (Pitch (Note B Natural) Octave.six)
+                |> Range.setLowest (Pitch (PitchClass C Natural) Octave.three)
+                |> Range.setHighest (Pitch (PitchClass B Natural) Octave.six)
 
         model =
             { range = range
@@ -111,7 +114,12 @@ init =
             , device = classifyDevice { width = 0, height = 0 }
             }
     in
-        ( model, Cmd.batch [ initialSizeCmd, Audio.loadPianoSamples, Score.render (line model) ] )
+        case line model |> Orchestration.orchestrate (TimeSignature Four TimeSignature.Quarter) Note.Eighth of
+            Just orchestration ->
+                ( model, Cmd.batch [ initialSizeCmd, Audio.loadPianoSamples, Score.render orchestration ] )
+
+            Nothing ->
+                ( model, Cmd.batch [ initialSizeCmd, Audio.loadPianoSamples ] )
 
 
 classifyDevice : Window.Size -> Device
@@ -128,12 +136,15 @@ classifyDevice { width, height } =
 
 renderNew : PlayingState -> Model -> ( Model, Cmd msg )
 renderNew playingState model =
-    case playingState of
-        Stopped ->
-            ( model, render (line model) )
+    case ( playingState, line model |> Orchestration.orchestrate (TimeSignature Four TimeSignature.Quarter) Note.Eighth ) of
+        ( _, Nothing ) ->
+            ( model, Cmd.none )
 
-        Playing ->
-            ( { model | playingState = Stopped }, Cmd.batch [ Audio.stop, render (line model) ] )
+        ( Stopped, Just orchestration ) ->
+            ( model, render orchestration )
+
+        ( Playing, Just orchestration ) ->
+            ( { model | playingState = Stopped }, Cmd.batch [ Audio.stop, render orchestration ] )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

@@ -1,4 +1,22 @@
-module Types.Octave exposing (Octave, number, add, all, zero, one, two, three, four, five, six, seven, eight, octave, up, down)
+module Types.Octave
+    exposing
+        ( Octave
+        , number
+        , add
+        , all
+        , zero
+        , one
+        , two
+        , three
+        , four
+        , five
+        , six
+        , seven
+        , eight
+        , octave
+        , up
+        , down
+        )
 
 
 type Octave

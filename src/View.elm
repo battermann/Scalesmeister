@@ -8,7 +8,7 @@ import Styles exposing (..)
 import Element.Events exposing (..)
 import Element.Attributes exposing (..)
 import Score
-import Types.Note exposing (..)
+import Types.PitchClass exposing (..)
 import SelectList exposing (SelectList)
 import List.Extra
 import Types.Scale exposing (ScaleDef)
@@ -187,7 +187,7 @@ modalDialog model element =
         )
 
 
-selectNoteButton : (Note -> Msg) -> Note -> Element AppStyles variation Msg
+selectNoteButton : (PitchClass -> Msg) -> PitchClass -> Element AppStyles variation Msg
 selectNoteButton event note =
     button DarkButton [ userSelectNone, onClick (event note), padding 10, width fill ] (noteToString note |> text)
 

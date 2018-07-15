@@ -2,7 +2,7 @@ module Types.Range exposing (Range, setLowest, setHighest, highest, lowest, cont
 
 import Types.Pitch as Pitch exposing (..)
 import Types.Octave as Octave
-import Types.Note exposing (Note(..), Letter(..), Accidental(..))
+import Types.PitchClass exposing (PitchClass(..), Letter(..), Accidental(..))
 
 
 type Range
@@ -42,4 +42,4 @@ setHighest pitch (Range l h) =
 
 piano : Range
 piano =
-    Range (Pitch (Note A Natural) Octave.zero) (Pitch (Note C Natural) Octave.eight)
+    Range (Pitch (PitchClass A Natural) Octave.zero) (Pitch (PitchClass C Natural) Octave.eight)

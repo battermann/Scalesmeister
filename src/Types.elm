@@ -3,7 +3,7 @@ module Types exposing (..)
 import Types.Pitch exposing (..)
 import Types.Line as Line exposing (..)
 import Types.Range exposing (..)
-import Types.Note exposing (..)
+import Types.PitchClass exposing (..)
 import Score exposing (..)
 import Types.Formula as Formula exposing (..)
 import Types.Scale exposing (..)
@@ -38,8 +38,8 @@ type alias Model =
     { range : Range
     , scales : SelectList ( String, ScaleDef )
     , formulas : SelectList Formula
-    , roots : SelectList Note
-    , startingNote : Note
+    , roots : SelectList PitchClass
+    , startingNote : PitchClass
     , dialog : Maybe Dialog
     , playingState : PlayingState
     , samplesLoaded : Bool
@@ -50,8 +50,8 @@ type alias Model =
 type Msg
     = TogglePlay
     | DownloadPdf
-    | RootSelected Note
-    | StartingNoteSelected Note
+    | RootSelected PitchClass
+    | StartingNoteSelected PitchClass
     | ScaleSelected ScaleDef
     | FormulaSelected Formula
     | Open Dialog
