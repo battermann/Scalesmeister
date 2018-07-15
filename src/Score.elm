@@ -117,7 +117,7 @@ render orchestration =
 
 timeSignature : TimeSignature -> Meter
 timeSignature (TimeSignature numBeats beatDuration) =
-    Meter (numBeats |> numberOfBeats) (beatDuration |> beatDurationToInt)
+    Meter (numBeats |> numberOfBeatsToInt) (beatDuration |> beatDurationToInt)
 
 
 downloadAsPdf : Cmd msg

@@ -4,9 +4,13 @@ module Types.TimeSignature
         , TimeSignature(..)
         , NumberOfBeats(..)
         , durationsPerBar
-        , numberOfBeats
+        , numberOfBeatsToInt
         , beatDurationToInt
         , grouping
+        , setDuration
+        , setNumberOfBeats
+        , numberOfBeats
+        , beatDuration
         )
 
 import Types.Note as Note exposing (..)
@@ -27,6 +31,19 @@ type NumberOfBeats
     = Two
     | Three
     | Four
+    | Five
+    | Six
+    | Seven
+
+
+setNumberOfBeats : NumberOfBeats -> TimeSignature -> TimeSignature
+setNumberOfBeats numBeats (TimeSignature _ duration) =
+    TimeSignature numBeats duration
+
+
+setDuration : BeatDuration -> TimeSignature -> TimeSignature
+setDuration duration (TimeSignature numBeats _) =
+    TimeSignature numBeats duration
 
 
 durationsPerBar : TimeSignature -> Duration -> Maybe Int
@@ -34,8 +51,18 @@ durationsPerBar timeSignature duration =
     sixteenthPerBar timeSignature /// (Note.numberOfSixteenth duration)
 
 
-numberOfBeats : NumberOfBeats -> Int
-numberOfBeats numberOfBeats =
+numberOfBeats : TimeSignature -> NumberOfBeats
+numberOfBeats (TimeSignature numBeats _) =
+    numBeats
+
+
+beatDuration : TimeSignature -> BeatDuration
+beatDuration (TimeSignature _ duration) =
+    duration
+
+
+numberOfBeatsToInt : NumberOfBeats -> Int
+numberOfBeatsToInt numberOfBeats =
     case numberOfBeats of
         Two ->
             2
@@ -45,6 +72,15 @@ numberOfBeats numberOfBeats =
 
         Four ->
             4
+
+        Five ->
+            5
+
+        Six ->
+            6
+
+        Seven ->
+            7
 
 
 beatDurationToInt : BeatDuration -> Int
@@ -81,7 +117,7 @@ numberOfSixteenth beatDuration =
 
 sixteenthPerBar : TimeSignature -> Int
 sixteenthPerBar (TimeSignature numBeats beatDuration) =
-    (numberOfBeats numBeats) * (numberOfSixteenth beatDuration)
+    (numberOfBeatsToInt numBeats) * (numberOfSixteenth beatDuration)
 
 
 div : Int -> Int -> Maybe Int
@@ -106,7 +142,7 @@ grouping (TimeSignature numBeats beatDuration) duration =
             List.repeat 2 4
 
         ( _, Quarter, Note.Eighth ) ->
-            List.repeat (numberOfBeats numBeats) 2
+            List.repeat (numberOfBeatsToInt numBeats) 2
 
         _ ->
             List.repeat ((sixteenthPerBar (TimeSignature numBeats beatDuration) |> toFloat) / (Note.numberOfSixteenth duration |> toFloat) |> round) 1

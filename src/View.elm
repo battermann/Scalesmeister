@@ -17,6 +17,73 @@ import View.FontAwesome as Icons
 import Types.Range as Range exposing (Range)
 import Types.Pitch exposing (..)
 import Types.Scale as Scale exposing (Scale(..))
+import Types.TimeSignature exposing (..)
+import Types.Note as Note
+
+
+timeSignature : Model -> Element AppStyles variation Msg
+timeSignature model =
+    let
+        numberOfBeatsStyle : NumberOfBeats -> AppStyles
+        numberOfBeatsStyle numBeats =
+            if numberOfBeats model.timeSignature == numBeats then
+                LightButton
+            else
+                Page
+
+        beatDurationStyle : BeatDuration -> AppStyles
+        beatDurationStyle duration =
+            if beatDuration model.timeSignature == duration then
+                LightButton
+            else
+                Page
+    in
+        column None
+            [ width fill, spacing 2, userSelectNone ]
+            [ el SmallText [] (text "Time Signature")
+            , row None
+                [ spacing 2 ]
+                [ button (numberOfBeatsStyle Two) [ width fill, padding 10, onClick (SetTimeSignatureNumberOfBeats Two) ] (text "2")
+                , button (numberOfBeatsStyle Three) [ width fill, padding 10, onClick (SetTimeSignatureNumberOfBeats Three) ] (text "3")
+                , button (numberOfBeatsStyle Four) [ width fill, padding 10, onClick (SetTimeSignatureNumberOfBeats Four) ] (text "4")
+                , button (numberOfBeatsStyle Five) [ width fill, padding 10, onClick (SetTimeSignatureNumberOfBeats Five) ] (text "5")
+                , button (numberOfBeatsStyle Six) [ width fill, padding 10, onClick (SetTimeSignatureNumberOfBeats Six) ] (text "6")
+                , button (numberOfBeatsStyle Seven) [ width fill, padding 10, onClick (SetTimeSignatureNumberOfBeats Seven) ] (text "7")
+                ]
+            , row None
+                [ spacing 2 ]
+                [ button (beatDurationStyle Half) [ width fill, padding 10, onClick (SetTimeSignatureBeatDuration Half) ] (text "2")
+                , button (beatDurationStyle Quarter) [ width fill, padding 10, onClick (SetTimeSignatureBeatDuration Quarter) ] (text "4")
+                , button (beatDurationStyle Eighth) [ width fill, padding 10, onClick (SetTimeSignatureBeatDuration Eighth) ] (text "8")
+                ]
+            ]
+
+
+duration : Model -> Element AppStyles variation Msg
+duration model =
+    column None
+        [ spacing 2 ]
+        [ el SmallText [] (text "Note duration")
+        , row None
+            [ spacing 2 ]
+            [ button
+                (if model.noteDuration == Note.Eighth then
+                    LightButton
+                 else
+                    Page
+                )
+                [ width fill, padding 10, onClick (SetNoteDuration Note.Eighth) ]
+                (text "♫")
+            , button
+                (if model.noteDuration == Note.Sixteenth then
+                    LightButton
+                 else
+                    Page
+                )
+                [ width fill, padding 10, onClick (SetNoteDuration Note.Sixteenth) ]
+                (text "♬")
+            ]
+        ]
 
 
 rangeView : Model -> Element AppStyles variation Msg
@@ -298,6 +365,8 @@ view model =
                                     [ padding 20, spacing 6 ]
                                     [ settings model
                                     , rangeView model
+                                    , timeSignature model
+                                    , duration model
                                     ]
                                 ]
                             ]

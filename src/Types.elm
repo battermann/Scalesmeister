@@ -9,6 +9,8 @@ import Types.Formula as Formula exposing (..)
 import Types.Scale exposing (..)
 import SelectList exposing (SelectList)
 import Types.Interval exposing (..)
+import Types.TimeSignature exposing (..)
+import Types.Note as Note
 
 
 type PlayingState
@@ -44,6 +46,8 @@ type alias Model =
     , playingState : PlayingState
     , samplesLoaded : Bool
     , device : Device
+    , timeSignature : TimeSignature
+    , noteDuration : Note.Duration
     }
 
 
@@ -58,6 +62,9 @@ type Msg
     | SamplesLoaded
     | UnknownSub String
     | WindowResize Device
+    | SetTimeSignatureNumberOfBeats NumberOfBeats
+    | SetTimeSignatureBeatDuration BeatDuration
+    | SetNoteDuration Note.Duration
     | RangeMinStepDown
     | RangeMinStepUp
     | RangeMinSkipDown

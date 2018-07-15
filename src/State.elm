@@ -102,6 +102,12 @@ init =
                 |> Range.setLowest (Pitch (PitchClass C Natural) Octave.three)
                 |> Range.setHighest (Pitch (PitchClass B Natural) Octave.six)
 
+        timeSignature =
+            (TimeSignature Four TimeSignature.Quarter)
+
+        noteDuration =
+            Note.Eighth
+
         model =
             { range = range
             , formulas = formulas
@@ -112,9 +118,11 @@ init =
             , dialog = Nothing
             , samplesLoaded = False
             , device = classifyDevice { width = 0, height = 0 }
+            , timeSignature = timeSignature
+            , noteDuration = noteDuration
             }
     in
-        case line model |> Orchestration.orchestrate (TimeSignature Four TimeSignature.Quarter) Note.Eighth of
+        case line model |> Orchestration.orchestrate timeSignature noteDuration of
             Just orchestration ->
                 ( model, Cmd.batch [ initialSizeCmd, Audio.loadPianoSamples, Score.render orchestration ] )
 
@@ -136,7 +144,7 @@ classifyDevice { width, height } =
 
 renderNew : PlayingState -> Model -> ( Model, Cmd msg )
 renderNew playingState model =
-    case ( playingState, line model |> Orchestration.orchestrate (TimeSignature Four TimeSignature.Quarter) Note.Eighth ) of
+    case ( playingState, line model |> Orchestration.orchestrate model.timeSignature model.noteDuration ) of
         ( _, Nothing ) ->
             ( model, Cmd.none )
 
@@ -190,6 +198,27 @@ update msg model =
         FormulaSelected formula ->
             { model
                 | formulas = model.formulas |> SelectList.select ((==) formula)
+                , playingState = Stopped
+            }
+                |> renderNew model.playingState
+
+        SetTimeSignatureBeatDuration beatDuration ->
+            { model
+                | timeSignature = model.timeSignature |> TimeSignature.setDuration beatDuration
+                , playingState = Stopped
+            }
+                |> renderNew model.playingState
+
+        SetTimeSignatureNumberOfBeats numberOfBeats ->
+            { model
+                | timeSignature = model.timeSignature |> TimeSignature.setNumberOfBeats numberOfBeats
+                , playingState = Stopped
+            }
+                |> renderNew model.playingState
+
+        SetNoteDuration duration ->
+            { model
+                | noteDuration = duration
                 , playingState = Stopped
             }
                 |> renderNew model.playingState
