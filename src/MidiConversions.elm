@@ -17,8 +17,8 @@ toMidi pitches =
         |> List.map toMidiNumber
         |> List.concatMap
             (\midiNumber ->
-                [ ( 0, Midi.Types.PitchClassOn 0 midiNumber 64 )
-                , ( 2, Midi.Types.PitchClassOff 0 midiNumber 0 )
+                [ ( 0, Midi.Types.NoteOn 0 midiNumber 64 )
+                , ( 2, Midi.Types.NoteOff 0 midiNumber 0 )
                 ]
             )
         |> Midi.Types.SingleTrack 4

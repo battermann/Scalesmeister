@@ -2,7 +2,7 @@ module IntervalTests exposing (..)
 
 import Test exposing (..)
 import Expect
-import Types.Note exposing (..)
+import Types.PitchClass exposing (..)
 import Types.Interval exposing (..)
 import Types.Octave exposing (..)
 
