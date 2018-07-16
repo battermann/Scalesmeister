@@ -62,9 +62,7 @@ type Msg
     | SamplesLoaded
     | UnknownSub String
     | WindowResize Device
-    | SetTimeSignatureNumberOfBeats NumberOfBeats
-    | SetTimeSignatureBeatDuration BeatDuration
-    | SetNoteDuration Note.Duration
+    | SetTimeSignature TimeSignature
     | RangeMinStepDown
     | RangeMinStepUp
     | RangeMinSkipDown

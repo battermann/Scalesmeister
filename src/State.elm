@@ -202,23 +202,9 @@ update msg model =
             }
                 |> renderNew model.playingState
 
-        SetTimeSignatureBeatDuration beatDuration ->
+        SetTimeSignature timeSignature ->
             { model
-                | timeSignature = model.timeSignature |> TimeSignature.setDuration beatDuration
-                , playingState = Stopped
-            }
-                |> renderNew model.playingState
-
-        SetTimeSignatureNumberOfBeats numberOfBeats ->
-            { model
-                | timeSignature = model.timeSignature |> TimeSignature.setNumberOfBeats numberOfBeats
-                , playingState = Stopped
-            }
-                |> renderNew model.playingState
-
-        SetNoteDuration duration ->
-            { model
-                | noteDuration = duration
+                | timeSignature = timeSignature
                 , playingState = Stopped
             }
                 |> renderNew model.playingState
