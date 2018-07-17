@@ -12,13 +12,12 @@ import Types.PitchClass exposing (..)
 import Score exposing (..)
 import Types.Formula as Formula exposing (..)
 import SelectList exposing (SelectList)
-import Types.Interval as Interval
 import Json.Encode exposing (Value)
 import Json.Decode as Decode
 import Window
 import Task
 import Types.Orchestration as Orchestration
-import Types.TimeSignature as TimeSignature exposing (TimeSignature(..), NumberOfBeats(..), BeatDuration(..))
+import Types.TimeSignature as TimeSignature exposing (TimeSignature(..), NumberOfBeats(..), BeatDuration(..), durationGte, beatDuration)
 import Types.Note as Note
 
 
@@ -106,7 +105,7 @@ init =
             (TimeSignature Four TimeSignature.Quarter)
 
         noteDuration =
-            Note.Eighth
+            Note.Eighth Note.None
 
         model =
             { range = range
@@ -206,8 +205,21 @@ update msg model =
             { model
                 | timeSignature = timeSignature
                 , playingState = Stopped
+                , noteDuration = if  durationGte (beatDuration timeSignature) Quarter then model.noteDuration else Note.Eighth Note.None
             }
                 |> renderNew model.playingState
+
+        ToggleNoteValue ->
+            (case ( model.noteDuration, model.timeSignature ) of
+                ( Note.Eighth Note.None, TimeSignature _ TimeSignature.Quarter ) ->
+                    { model | noteDuration = Note.Eighth Note.Triplet }
+
+                ( Note.Eighth Note.Triplet, _ ) ->
+                    { model | noteDuration = Note.Eighth Note.None }
+
+                _ ->
+                    model)
+                    |> renderNew model.playingState
 
         RangeMinStepDown ->
             let

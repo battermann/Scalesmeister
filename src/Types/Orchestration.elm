@@ -47,8 +47,3 @@ orchestrate timeSignature duration line =
                         |> List.map (mkBar n duration)
                         |> Orchestration timeSignature
                 )
-
-
-orchestrateAsEighthNotesInFourFourTime : Line -> Maybe Orchestration
-orchestrateAsEighthNotesInFourFourTime =
-    orchestrate (TimeSignature Three TimeSignature.Quarter) Eighth

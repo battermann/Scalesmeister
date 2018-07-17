@@ -96,15 +96,6 @@ toAbcScoreNote (Pitch (PitchClass letter accidental) octave) =
             acc ++ (letter |> toString |> String.toLower) ++ (List.repeat (Octave.number octave - 5) '\'' |> String.fromList)
 
 
-toAbcScoreNotes : List Pitch -> String
-toAbcScoreNotes pitches =
-    List.Extra.greedyGroupsOf 4 pitches
-        |> List.map (\groupOfFour -> groupOfFour |> List.map toAbcScoreNote |> String.join "")
-        |> List.Extra.greedyGroupsOf 2
-        |> List.map (\notes -> (notes |> String.join " ") ++ "|")
-        |> String.join ""
-
-
 headerToString : Header -> String
 headerToString (Header (ReferenceNumber x) (Title title) (Meter beatsPerBar beatUnit)) =
     "X: " ++ (toString x) ++ "\n%%stretchlast 1\n" ++ "T: " ++ title ++ "\n" ++ "M: " ++ (toString beatsPerBar) ++ "/" ++ (toString beatUnit) ++ "\n" ++ "L: 1/16" ++ "\n" ++ "K: C"
@@ -125,19 +116,36 @@ downloadAsPdf =
     downloadPdf ()
 
 
-durationToString : Duration -> String
-durationToString duration =
-    Note.numberOfSixteenth duration |> toString
+addAbcDuration : Duration -> String -> String
+addAbcDuration duration note =
+    case duration of
+        Note.Whole ->
+            note ++ "16"
+
+        Note.Half ->
+            note ++ "8"
+
+        Note.Quarter ->
+            note ++ "4"
+
+        Note.Eighth None ->
+            note ++ "2"
+
+        Note.Eighth Triplet ->
+            "(3" ++ note ++ "2"
+
+        Note.Sixteenth ->
+            note ++ "1"
 
 
 noteOrRestToAbcNotation : Either Note Rest -> String
 noteOrRestToAbcNotation noteOrRest =
     case noteOrRest of
         Left (Note pitch duration) ->
-            (toAbcScoreNote pitch) ++ (duration |> durationToString)
+            toAbcScoreNote pitch |> addAbcDuration duration
 
         Right (Rest duration) ->
-            "z" ++ (duration |> durationToString)
+            "z" |> addAbcDuration duration
 
 
 barToAbcNotation : Bar -> String

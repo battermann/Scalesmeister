@@ -63,6 +63,7 @@ type Msg
     | UnknownSub String
     | WindowResize Device
     | SetTimeSignature TimeSignature
+    | ToggleNoteValue
     | RangeMinStepDown
     | RangeMinStepUp
     | RangeMinSkipDown

@@ -1,6 +1,7 @@
 module View exposing (view)
 
-import Html exposing (i, div, Html)
+import Html exposing (i, div, Html, img)
+import Html.Attributes exposing (src)
 import Types exposing (..)
 import Styles exposing (..)
 import Element exposing (..)
@@ -21,6 +22,44 @@ import Types.TimeSignature exposing (..)
 import Types.Note as Note
 
 
+noteValue : Model -> Element AppStyles variation Msg
+noteValue model =
+    let
+        style : Note.Duration -> AppStyles
+        style duration =
+            if duration == model.noteDuration then
+                LightButton
+            else
+                Page
+
+        fileName : Note.Duration -> String -> String
+        fileName duration baseName =
+            if duration == model.noteDuration then
+                baseName ++ ".svg"
+            else
+                baseName ++ "-light" ++ ".svg"
+    in
+        row None
+            [ spacing 2 ]
+            [ button (Note.Eighth Note.None |> style)
+                [ padding 10
+                , onClick ToggleNoteValue
+                ]
+                (decorativeImage None [ height (px 20) ] { src = fileName (Note.Eighth Note.None) "eighthnotes" })
+            , if [ Quarter, Half ] |> List.member (model.timeSignature |> beatDuration) then
+                button (Note.Eighth Note.Triplet |> style)
+                    [ padding 10
+                    , onClick ToggleNoteValue
+                    ]
+                    (decorativeImage None [ height (px 20) ] { src = fileName (Note.Eighth Note.Triplet) "triplet" })
+              else
+                el (Note.Eighth Note.Triplet |> style)
+                    [ padding 10
+                    ]
+                    (decorativeImage None [ height (px 20) ] { src = fileName (Note.Eighth Note.Triplet) "triplet" })
+            ]
+
+
 timeSignature : Model -> Element AppStyles variation Msg
 timeSignature model =
     let
@@ -31,10 +70,17 @@ timeSignature model =
             else
                 Page
 
+        rowLength =
+            if model.device.phone && model.device.portrait then
+                5
+            else
+                10
+
         buttons =
             [ (TimeSignature Three Quarter)
             , (TimeSignature Four Quarter)
             , (TimeSignature Five Quarter)
+            , (TimeSignature Six Quarter)
             , (TimeSignature Three Eighth)
             , (TimeSignature Five Eighth)
             , (TimeSignature Six Eighth)
@@ -43,16 +89,14 @@ timeSignature model =
             , (TimeSignature Twelve Eighth)
             ]
                 |> List.map (\ts -> button (style ts) [ width fill, padding 10, onClick (SetTimeSignature ts) ] (ts |> timeSignatureToString |> text))
+                |> List.Extra.greedyGroupsOf rowLength
+                |> List.map (row None [ spacing 2 ])
+                |> (column None [ spacing 6 ])
     in
         column None
             [ width fill, spacing 2, userSelectNone ]
-            [ el SmallText
-                []
-                (text "Time Signature")
-            , row
-                None
-                [ spacing 2 ]
-                buttons
+            [ el SmallText [] (text "Time Signature")
+            , buttons
             ]
 
 
@@ -336,6 +380,7 @@ view model =
                                     [ settings model
                                     , rangeView model
                                     , timeSignature model
+                                    , noteValue model
                                     ]
                                 ]
                             ]

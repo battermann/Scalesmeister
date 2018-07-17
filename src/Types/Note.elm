@@ -1,33 +1,42 @@
 module Types.Note exposing (..)
 
 import Types.Pitch exposing (..)
+import Ratio exposing (..)
+
+
+type Altered
+    = None
+    | Triplet
 
 
 type Duration
     = Whole
     | Half
     | Quarter
-    | Eighth
+    | Eighth Altered
     | Sixteenth
 
 
-numberOfSixteenth : Duration -> Int
-numberOfSixteenth duration =
+durationSixteenthNoteRational : Duration -> Rational
+durationSixteenthNoteRational duration =
     case duration of
         Whole ->
-            16
+            fromInt 16
 
         Half ->
-            8
+            fromInt 8
 
         Quarter ->
-            4
+            fromInt 4
 
-        Eighth ->
-            2
+        Eighth None ->
+            fromInt 2
+
+        Eighth Triplet ->
+            over 4 3
 
         Sixteenth ->
-            1
+            fromInt 1
 
 
 type Note
