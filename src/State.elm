@@ -205,7 +205,11 @@ update msg model =
             { model
                 | timeSignature = timeSignature
                 , playingState = Stopped
-                , noteDuration = if  durationGte (beatDuration timeSignature) Quarter then model.noteDuration else Note.Eighth Note.None
+                , noteDuration =
+                    if durationGte (beatDuration timeSignature) Quarter then
+                        model.noteDuration
+                    else
+                        Note.Eighth Note.None
             }
                 |> renderNew model.playingState
 
@@ -218,8 +222,9 @@ update msg model =
                     { model | noteDuration = Note.Eighth Note.None }
 
                 _ ->
-                    model)
-                    |> renderNew model.playingState
+                    model
+            )
+                |> renderNew model.playingState
 
         RangeMinStepDown ->
             let

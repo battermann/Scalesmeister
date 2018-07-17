@@ -96,9 +96,26 @@ toAbcScoreNote (Pitch (PitchClass letter accidental) octave) =
             acc ++ (letter |> toString |> String.toLower) ++ (List.repeat (Octave.number octave - 5) '\'' |> String.fromList)
 
 
+clefToAbcNotation : Clef -> String
+clefToAbcNotation c =
+    case c of
+        Treble ->
+            "[K: treble]"
+
+        Bass ->
+            "[K: bass]"
+
+
 headerToString : Header -> String
 headerToString (Header (ReferenceNumber x) (Title title) (Meter beatsPerBar beatUnit)) =
-    "X: " ++ (toString x) ++ "\n%%stretchlast 1\n" ++ "T: " ++ title ++ "\n" ++ "M: " ++ (toString beatsPerBar) ++ "/" ++ (toString beatUnit) ++ "\n" ++ "L: 1/16" ++ "\n" ++ "K: C"
+    [ "X: " ++ (toString x)
+    , "%%stretchlast 1"
+    , "T: " ++ title
+    , "M: " ++ (toString beatsPerBar) ++ "/" ++ (toString beatUnit)
+    , "L: 1/16"
+    , "K: C"
+    ]
+        |> String.join "\n"
 
 
 render : Orchestration -> Cmd msg
@@ -149,11 +166,12 @@ noteOrRestToAbcNotation noteOrRest =
 
 
 barToAbcNotation : Bar -> String
-barToAbcNotation (Bar _ beamed) =
+barToAbcNotation (Bar clef beamed) =
     beamed
         |> List.map (List.map noteOrRestToAbcNotation >> String.join "")
         |> String.join " "
         |> (\bar -> bar ++ "|")
+        |> ((++) (clef |> Maybe.map clefToAbcNotation |> Maybe.withDefault ""))
 
 
 orchestrationToAbcNotation : Orchestration -> String

@@ -6,6 +6,7 @@ import Types.Line exposing (..)
 import List.Extra
 import Types.TimeSignature as TimeSignature exposing (TimeSignature(..), NumberOfBeats(..), durationsPerBar, grouping)
 import Helpers exposing (Either(..))
+import Types.Pitch as Pitch
 
 
 type Clef
@@ -29,21 +30,68 @@ type Orchestration
     = Orchestration TimeSignature (List Bar)
 
 
+averagePitchOfLine : Line -> Float
+averagePitchOfLine line =
+    (line
+        |> List.map Pitch.semitoneOffset
+        |> List.sum
+        |> toFloat
+    )
+        / (line |> List.length |> toFloat)
+
+
+averagePitch : List Beamed -> Float
+averagePitch beamedList =
+    beamedList
+        |> List.map
+            (List.filterMap
+                (\n ->
+                    case n of
+                        Left (Note pitch _) ->
+                            Just pitch
+
+                        _ ->
+                            Nothing
+                )
+            )
+        |> List.concat
+        |> averagePitchOfLine
+
+
 orchestrate : TimeSignature -> Duration -> Line -> Maybe Orchestration
 orchestrate timeSignature duration line =
     let
-        mkBar : Int -> Duration -> Line -> Bar
-        mkBar max duration line =
+        mkBeamed : Int -> Duration -> Line -> List Beamed
+        mkBeamed max duration line =
             List.repeat (max - (line |> List.length)) (Right (Rest duration))
                 |> List.append (line |> List.map (\pitch -> Left (Note pitch duration)))
                 |> List.Extra.groupsOfVarying (grouping timeSignature duration)
-                |> Bar Nothing
+
+        mkBar : Clef -> List Beamed -> ( Clef, Bar )
+        mkBar currentClef beamed =
+            let
+                clef =
+                    if (beamed |> averagePitch) > 40.0 then
+                        Treble
+                    else
+                        Bass
+            in
+                beamed
+                    |> Bar
+                        (if clef == currentClef then
+                            Nothing
+                         else
+                            Just clef
+                        )
+                    |> ((,) clef)
     in
         durationsPerBar timeSignature duration
             |> Maybe.map
                 (\n ->
                     line
                         |> List.Extra.greedyGroupsOf n
-                        |> List.map (mkBar n duration)
+                        |> List.map (mkBeamed n duration)
+                        |> List.Extra.mapAccuml mkBar Treble
+                        |> Tuple.second
                         |> Orchestration timeSignature
                 )
