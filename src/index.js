@@ -32,9 +32,7 @@ app.ports.downloadPdf.subscribe(function() {
 app.ports.renderScore.subscribe(function(input) {
   const elementId = input[0];
   const score = input[1];
-  console.log(score);
   abcjs.renderAbc(elementId, score);
-  // abcjs.renderMidi('midi-player', score, { generateDownload: true });
 });
 
 

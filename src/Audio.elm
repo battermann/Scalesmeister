@@ -3,9 +3,7 @@ port module Audio exposing (loadPianoSamples, play, stop, samplesLoaded)
 import Types.Pitch as Pitch exposing (..)
 import Types.PitchClass exposing (..)
 import Types.Octave as Octave exposing (..)
-import List.Extra
 import Json.Encode exposing (Value)
-import Json.Decode as Decode
 
 
 type alias SampleUrl =

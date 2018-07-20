@@ -2,7 +2,6 @@ module Types.Pitch exposing (..)
 
 import Types.Octave as Octave exposing (..)
 import Types.PitchClass as Note exposing (..)
-import Types.Interval as Interval exposing (..)
 import List.Extra
 import Maybe.Extra
 

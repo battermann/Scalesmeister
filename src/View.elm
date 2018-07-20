@@ -1,7 +1,6 @@
 module View exposing (view)
 
 import Html exposing (i, div, Html, img)
-import Html.Attributes exposing (src)
 import Types exposing (..)
 import Styles exposing (..)
 import Element exposing (..)

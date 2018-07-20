@@ -23,8 +23,6 @@ module Types.Interval
         , octave
         )
 
-import List.Extra
-
 
 type IntervalNumber
     = Unison

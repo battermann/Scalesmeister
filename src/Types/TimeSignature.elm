@@ -52,7 +52,7 @@ setDuration duration (TimeSignature numBeats _) =
 
 durationsPerBar : TimeSignature -> Duration -> Maybe Int
 durationsPerBar timeSignature duration =
-    case divide (sixteenthPerBar2 timeSignature) (Note.durationSixteenthNoteRational duration) |> split of
+    case divide (sixteenthPerBar2 timeSignature) (Note.toSixteenthNotes duration) |> split of
         ( x, 1 ) ->
             Just x
 
@@ -202,4 +202,4 @@ grouping (TimeSignature numBeats beatDuration) duration =
             List.repeat ((numberOfBeatsToInt numBeats) * 2) 4
 
         _ ->
-            List.repeat (divideIntBy (sixteenthPerBar (TimeSignature numBeats beatDuration)) (Note.durationSixteenthNoteRational duration) |> Ratio.round) 1
+            List.repeat (divideIntBy (sixteenthPerBar (TimeSignature numBeats beatDuration)) (Note.toSixteenthNotes duration) |> Ratio.round) 1

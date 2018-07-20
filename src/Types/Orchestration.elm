@@ -58,6 +58,36 @@ averagePitch beamedList =
         |> averagePitchOfLine
 
 
+prettify : Beamed -> Beamed
+prettify beamed =
+    beamed
+        |> List.foldr
+            (\noteOrRest acc ->
+                case acc of
+                    [] ->
+                        [ noteOrRest ]
+
+                    h :: [] ->
+                        case ( noteOrRest, h ) of
+                            ( Right (Rest d1), Right (Rest d2) ) ->
+                                addDurations d1 d2
+                                    |> Maybe.map (\d -> [ (Right (Rest d)) ])
+                                    |> Maybe.withDefault [ noteOrRest, h ]
+
+                            ( Left (Note pitch d1), Right (Rest d2) ) ->
+                                addDurations d1 d2
+                                    |> Maybe.map (\d -> [ (Left (Note pitch d)) ])
+                                    |> Maybe.withDefault [ noteOrRest, h ]
+
+                            _ ->
+                                [ noteOrRest, h ]
+
+                    xs ->
+                        noteOrRest :: xs
+            )
+            []
+
+
 orchestrate : TimeSignature -> Duration -> Line -> Maybe Orchestration
 orchestrate timeSignature duration line =
     let
@@ -66,6 +96,7 @@ orchestrate timeSignature duration line =
             List.repeat (max - (line |> List.length)) (Right (Rest duration))
                 |> List.append (line |> List.map (\pitch -> Left (Note pitch duration)))
                 |> List.Extra.groupsOfVarying (grouping timeSignature duration)
+                |> List.map prettify
 
         mkBar : Clef -> List Beamed -> ( Clef, Bar )
         mkBar currentClef beamed =

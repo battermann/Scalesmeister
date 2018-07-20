@@ -3,13 +3,13 @@ port module Score exposing (render, downloadAsPdf, elementId)
 import Types.Pitch exposing (..)
 import Types.PitchClass exposing (..)
 import Types.Octave as Octave
-import List.Extra
 import Types.Orchestration exposing (..)
 import Types.Note exposing (..)
 import Types.Orchestration as Orchestration
 import Helpers exposing (Either(..))
 import Types.TimeSignature as TimeSignature exposing (..)
 import Types.Note as Note
+import List.Extra
 
 
 type alias ElementId =
@@ -109,7 +109,8 @@ clefToAbcNotation c =
 headerToString : Header -> String
 headerToString (Header (ReferenceNumber x) (Title title) (Meter beatsPerBar beatUnit)) =
     [ "X: " ++ (toString x)
-    , "%%stretchlast 1"
+
+    --, "%%stretchlast 1"
     , "T: " ++ title
     , "M: " ++ (toString beatsPerBar) ++ "/" ++ (toString beatUnit)
     , "L: 1/16"
@@ -142,14 +143,17 @@ addAbcDuration duration note =
         Note.Half ->
             note ++ "8"
 
-        Note.Quarter ->
+        Note.Quarter Dotted ->
+            note ++ "6"
+
+        Note.Quarter _ ->
             note ++ "4"
 
-        Note.Eighth None ->
-            note ++ "2"
+        Note.Eighth Dotted ->
+            note ++ "3"
 
-        Note.Eighth Triplet ->
-            "(3" ++ note ++ "2"
+        Note.Eighth _ ->
+            note ++ "2"
 
         Note.Sixteenth ->
             note ++ "1"
@@ -165,10 +169,45 @@ noteOrRestToAbcNotation noteOrRest =
             "z" |> addAbcDuration duration
 
 
+getDuration : Either Note Rest -> Duration
+getDuration noteOrRest =
+    case noteOrRest of
+        Left (Note _ duration) ->
+            duration
+
+        Right (Rest duration) ->
+            duration
+
+
+isTriplet : Either Note Rest -> Bool
+isTriplet noteOrRest =
+    case getDuration noteOrRest of
+        Note.Quarter Note.Triplet ->
+            True
+
+        Note.Eighth Note.Triplet ->
+            True
+
+        _ ->
+            False
+
+
+beamedToAbcNotation : Beamed -> String
+beamedToAbcNotation list =
+    let
+        abc =
+            list |> List.map noteOrRestToAbcNotation >> String.join ""
+    in
+        if list |> List.all isTriplet then
+            "(3:2:" ++ (list |> List.length |> toString) ++ abc
+        else
+            abc
+
+
 barToAbcNotation : Bar -> String
 barToAbcNotation (Bar clef beamed) =
     beamed
-        |> List.map (List.map noteOrRestToAbcNotation >> String.join "")
+        |> List.map beamedToAbcNotation
         |> String.join " "
         |> (\bar -> bar ++ "|")
         |> ((++) (clef |> Maybe.map clefToAbcNotation |> Maybe.withDefault ""))
@@ -176,4 +215,4 @@ barToAbcNotation (Bar clef beamed) =
 
 orchestrationToAbcNotation : Orchestration -> String
 orchestrationToAbcNotation (Orchestration timeSignature bars) =
-    (mkHeader "" timeSignature |> headerToString) ++ "\n" ++ (bars |> List.map barToAbcNotation |> String.join "")
+    (mkHeader "" timeSignature |> headerToString) ++ "\n" ++ (bars |> List.Extra.greedyGroupsOf 3 |> List.map ((List.map barToAbcNotation) >> String.join "") |> String.join "\n")

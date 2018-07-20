@@ -3,7 +3,6 @@ module Styles exposing (..)
 import Style
 import Style.Color as Color exposing (..)
 import Style.Font as Font
-import Style.Border as Border
 import Color exposing (..)
 import Element.Attributes exposing (inlineStyle)
 
@@ -49,6 +48,7 @@ buttonStyle =
     ]
 
 
+stylesheet : Style.StyleSheet AppStyles variation
 stylesheet =
     Style.styleSheet
         [ Style.style None []
