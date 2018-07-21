@@ -1,21 +1,20 @@
 module Types.Pitch exposing (..)
 
 import Types.Octave as Octave exposing (..)
-import Types.Note as Note exposing (..)
-import Types.Interval as Interval exposing (..)
+import Types.PitchClass as Note exposing (..)
 import List.Extra
 import Maybe.Extra
 
 
 type Pitch
-    = Pitch Note Octave
+    = Pitch PitchClass Octave
 
 
 type alias PitchNotation =
     String
 
 
-note : Pitch -> Note
+note : Pitch -> PitchClass
 note (Pitch note _) =
     note
 
@@ -38,7 +37,7 @@ semitoneOffset (Pitch note octave) =
 
 choose : Accidental -> List Pitch -> Maybe Pitch
 choose acc pitches =
-    pitches |> List.Extra.find (\(Pitch (Note _ accidental) _) -> accidental == acc)
+    pitches |> List.Extra.find (\(Pitch (PitchClass _ accidental) _) -> accidental == acc)
 
 
 natural : List Pitch -> Maybe Pitch

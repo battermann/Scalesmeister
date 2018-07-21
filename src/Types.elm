@@ -1,14 +1,12 @@
 module Types exposing (..)
 
-import Types.Pitch exposing (..)
-import Types.Line as Line exposing (..)
 import Types.Range exposing (..)
-import Types.Note exposing (..)
-import Score exposing (..)
+import Types.PitchClass exposing (..)
 import Types.Formula as Formula exposing (..)
 import Types.Scale exposing (..)
 import SelectList exposing (SelectList)
-import Types.Interval exposing (..)
+import Types.TimeSignature exposing (..)
+import Types.Note as Note
 
 
 type PlayingState
@@ -38,28 +36,30 @@ type alias Model =
     { range : Range
     , scales : SelectList ( String, ScaleDef )
     , formulas : SelectList Formula
-    , roots : SelectList Note
-    , startingNote : Note
+    , roots : SelectList PitchClass
+    , startingNote : PitchClass
     , dialog : Maybe Dialog
     , playingState : PlayingState
     , samplesLoaded : Bool
     , device : Device
+    , timeSignature : TimeSignature
+    , noteDuration : Note.Duration
     }
 
 
 type Msg
-    = NoteOn Pitch
-    | NoteOff Pitch
-    | TogglePlay
+    = TogglePlay
     | DownloadPdf
-    | RootSelected Note
-    | StartingNoteSelected Note
+    | RootSelected PitchClass
+    | StartingNoteSelected PitchClass
     | ScaleSelected ScaleDef
     | FormulaSelected Formula
     | Open Dialog
     | SamplesLoaded
     | UnknownSub String
     | WindowResize Device
+    | SetTimeSignature TimeSignature
+    | ToggleNoteValue
     | RangeMinStepDown
     | RangeMinStepUp
     | RangeMinSkipDown

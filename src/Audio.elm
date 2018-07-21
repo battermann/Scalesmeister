@@ -1,10 +1,29 @@
-module Audio exposing (loadPianoSamples, noteOn, noteOff, play, stop)
+port module Audio exposing (loadPianoSamples, play, stop, samplesLoaded)
 
 import Types.Pitch as Pitch exposing (..)
-import Types.Note exposing (..)
-import Ports exposing (SampleUrl, ScientificPitchNotation)
+import Types.PitchClass exposing (..)
 import Types.Octave as Octave exposing (..)
-import List.Extra
+import Json.Encode exposing (Value)
+
+
+type alias SampleUrl =
+    String
+
+
+type alias ScientificPitchNotation =
+    String
+
+
+port loadSamples : List ( ScientificPitchNotation, SampleUrl ) -> Cmd msg
+
+
+port startSequence : List ScientificPitchNotation -> Cmd msg
+
+
+port stopSequence : () -> Cmd msg
+
+
+port samplesLoaded : (Value -> msg) -> Sub msg
 
 
 toScientificPitchNotation : Pitch -> Maybe ScientificPitchNotation
@@ -13,7 +32,7 @@ toScientificPitchNotation pitch =
         Nothing ->
             Nothing
 
-        Just (Pitch (Note letter accidental) octave) ->
+        Just (Pitch (PitchClass letter accidental) octave) ->
             let
                 acc =
                     case accidental of
@@ -33,7 +52,7 @@ toScientificPitchNotation pitch =
 
 
 pitchToSampleUrlMapping : Pitch -> Maybe ( ScientificPitchNotation, SampleUrl )
-pitchToSampleUrlMapping (Pitch (Note letter accidental) octave) =
+pitchToSampleUrlMapping (Pitch (PitchClass letter accidental) octave) =
     let
         acc =
             case accidental of
@@ -46,16 +65,16 @@ pitchToSampleUrlMapping (Pitch (Note letter accidental) octave) =
         url =
             "samples/" ++ (toString letter) ++ acc ++ (toString (Octave.number octave)) ++ ".mp3"
     in
-        toScientificPitchNotation (Pitch (Note letter accidental) octave)
+        toScientificPitchNotation (Pitch (PitchClass letter accidental) octave)
             |> Maybe.map (\key -> ( key, url ))
 
 
 loadPianoSamples : Cmd msg
 loadPianoSamples =
-    [ Note C Natural
-    , Note D Sharp
-    , Note F Sharp
-    , Note A Natural
+    [ PitchClass C Natural
+    , PitchClass D Sharp
+    , PitchClass F Sharp
+    , PitchClass A Natural
     ]
         |> List.concatMap
             (\note ->
@@ -69,30 +88,16 @@ loadPianoSamples =
                 ]
                     |> List.map (Pitch note)
             )
-        |> ((++) [ Pitch (Note A Natural) Octave.zero, Pitch (Note C Natural) Octave.eight ])
+        |> ((++) [ Pitch (PitchClass A Natural) Octave.zero, Pitch (PitchClass C Natural) Octave.eight ])
         |> List.filterMap pitchToSampleUrlMapping
-        |> Ports.loadSamples
-
-
-noteOn : Pitch -> Cmd msg
-noteOn pitch =
-    toScientificPitchNotation pitch
-        |> Maybe.map Ports.noteOn
-        |> Maybe.withDefault Cmd.none
-
-
-noteOff : Pitch -> Cmd msg
-noteOff pitch =
-    toScientificPitchNotation pitch
-        |> Maybe.map Ports.noteOff
-        |> Maybe.withDefault Cmd.none
+        |> loadSamples
 
 
 play : List Pitch -> Cmd msg
 play pitches =
-    Ports.startSequence (List.filterMap toScientificPitchNotation pitches)
+    startSequence (List.filterMap toScientificPitchNotation pitches)
 
 
 stop : Cmd msg
 stop =
-    Ports.stopSequence ()
+    stopSequence ()

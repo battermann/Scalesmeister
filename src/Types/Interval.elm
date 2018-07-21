@@ -1,6 +1,27 @@
-module Types.Interval exposing (IntervalNumber(..), IntervalQuality(..), Interval, perfectUnison, minorSecond, majorSecond, minorThird, majorThird, perfectFourth, augmentedFourth, diminishedFifth, perfectFifth, minorSixth, majorSixth, minorSeventh, majorSeventh, quality, number, semitones, complementary, octave)
-
-import List.Extra
+module Types.Interval
+    exposing
+        ( IntervalNumber(..)
+        , IntervalQuality(..)
+        , Interval
+        , perfectUnison
+        , minorSecond
+        , majorSecond
+        , minorThird
+        , majorThird
+        , perfectFourth
+        , augmentedFourth
+        , diminishedFifth
+        , perfectFifth
+        , minorSixth
+        , majorSixth
+        , minorSeventh
+        , majorSeventh
+        , quality
+        , number
+        , semitones
+        , complementary
+        , octave
+        )
 
 
 type IntervalNumber
@@ -90,14 +111,7 @@ complementaryIntervalQuality intervalQuality =
 
 complementary : Interval -> Interval
 complementary (Interval quality number semitones) =
-    let
-        complNumber =
-            complementaryIntervalNumber number
-
-        complQuality =
-            complementaryIntervalQuality quality
-    in
-        (Interval complQuality complNumber (12 - semitones))
+    Interval (complementaryIntervalQuality quality) (complementaryIntervalNumber number) (12 - semitones)
 
 
 perfectUnison : Interval

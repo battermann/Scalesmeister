@@ -1,6 +1,6 @@
 module View exposing (view)
 
-import Html exposing (i, div, Html)
+import Html exposing (i, div, Html, img)
 import Types exposing (..)
 import Styles exposing (..)
 import Element exposing (..)
@@ -8,7 +8,7 @@ import Styles exposing (..)
 import Element.Events exposing (..)
 import Element.Attributes exposing (..)
 import Score
-import Types.Note exposing (..)
+import Types.PitchClass exposing (..)
 import SelectList exposing (SelectList)
 import List.Extra
 import Types.Scale exposing (ScaleDef)
@@ -17,6 +17,86 @@ import View.FontAwesome as Icons
 import Types.Range as Range exposing (Range)
 import Types.Pitch exposing (..)
 import Types.Scale as Scale exposing (Scale(..))
+import Types.TimeSignature exposing (..)
+import Types.Note as Note
+
+
+noteValue : Model -> Element AppStyles variation Msg
+noteValue model =
+    let
+        style : Note.Duration -> AppStyles
+        style duration =
+            if duration == model.noteDuration then
+                LightButton
+            else
+                Page
+
+        fileName : Note.Duration -> String -> String
+        fileName duration baseName =
+            if duration == model.noteDuration then
+                baseName ++ ".svg"
+            else
+                baseName ++ "-light" ++ ".svg"
+    in
+        row None
+            [ spacing 2 ]
+            [ button (Note.Eighth Note.None |> style)
+                [ padding 10
+                , onClick ToggleNoteValue
+                ]
+                (decorativeImage None [ height (px 20) ] { src = fileName (Note.Eighth Note.None) "eighthnotes" })
+            , if [ Quarter, Half ] |> List.member (model.timeSignature |> beatDuration) then
+                button (Note.Eighth Note.Triplet |> style)
+                    [ padding 10
+                    , onClick ToggleNoteValue
+                    ]
+                    (decorativeImage None [ height (px 20) ] { src = fileName (Note.Eighth Note.Triplet) "triplet" })
+              else
+                el (Note.Eighth Note.Triplet |> style)
+                    [ padding 10
+                    ]
+                    (decorativeImage None [ height (px 20) ] { src = fileName (Note.Eighth Note.Triplet) "triplet" })
+            ]
+
+
+timeSignature : Model -> Element AppStyles variation Msg
+timeSignature model =
+    let
+        style : TimeSignature -> AppStyles
+        style timeSignature =
+            if timeSignature == model.timeSignature then
+                LightButton
+            else
+                Page
+
+        rowLength =
+            if model.device.phone && model.device.portrait then
+                5
+            else
+                10
+
+        buttons =
+            [ (TimeSignature Three Quarter)
+            , (TimeSignature Four Quarter)
+            , (TimeSignature Five Quarter)
+            , (TimeSignature Six Quarter)
+            , (TimeSignature Three Eighth)
+            , (TimeSignature Five Eighth)
+            , (TimeSignature Six Eighth)
+            , (TimeSignature Seven Eighth)
+            , (TimeSignature Nine Eighth)
+            , (TimeSignature Twelve Eighth)
+            ]
+                |> List.map (\ts -> button (style ts) [ width fill, padding 10, onClick (SetTimeSignature ts) ] (ts |> timeSignatureToString |> text))
+                |> List.Extra.greedyGroupsOf rowLength
+                |> List.map (row None [ spacing 2 ])
+                |> (column None [ spacing 6 ])
+    in
+        column None
+            [ width fill, spacing 2, userSelectNone ]
+            [ el SmallText [] (text "Time Signature")
+            , buttons
+            ]
 
 
 rangeView : Model -> Element AppStyles variation Msg
@@ -187,7 +267,7 @@ modalDialog model element =
         )
 
 
-selectNoteButton : (Note -> Msg) -> Note -> Element AppStyles variation Msg
+selectNoteButton : (PitchClass -> Msg) -> PitchClass -> Element AppStyles variation Msg
 selectNoteButton event note =
     button DarkButton [ userSelectNone, onClick (event note), padding 10, width fill ] (noteToString note |> text)
 
@@ -298,6 +378,8 @@ view model =
                                     [ padding 20, spacing 6 ]
                                     [ settings model
                                     , rangeView model
+                                    , timeSignature model
+                                    , noteValue model
                                     ]
                                 ]
                             ]

@@ -3,7 +3,7 @@ module Types.Line exposing (..)
 import List.Extra exposing (..)
 import Types.Scale exposing (Scale, notes)
 import Types.Pitch as Pitch exposing (Pitch(..), note)
-import Types.Note as Note exposing (..)
+import Types.PitchClass as Note exposing (..)
 import Types.Range as Range exposing (..)
 import Types.Formula as Formula exposing (..)
 import Maybe.Extra
@@ -34,7 +34,7 @@ fitFormula startingIndex formula line =
         |> Maybe.Extra.combine
 
 
-possibleStartingIndices : Direction -> Note -> Line -> List Int
+possibleStartingIndices : Direction -> PitchClass -> Line -> List Int
 possibleStartingIndices direction note line =
     let
         indices =
@@ -79,7 +79,7 @@ applyFormulaFromFirstViableIndex formula line startingIndices =
                     ((line !! head) |> Maybe.Extra.toList) ++ resultingLine
 
 
-applyFormula : Note -> Formula -> Line -> Line
+applyFormula : PitchClass -> Formula -> Line -> Line
 applyFormula startingNote formula line =
     possibleStartingIndices (direction formula) startingNote (line |> List.sortBy Pitch.semitoneOffset)
         |> applyFormulaFromFirstViableIndex formula line
