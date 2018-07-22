@@ -1,4 +1,4 @@
-import {Sampler, Sequence, Transport, Tone} from 'tone';
+import {Sampler, Sequence, Transport, Synth} from 'tone';
 import StartAudioContext from 'startaudiocontext';
 import svg2pdf from 'svg2pdf.js';
 import jsPDF from 'jspdf-yworks';
@@ -43,11 +43,10 @@ app.ports.loadSamples.subscribe(function(pitchToSampleUrlMapping){
        obj[item[0]] = item[1]
        return obj
      }, {});
- StartAudioContext(Transport.context).then(function(){
+
   sampler = new Sampler(toObj(pitchToSampleUrlMapping), function() {
     app.ports.samplesLoaded.send("samples loaded");
-  } ).toMaster();
-  });
+  }).toMaster();
 });
 
 app.ports.startSequence.subscribe(function(seq){
@@ -56,8 +55,10 @@ app.ports.startSequence.subscribe(function(seq){
     debug.textContent = 'audio context started.';
     const noteLength = "8n"
     const subdivision = "8n"
+    var synth = new Synth().toMaster()
     sequence = new Sequence(function(_, note){
-      sampler.triggerAttackRelease(note, noteLength)
+      //sampler.triggerAttackRelease(note, noteLength)
+      synth.triggerAttackRelease(note, noteLength)
       debug.textContent = note;
     }, seq, subdivision);
 
