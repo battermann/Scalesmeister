@@ -12,6 +12,13 @@ const app = Elm.Main.embed(root);
 var sampler = null;
 var sequence = null;
 
+var button = document.getElementById('audio-context');
+
+StartAudioContext(Transport.context, button, function(){
+  console.log('audio context started... foo')
+			button.remove();
+});
+
 app.ports.downloadPdf.subscribe(function() {
   const svgElement = document.getElementById('score').lastChild;
   const width = 600, height = 400;
@@ -50,22 +57,19 @@ app.ports.loadSamples.subscribe(function(pitchToSampleUrlMapping){
 });
 
 app.ports.startSequence.subscribe(function(seq){
-  StartAudioContext(Transport.context).then(function(){
-    var debug = document.querySelector("#tone-debug");
-    debug.textContent = 'audio context started.';
-    const noteLength = "8n"
-    const subdivision = "8n"
-    var synth = new Synth().toMaster()
-    sequence = new Sequence(function(_, note){
-      //sampler.triggerAttackRelease(note, noteLength)
-      synth.triggerAttackRelease(note, noteLength)
-      debug.textContent = note;
-    }, seq, subdivision);
+  var debug = document.querySelector("#tone-debug");
+  const noteLength = "8n"
+  const subdivision = "8n"
+  var synth = new Synth().toMaster()
+  sequence = new Sequence(function(_, note){
+    //sampler.triggerAttackRelease(note, noteLength)
+    synth.triggerAttackRelease(note, noteLength)
+    debug.textContent = note;
+  }, seq, subdivision);
 
-    sequence.start();
-    Transport.bpm.value = 160;
-    Transport.start("+0.1");
-  });
+  sequence.start();
+  Transport.bpm.value = 160;
+  Transport.start("+0.1");
 });
 
 app.ports.stopSequence.subscribe(function(){
