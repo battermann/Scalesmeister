@@ -49,7 +49,6 @@ app.ports.loadSamples.subscribe(function(pitchToSampleUrlMapping){
 });
 
 app.ports.startSequence.subscribe(function(seq){
-  StartAudioContext(Transport.context).then(function(){
     var debug = document.querySelector("#tone-debug");
     debug.textContent = 'audio context started.';
     const noteLength = "8n"
@@ -62,7 +61,6 @@ app.ports.startSequence.subscribe(function(seq){
     sequence.start();
     Transport.bpm.value = 160;
     Transport.start("+0.1");
-  });
 });
 
 app.ports.stopSequence.subscribe(function(){
