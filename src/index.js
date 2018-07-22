@@ -1,4 +1,5 @@
 import {Sampler, Sequence, Transport} from 'tone';
+import StartAudioContext from 'startaudiocontext';
 import svg2pdf from 'svg2pdf.js';
 import jsPDF from 'jspdf-yworks';
 import abcjs from "abcjs";
@@ -10,6 +11,10 @@ const app = Elm.Main.embed(root);
 
 var sampler = null;
 var sequence = null;
+
+StartAudioContext(Transport.context).then(function(){
+	console.log('audio context started.')
+})
 
 app.ports.downloadPdf.subscribe(function() {
   const svgElement = document.getElementById('score').lastChild;

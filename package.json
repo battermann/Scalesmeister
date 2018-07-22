@@ -50,6 +50,7 @@
   },
   "dependencies": {
     "abcjs": "^5.1.2",
+    "startaudiocontext": "^1.2.1",
     "svg2pdf.js": "^1.2.1",
     "tone": "^0.12.80"
   }
