@@ -12,10 +12,6 @@ const app = Elm.Main.embed(root);
 var sampler = null;
 var sequence = null;
 
-StartAudioContext(Transport.context).then(function(){
-	console.log('audio context started.')
-})
-
 app.ports.downloadPdf.subscribe(function() {
   const svgElement = document.getElementById('score').lastChild;
   const width = 600, height = 400;
@@ -53,15 +49,18 @@ app.ports.loadSamples.subscribe(function(pitchToSampleUrlMapping){
 });
 
 app.ports.startSequence.subscribe(function(seq){
-  const noteLength = "8n"
-  const subdivision = "8n"
-  sequence = new Sequence(function(_, note){
-    sampler.triggerAttackRelease(note, noteLength)
-  }, seq, subdivision);
+  StartAudioContext(Transport.context).then(function(){
+    console.log('audio context started.')
+    const noteLength = "8n"
+    const subdivision = "8n"
+    sequence = new Sequence(function(_, note){
+      sampler.triggerAttackRelease(note, noteLength)
+    }, seq, subdivision);
 
-  sequence.start();
-  Transport.bpm.value = 160;
-  Transport.start("+0.1");
+    sequence.start();
+    Transport.bpm.value = 160;
+    Transport.start("+0.1");
+  });
 });
 
 app.ports.stopSequence.subscribe(function(){
