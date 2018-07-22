@@ -179,6 +179,7 @@ playAndDownload model =
                  , userSelectNone
                  , height (px 60)
                  , width (px 60)
+                 , id "play-button"
                  ]
                     ++ event
                 )
