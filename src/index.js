@@ -12,11 +12,19 @@ const app = Elm.Main.embed(root);
 var sampler = null;
 var sequence = null;
 
+
+var debug = document.querySelector("#tone-debug");
+
+function log(msg) {
+    debug.textContent = debug.textContent + "; " + msg
+}
+
 var button = document.getElementById('audio-context');
 
 StartAudioContext(Transport.context, button, function(){
-  console.log('audio context started... foo')
-			button.remove();
+  log("audio context started");
+  log(Transport.context.state);
+  button.remove();
 });
 
 app.ports.downloadPdf.subscribe(function() {
@@ -57,14 +65,13 @@ app.ports.loadSamples.subscribe(function(pitchToSampleUrlMapping){
 });
 
 app.ports.startSequence.subscribe(function(seq){
-  var debug = document.querySelector("#tone-debug");
   const noteLength = "8n"
   const subdivision = "8n"
   var synth = new Synth().toMaster()
   sequence = new Sequence(function(_, note){
     //sampler.triggerAttackRelease(note, noteLength)
     synth.triggerAttackRelease(note, noteLength)
-    debug.textContent = note;
+    log(note);
   }, seq, subdivision);
 
   sequence.start();
@@ -76,5 +83,6 @@ app.ports.stopSequence.subscribe(function(){
   Transport.stop()
   if (sequence != null)  {
     sequence.removeAll();
+    sequence = null;
   };
 });
