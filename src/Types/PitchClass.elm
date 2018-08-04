@@ -10,6 +10,8 @@ module Types.PitchClass
         , all
         , accidental
         , Letter(..)
+        , noteLetterDistance
+        , addIntervalSizeToLetter
         )
 
 import Types.Interval as Interval exposing (Interval, IntervalNumber(..))
