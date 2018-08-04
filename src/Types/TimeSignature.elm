@@ -15,7 +15,7 @@ module Types.TimeSignature
         , durationGte
         )
 
-import Types.Note as Note exposing (..)
+import Types.Note as Note exposing (Note(..), Duration(..), Rest(..), Altered(..))
 import Ratio exposing (over, Rational(..), divide, split, divideIntBy)
 
 
@@ -126,32 +126,17 @@ numberOfSixteenth beatDuration =
 
 sixteenthPerBar : TimeSignature -> Int
 sixteenthPerBar (TimeSignature numBeats beatDuration) =
-    (numberOfBeatsToInt numBeats) * (numberOfSixteenth beatDuration)
+    numberOfBeatsToInt numBeats * numberOfSixteenth beatDuration
 
 
 sixteenthPerBar2 : TimeSignature -> Rational
 sixteenthPerBar2 (TimeSignature numBeats beatDuration) =
-    over ((numberOfSixteenth beatDuration) * (numberOfBeatsToInt numBeats)) 1
-
-
-div : Int -> Int -> Maybe Int
-div a b =
-    case a % b of
-        0 ->
-            Just (a // b)
-
-        _ ->
-            Nothing
-
-
-(///) : Int -> Int -> Maybe Int
-(///) =
-    div
+    over (numberOfSixteenth beatDuration * numberOfBeatsToInt numBeats) 1
 
 
 durationGte : BeatDuration -> BeatDuration -> Bool
 durationGte lhs rhs =
-    (numberOfSixteenth lhs) >= (numberOfSixteenth rhs)
+    numberOfSixteenth lhs >= numberOfSixteenth rhs
 
 
 timeSignatureToString : TimeSignature -> String
@@ -190,16 +175,16 @@ grouping (TimeSignature numBeats beatDuration) duration =
             List.repeat (numberOfBeatsToInt numBeats) 3
 
         ( _, Half, Note.Eighth None ) ->
-            List.repeat ((numberOfBeatsToInt numBeats) * 2) 4
+            List.repeat (numberOfBeatsToInt numBeats * 2) 4
 
         ( _, _, Note.Eighth None ) ->
-            List.repeat ((numberOfBeatsToInt numBeats) * 4) 2
+            List.repeat (numberOfBeatsToInt numBeats * 4) 2
 
         ( _, Quarter, Note.Sixteenth ) ->
             List.repeat (numberOfBeatsToInt numBeats) 4
 
         ( _, Half, Note.Sixteenth ) ->
-            List.repeat ((numberOfBeatsToInt numBeats) * 2) 4
+            List.repeat (numberOfBeatsToInt numBeats * 2) 4
 
         _ ->
             List.repeat (divideIntBy (sixteenthPerBar (TimeSignature numBeats beatDuration)) (Note.toSixteenthNotes duration) |> Ratio.round) 1

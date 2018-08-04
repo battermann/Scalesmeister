@@ -1,6 +1,20 @@
-module Types.PitchClass exposing (..)
+module Types.PitchClass
+    exposing
+        ( Accidental(..)
+        , PitchClass(..)
+        , pitchClassToString
+        , transpose
+        , down
+        , Semitones
+        , semitoneOffset
+        , all
+        , accidental
+        , Letter(..)
+        , noteLetterDistance
+        , addIntervalSizeToLetter
+        )
 
-import Types.Interval as Interval exposing (..)
+import Types.Interval as Interval exposing (Interval, IntervalNumber(..))
 import List.Extra
 
 
@@ -48,7 +62,7 @@ all =
 
 semitoneOffset : PitchClass -> Semitones
 semitoneOffset (PitchClass letter accidental) =
-    (letterSemitoneOffset letter) + (accidentalSemitoneOffset accidental)
+    letterSemitoneOffset letter + accidentalSemitoneOffset accidental
 
 
 letterSemitoneOffset : Letter -> Semitones
@@ -101,7 +115,7 @@ addIntervalSizeToLetter letter intervalSize =
         ++ letters
         |> List.Extra.dropWhile ((/=) letter)
         |> List.Extra.zip [ Unison, Second, Third, Fourth, Fifth, Sixth, Seventh ]
-        |> List.Extra.find (Tuple.first >> ((==) intervalSize))
+        |> List.Extra.find (Tuple.first >> (==) intervalSize)
         |> Maybe.map Tuple.second
 
 
@@ -109,7 +123,7 @@ noteLetterDistance : PitchClass -> Letter -> Semitones
 noteLetterDistance (PitchClass letter accidental) targetLetter =
     let
         rootOffset =
-            (letterSemitoneOffset letter) + (accidentalSemitoneOffset accidental)
+            letterSemitoneOffset letter + accidentalSemitoneOffset accidental
 
         targetOffset =
             letterSemitoneOffset targetLetter
@@ -144,15 +158,12 @@ accidentalBySemitoneOffset semitones =
 
 down : (Interval -> PitchClass -> Maybe PitchClass) -> (Interval -> PitchClass -> Maybe PitchClass)
 down f =
-    (\interval note -> f (Interval.complementary interval) note)
+    \interval note -> f (Interval.complementary interval) note
 
 
 transpose : Interval -> PitchClass -> Maybe PitchClass
 transpose interval (PitchClass letter accidental) =
     let
-        intervalQuality =
-            Interval.quality interval
-
         intervalNumber =
             Interval.number interval
 
@@ -166,10 +177,7 @@ transpose interval (PitchClass letter accidental) =
             |> Maybe.map (noteLetterDistance (PitchClass letter accidental))
             |> Maybe.map ((-) semitones)
             |> Maybe.andThen accidentalBySemitoneOffset
-            |> Maybe.andThen
-                (\accidental ->
-                    maybeTargetLetter |> Maybe.map (\letter -> (PitchClass letter accidental))
-                )
+            |> Maybe.andThen (\acc -> maybeTargetLetter |> Maybe.map (\l -> PitchClass l acc))
 
 
 accidentalToString : Accidental -> String
@@ -191,6 +199,6 @@ accidentalToString accidental =
             "𝄪"
 
 
-noteToString : PitchClass -> String
-noteToString (PitchClass letter accidental) =
-    (toString letter) ++ (accidental |> accidentalToString)
+pitchClassToString : PitchClass -> String
+pitchClassToString (PitchClass letter accidental) =
+    toString letter ++ (accidental |> accidentalToString)

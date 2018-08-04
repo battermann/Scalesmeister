@@ -1,21 +1,23 @@
-module Types.Orchestration exposing (..)
+module Types.Orchestration
+    exposing
+        ( orchestrate
+        , Orchestration(..)
+        , Bar(..)
+        , Beamed
+        , Clef(..)
+        )
 
-import Types.PitchClass exposing (..)
-import Types.Note as Note exposing (..)
-import Types.Line exposing (..)
+import Types.Note exposing (Note(..), Rest(..), Duration(..), addDurations)
+import Types.Line exposing (Line)
 import List.Extra
-import Types.TimeSignature as TimeSignature exposing (TimeSignature(..), NumberOfBeats(..), durationsPerBar, grouping)
-import Helpers exposing (Either(..))
+import Types.TimeSignature exposing (TimeSignature(..), NumberOfBeats(..), durationsPerBar, grouping)
+import Util exposing (Either(..))
 import Types.Pitch as Pitch
 
 
 type Clef
     = Treble
     | Bass
-
-
-type alias Key =
-    PitchClass
 
 
 type alias Beamed =
@@ -71,12 +73,12 @@ prettify beamed =
                         case ( noteOrRest, h ) of
                             ( Right (Rest d1), Right (Rest d2) ) ->
                                 addDurations d1 d2
-                                    |> Maybe.map (\d -> [ (Right (Rest d)) ])
+                                    |> Maybe.map (\d -> [ Right (Rest d) ])
                                     |> Maybe.withDefault [ noteOrRest, h ]
 
                             ( Left (Note pitch d1), Right (Rest d2) ) ->
                                 addDurations d1 d2
-                                    |> Maybe.map (\d -> [ (Left (Note pitch d)) ])
+                                    |> Maybe.map (\d -> [ Left (Note pitch d) ])
                                     |> Maybe.withDefault [ noteOrRest, h ]
 
                             _ ->
@@ -92,10 +94,10 @@ orchestrate : TimeSignature -> Duration -> Line -> Maybe Orchestration
 orchestrate timeSignature duration line =
     let
         mkBeamed : Int -> Duration -> Line -> List Beamed
-        mkBeamed max duration line =
-            List.repeat (max - (line |> List.length)) (Right (Rest duration))
-                |> List.append (line |> List.map (\pitch -> Left (Note pitch duration)))
-                |> List.Extra.groupsOfVarying (grouping timeSignature duration)
+        mkBeamed max duration_ line_ =
+            List.repeat (max - (line_ |> List.length)) (Right (Rest duration_))
+                |> List.append (line_ |> List.map (\pitch -> Left (Note pitch duration_)))
+                |> List.Extra.groupsOfVarying (grouping timeSignature duration_)
                 |> List.map prettify
 
         mkBar : Clef -> List Beamed -> ( Clef, Bar )
@@ -114,7 +116,7 @@ orchestrate timeSignature duration line =
                          else
                             Just clef
                         )
-                    |> ((,) clef)
+                    |> (,) clef
     in
         durationsPerBar timeSignature duration
             |> Maybe.map

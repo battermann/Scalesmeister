@@ -12,6 +12,7 @@ module Types.Interval
         , augmentedFourth
         , diminishedFifth
         , perfectFifth
+        , augmentedFifth
         , minorSixth
         , majorSixth
         , minorSeventh

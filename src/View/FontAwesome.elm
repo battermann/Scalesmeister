@@ -1,15 +1,26 @@
-module View.FontAwesome exposing (..)
+module View.FontAwesome
+    exposing
+        ( download
+        , github
+        , stop
+        , play
+        , spinner
+        , doubleAngleRight
+        , doubleAngleLeft
+        , angleRight
+        , angleLeft
+        )
 
 import Html exposing (div, i)
-import Html.Attributes
+import Html.Attributes exposing (class)
 import Element exposing (html, el)
-import Styles exposing (..)
-import Element.Attributes exposing (..)
+import Styles exposing (AppStyles(..))
+import Element.Attributes exposing (verticalCenter, center)
 
 
 toEl : String -> Element.Element AppStyles variation msg
 toEl iconStr =
-    el None [ center, verticalCenter ] (html (div [] [ i [ Html.Attributes.class iconStr ] [] ]))
+    el None [ center, verticalCenter ] (html (div [] [ i [ class iconStr ] [] ]))
 
 
 download : Element.Element AppStyles variation msg

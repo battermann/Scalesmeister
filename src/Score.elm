@@ -1,14 +1,12 @@
 port module Score exposing (render, downloadAsPdf, elementId)
 
-import Types.Pitch exposing (..)
-import Types.PitchClass exposing (..)
+import Types.Pitch exposing (Pitch(..))
+import Types.PitchClass exposing (PitchClass(..), Accidental(..))
 import Types.Octave as Octave
-import Types.Orchestration exposing (..)
-import Types.Note exposing (..)
-import Types.Orchestration as Orchestration
-import Helpers exposing (Either(..))
-import Types.TimeSignature as TimeSignature exposing (..)
-import Types.Note as Note
+import Types.Orchestration exposing (Orchestration(..), Bar(..), Beamed, Clef(..))
+import Types.Note as Note exposing (Note(..), Rest(..), Duration(..), Altered(..))
+import Util exposing (Either(..))
+import Types.TimeSignature exposing (TimeSignature(..), beatDurationToInt, numberOfBeatsToInt)
 import List.Extra
 
 
@@ -108,11 +106,11 @@ clefToAbcNotation c =
 
 headerToString : Header -> String
 headerToString (Header (ReferenceNumber x) (Title title) (Meter beatsPerBar beatUnit)) =
-    [ "X: " ++ (toString x)
+    [ "X: " ++ toString x
 
     --, "%%stretchlast 1"
     , "T: " ++ title
-    , "M: " ++ (toString beatsPerBar) ++ "/" ++ (toString beatUnit)
+    , "M: " ++ toString beatsPerBar ++ "/" ++ toString beatUnit
     , "L: 1/16"
     , "K: C"
     ]
@@ -210,9 +208,9 @@ barToAbcNotation (Bar clef beamed) =
         |> List.map beamedToAbcNotation
         |> String.join " "
         |> (\bar -> bar ++ "|")
-        |> ((++) (clef |> Maybe.map clefToAbcNotation |> Maybe.withDefault ""))
+        |> (++) (clef |> Maybe.map clefToAbcNotation |> Maybe.withDefault "")
 
 
 orchestrationToAbcNotation : Orchestration -> String
 orchestrationToAbcNotation (Orchestration timeSignature bars) =
-    (mkHeader "" timeSignature |> headerToString) ++ "\n" ++ (bars |> List.Extra.greedyGroupsOf 3 |> List.map ((List.map barToAbcNotation) >> String.join "") |> String.join "\n")
+    (mkHeader "" timeSignature |> headerToString) ++ "\n" ++ (bars |> List.Extra.greedyGroupsOf 3 |> List.map (List.map barToAbcNotation >> String.join "") |> String.join "\n")

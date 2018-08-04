@@ -1,8 +1,8 @@
 port module Audio exposing (loadPianoSamples, play, stop, samplesLoaded)
 
-import Types.Pitch as Pitch exposing (..)
-import Types.PitchClass exposing (..)
-import Types.Octave as Octave exposing (..)
+import Types.Pitch as Pitch exposing (Pitch(..), choice, flat, sharp, natural)
+import Types.PitchClass exposing (PitchClass(..), Accidental(..), Letter(..))
+import Types.Octave as Octave
 import Json.Encode exposing (Value)
 
 
@@ -28,27 +28,27 @@ port samplesLoaded : (Value -> msg) -> Sub msg
 
 toScientificPitchNotation : Pitch -> Maybe ScientificPitchNotation
 toScientificPitchNotation pitch =
-    case Pitch.enharmonicEquivalents (pitch |> Pitch.semitoneOffset) |> choice [ natural, sharp, flat ] of
-        Nothing ->
-            Nothing
+    Pitch.enharmonicEquivalents (pitch |> Pitch.semitoneOffset)
+        |> choice [ natural, sharp, flat ]
+        |> Maybe.andThen
+            (\(Pitch (PitchClass letter accidental) octave) ->
+                let
+                    maybeAcc =
+                        case accidental of
+                            Flat ->
+                                Just "b"
 
-        Just (Pitch (PitchClass letter accidental) octave) ->
-            let
-                acc =
-                    case accidental of
-                        Flat ->
-                            Just "b"
+                            Natural ->
+                                Just ""
 
-                        Natural ->
-                            Just ""
+                            Sharp ->
+                                Just "#"
 
-                        Sharp ->
-                            Just "#"
-
-                        _ ->
-                            Nothing
-            in
-                acc |> Maybe.map (\accidental -> (toString letter) ++ accidental ++ (toString (Octave.number octave)))
+                            _ ->
+                                Nothing
+                in
+                    maybeAcc |> Maybe.map (\acc -> toString letter ++ acc ++ toString (Octave.number octave))
+            )
 
 
 pitchToSampleUrlMapping : Pitch -> Maybe ( ScientificPitchNotation, SampleUrl )
@@ -63,7 +63,7 @@ pitchToSampleUrlMapping (Pitch (PitchClass letter accidental) octave) =
                     toString accidental
 
         url =
-            "samples/" ++ (toString letter) ++ acc ++ (toString (Octave.number octave)) ++ ".mp3"
+            "samples/" ++ toString letter ++ acc ++ toString (Octave.number octave) ++ ".mp3"
     in
         toScientificPitchNotation (Pitch (PitchClass letter accidental) octave)
             |> Maybe.map (\key -> ( key, url ))
@@ -88,7 +88,7 @@ loadPianoSamples =
                 ]
                     |> List.map (Pitch note)
             )
-        |> ((++) [ Pitch (PitchClass A Natural) Octave.zero, Pitch (PitchClass C Natural) Octave.eight ])
+        |> (++) [ Pitch (PitchClass A Natural) Octave.zero, Pitch (PitchClass C Natural) Octave.eight ]
         |> List.filterMap pitchToSampleUrlMapping
         |> loadSamples
 

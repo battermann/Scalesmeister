@@ -1,11 +1,16 @@
-module Types.Line exposing (..)
+module Types.Line
+    exposing
+        ( Line
+        , applyFormula
+        , fromScaleWithinRange
+        )
 
-import List.Extra exposing (..)
+import List.Extra exposing ((!!))
 import Types.Scale exposing (Scale, notes)
-import Types.Pitch as Pitch exposing (Pitch(..), note)
-import Types.PitchClass as Note exposing (..)
-import Types.Range as Range exposing (..)
-import Types.Formula as Formula exposing (..)
+import Types.Pitch as Pitch exposing (Pitch(..))
+import Types.PitchClass exposing (PitchClass)
+import Types.Range as Range exposing (Range)
+import Types.Formula as Formula exposing (Formula, Direction(..))
 import Maybe.Extra
 
 
@@ -13,15 +18,10 @@ type alias Line =
     List Pitch
 
 
-fromScale : Scale -> Line
-fromScale scale =
-    fromScaleWithinRange Range.piano scale
-
-
 fromScaleWithinRange : Range -> Scale -> Line
 fromScaleWithinRange range scale =
     Pitch.all
-        |> List.filter (\pitch -> (range |> contains pitch) && (scale |> notes |> List.member (note pitch)))
+        |> List.filter (\pitch -> (range |> Range.contains pitch) && (scale |> notes |> List.member (Pitch.note pitch)))
 
 
 fitFormula : Int -> List Int -> List a -> Maybe (List a)
@@ -38,7 +38,7 @@ possibleStartingIndices : Direction -> PitchClass -> Line -> List Int
 possibleStartingIndices direction note line =
     let
         indices =
-            line |> findIndices (\(Pitch n _) -> n == note)
+            line |> List.Extra.findIndices (\(Pitch n _) -> n == note)
     in
         case direction of
             Ascending ->
@@ -53,7 +53,7 @@ possibleStartingIndices direction note line =
 
 fitFormulaRecursively : List Int -> List a -> List a -> Int -> List a
 fitFormulaRecursively formula line acc startingIndex =
-    case ( fitFormula startingIndex formula line, direction formula ) of
+    case ( fitFormula startingIndex formula line, Formula.direction formula ) of
         ( Just nextPart, Static ) ->
             acc ++ nextPart
 
@@ -71,7 +71,7 @@ applyFormulaFromFirstViableIndex formula line startingIndices =
             []
 
         head :: tail ->
-            case (fitFormulaRecursively formula line [] head) of
+            case fitFormulaRecursively formula line [] head of
                 [] ->
                     applyFormulaFromFirstViableIndex formula line tail
 
@@ -81,5 +81,5 @@ applyFormulaFromFirstViableIndex formula line startingIndices =
 
 applyFormula : PitchClass -> Formula -> Line -> Line
 applyFormula startingNote formula line =
-    possibleStartingIndices (direction formula) startingNote (line |> List.sortBy Pitch.semitoneOffset)
+    possibleStartingIndices (Formula.direction formula) startingNote (line |> List.sortBy Pitch.semitoneOffset)
         |> applyFormulaFromFirstViableIndex formula line
