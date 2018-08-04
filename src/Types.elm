@@ -1,4 +1,4 @@
-module Types exposing (..)
+module Types exposing (PlayingState(..), Dialog(..), Device, Model, Msg(..))
 
 import Types.Range exposing (..)
 import Types.PitchClass exposing (..)

@@ -1,4 +1,18 @@
-module Types.Pitch exposing (..)
+module Types.Pitch
+    exposing
+        ( Pitch(..)
+        , flat
+        , semitoneOffset
+        , note
+        , all
+        , displayPitch
+        , sharp
+        , natural
+        , any
+        , choice
+        , enharmonicEquivalents
+        , transpose
+        )
 
 import Types.Octave as Octave exposing (..)
 import Types.PitchClass as Note exposing (..)
@@ -10,18 +24,9 @@ type Pitch
     = Pitch PitchClass Octave
 
 
-type alias PitchNotation =
-    String
-
-
 note : Pitch -> PitchClass
 note (Pitch note _) =
     note
-
-
-accidental : Pitch -> Accidental
-accidental (Pitch note _) =
-    Note.accidental note
 
 
 all : List Pitch

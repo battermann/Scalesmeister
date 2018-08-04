@@ -1,4 +1,4 @@
-module Helpers exposing (..)
+module Util exposing (Either(..))
 
 
 type Either a b

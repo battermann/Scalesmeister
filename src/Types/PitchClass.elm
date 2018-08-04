@@ -1,4 +1,16 @@
-module Types.PitchClass exposing (..)
+module Types.PitchClass
+    exposing
+        ( Accidental(..)
+        , PitchClass(..)
+        , noteToString
+        , transpose
+        , down
+        , Semitones
+        , semitoneOffset
+        , all
+        , accidental
+        , Letter(..)
+        )
 
 import Types.Interval as Interval exposing (..)
 import List.Extra

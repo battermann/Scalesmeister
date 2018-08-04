@@ -1,4 +1,12 @@
-module Types.Note exposing (..)
+module Types.Note
+    exposing
+        ( Altered(..)
+        , Duration(..)
+        , toSixteenthNotes
+        , Rest(..)
+        , Note(..)
+        , addDurations
+        )
 
 import Types.Pitch exposing (..)
 import Ratio exposing (..)

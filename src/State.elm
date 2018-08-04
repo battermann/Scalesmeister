@@ -1,4 +1,4 @@
-module State exposing (..)
+module State exposing (init, update, subscriptions)
 
 import Audio
 import Types exposing (..)

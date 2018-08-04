@@ -5,7 +5,7 @@ import Types.PitchClass exposing (..)
 import Types.Octave as Octave
 import Types.Orchestration exposing (..)
 import Types.Note as Note exposing (..)
-import Helpers exposing (Either(..))
+import Util exposing (Either(..))
 import Types.TimeSignature exposing (..)
 import List.Extra
 

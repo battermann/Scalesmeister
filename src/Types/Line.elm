@@ -1,4 +1,9 @@
-module Types.Line exposing (..)
+module Types.Line
+    exposing
+        ( Line
+        , applyFormula
+        , fromScaleWithinRange
+        )
 
 import List.Extra exposing (..)
 import Types.Scale exposing (Scale, notes)

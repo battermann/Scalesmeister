@@ -1,11 +1,18 @@
-module Types.Orchestration exposing (..)
+module Types.Orchestration
+    exposing
+        ( orchestrate
+        , Orchestration(..)
+        , Bar(..)
+        , Beamed
+        , Clef(..)
+        )
 
 import Types.PitchClass exposing (..)
 import Types.Note exposing (..)
 import Types.Line exposing (..)
 import List.Extra
 import Types.TimeSignature exposing (TimeSignature(..), NumberOfBeats(..), durationsPerBar, grouping)
-import Helpers exposing (Either(..))
+import Util exposing (Either(..))
 import Types.Pitch as Pitch
 
 
