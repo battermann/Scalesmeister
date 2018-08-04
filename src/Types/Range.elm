@@ -1,6 +1,6 @@
 module Types.Range exposing (Range, setLowest, setHighest, highest, lowest, contains, piano)
 
-import Types.Pitch as Pitch exposing (..)
+import Types.Pitch as Pitch exposing (Pitch(..))
 import Types.Octave as Octave
 import Types.PitchClass exposing (PitchClass(..), Letter(..), Accidental(..))
 
@@ -21,12 +21,12 @@ lowest (Range l _) =
 
 contains : Pitch -> Range -> Bool
 contains pitch (Range l h) =
-    semitoneOffset l <= Pitch.semitoneOffset pitch && semitoneOffset h >= Pitch.semitoneOffset pitch
+    Pitch.semitoneOffset l <= Pitch.semitoneOffset pitch && Pitch.semitoneOffset h >= Pitch.semitoneOffset pitch
 
 
 setLowest : Pitch -> Range -> Range
 setLowest pitch (Range l h) =
-    if semitoneOffset pitch >= semitoneOffset h || not (contains pitch piano) then
+    if Pitch.semitoneOffset pitch >= Pitch.semitoneOffset h || not (contains pitch piano) then
         Range l h
     else
         Range pitch h
@@ -34,7 +34,7 @@ setLowest pitch (Range l h) =
 
 setHighest : Pitch -> Range -> Range
 setHighest pitch (Range l h) =
-    if semitoneOffset pitch <= semitoneOffset l || not (contains pitch piano) then
+    if Pitch.semitoneOffset pitch <= Pitch.semitoneOffset l || not (contains pitch piano) then
         Range l h
     else
         Range l pitch

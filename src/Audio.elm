@@ -1,8 +1,8 @@
 port module Audio exposing (loadPianoSamples, play, stop, samplesLoaded)
 
-import Types.Pitch as Pitch exposing (..)
-import Types.PitchClass exposing (..)
-import Types.Octave as Octave exposing (..)
+import Types.Pitch as Pitch exposing (Pitch(..), choice, flat, sharp, natural)
+import Types.PitchClass exposing (PitchClass(..), Accidental(..), Letter(..))
+import Types.Octave as Octave
 import Json.Encode exposing (Value)
 
 

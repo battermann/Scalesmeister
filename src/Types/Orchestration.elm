@@ -7,9 +7,8 @@ module Types.Orchestration
         , Clef(..)
         )
 
-import Types.PitchClass exposing (..)
-import Types.Note exposing (..)
-import Types.Line exposing (..)
+import Types.Note exposing (Note(..), Rest(..), Duration(..), addDurations)
+import Types.Line exposing (Line)
 import List.Extra
 import Types.TimeSignature exposing (TimeSignature(..), NumberOfBeats(..), durationsPerBar, grouping)
 import Util exposing (Either(..))
@@ -19,10 +18,6 @@ import Types.Pitch as Pitch
 type Clef
     = Treble
     | Bass
-
-
-type alias Key =
-    PitchClass
 
 
 type alias Beamed =

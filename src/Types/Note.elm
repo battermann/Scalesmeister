@@ -8,8 +8,8 @@ module Types.Note
         , addDurations
         )
 
-import Types.Pitch exposing (..)
-import Ratio exposing (..)
+import Types.Pitch exposing (Pitch)
+import Ratio exposing (Rational, fromInt, over, denominator, numerator, add)
 
 
 type Altered

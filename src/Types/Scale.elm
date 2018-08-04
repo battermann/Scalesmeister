@@ -14,8 +14,8 @@ module Types.Scale
         , ionian
         )
 
-import Types.PitchClass as Note exposing (..)
-import Types.Interval exposing (..)
+import Types.PitchClass as PitchClass exposing (PitchClass(..))
+import Types.Interval exposing (Interval, minorThird, perfectFourth, perfectFifth, minorSeventh, majorSixth, majorSeventh, majorThird, majorSecond, minorSecond, diminishedFifth, minorSixth)
 
 
 type ScaleDef
@@ -87,4 +87,4 @@ root (Scale rootNote _) =
 
 notes : Scale -> List PitchClass
 notes (Scale note (ScaleDef intervals)) =
-    note :: (intervals |> List.filterMap (\interval -> Note.transpose interval note))
+    note :: (intervals |> List.filterMap (\interval -> PitchClass.transpose interval note))

@@ -1,21 +1,21 @@
 module View exposing (view)
 
 import Html exposing (Html)
-import Types exposing (..)
-import Styles exposing (..)
-import Element exposing (..)
-import Element.Events exposing (..)
-import Element.Attributes exposing (..)
+import Types exposing (Model, Msg(..), Dialog(..), PlayingState(..))
+import Styles exposing (AppStyles(..), stylesheet, userSelectNone)
+import Element exposing (button, link, el, text, row, column, paragraph, h1, empty, Element, h2, modal, decorativeImage)
+import Element.Events exposing (onClick)
+import Element.Attributes exposing (center, spacing, padding, width, height, percent, paddingBottom, paddingXY, paddingTop, id, xScrollbar, px, fill, scrollbars, alignLeft, verticalCenter, alignBottom)
 import Score
-import Types.PitchClass exposing (..)
+import Types.PitchClass exposing (PitchClass, pitchClassToString)
 import SelectList
 import List.Extra
 import Types.Formula exposing (Formula)
 import View.FontAwesome as Icons
 import Types.Range as Range
-import Types.Pitch exposing (..)
+import Types.Pitch exposing (displayPitch)
 import Types.Scale as Scale exposing (Scale(..), ScaleDef)
-import Types.TimeSignature exposing (..)
+import Types.TimeSignature exposing (timeSignatureToString, TimeSignature(..), BeatDuration(..), NumberOfBeats(..), beatDuration)
 import Types.Note as Note
 
 
@@ -208,7 +208,7 @@ settings model =
                 , onClick (Open SelectRoot)
                 , width fill
                 ]
-                (noteToString (SelectList.selected model.roots) |> text)
+                (pitchClassToString (SelectList.selected model.roots) |> text)
             ]
         , column None
             [ width fill, spacing 2 ]
@@ -238,7 +238,7 @@ settings model =
                 , width fill
                 , onClick (Open SelectStartingNote)
                 ]
-                (noteToString model.startingNote |> text)
+                (pitchClassToString model.startingNote |> text)
             ]
         ]
             |> List.Extra.greedyGroupsOf columns
@@ -265,7 +265,7 @@ modalDialog element =
 
 selectNoteButton : (PitchClass -> Msg) -> PitchClass -> Element AppStyles variation Msg
 selectNoteButton event note =
-    button DarkButton [ userSelectNone, onClick (event note), padding 10, width fill ] (noteToString note |> text)
+    button DarkButton [ userSelectNone, onClick (event note), padding 10, width fill ] (pitchClassToString note |> text)
 
 
 selectScaleButton : ( String, ScaleDef ) -> Element AppStyles variation Msg

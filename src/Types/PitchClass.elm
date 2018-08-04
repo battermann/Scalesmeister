@@ -2,7 +2,7 @@ module Types.PitchClass
     exposing
         ( Accidental(..)
         , PitchClass(..)
-        , noteToString
+        , pitchClassToString
         , transpose
         , down
         , Semitones
@@ -12,7 +12,7 @@ module Types.PitchClass
         , Letter(..)
         )
 
-import Types.Interval as Interval exposing (..)
+import Types.Interval as Interval exposing (Interval, IntervalNumber(..))
 import List.Extra
 
 
@@ -197,6 +197,6 @@ accidentalToString accidental =
             "𝄪"
 
 
-noteToString : PitchClass -> String
-noteToString (PitchClass letter accidental) =
+pitchClassToString : PitchClass -> String
+pitchClassToString (PitchClass letter accidental) =
     toString letter ++ (accidental |> accidentalToString)

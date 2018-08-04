@@ -1,12 +1,12 @@
 port module Score exposing (render, downloadAsPdf, elementId)
 
-import Types.Pitch exposing (..)
-import Types.PitchClass exposing (..)
+import Types.Pitch exposing (Pitch(..))
+import Types.PitchClass exposing (PitchClass(..), Accidental(..))
 import Types.Octave as Octave
-import Types.Orchestration exposing (..)
-import Types.Note as Note exposing (..)
+import Types.Orchestration exposing (Orchestration(..), Bar(..), Beamed, Clef(..))
+import Types.Note as Note exposing (Note(..), Rest(..), Duration(..), Altered(..))
 import Util exposing (Either(..))
-import Types.TimeSignature exposing (..)
+import Types.TimeSignature exposing (TimeSignature(..), beatDurationToInt, numberOfBeatsToInt)
 import List.Extra
 
 

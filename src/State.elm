@@ -1,15 +1,15 @@
 module State exposing (init, update, subscriptions)
 
 import Audio
-import Types exposing (..)
-import Types.Pitch as Pitch exposing (..)
+import Types exposing (Model, Msg(..), PlayingState(..), Device)
+import Types.Pitch as Pitch exposing (Pitch(..), sharp, natural, flat)
 import Types.Octave as Octave
-import Types.Line as Line exposing (..)
-import Types.Scale exposing (..)
-import Types.Range as Range exposing (..)
-import Types.PitchClass exposing (..)
-import Score exposing (..)
-import Types.Formula as Formula exposing (..)
+import Types.Line as Line exposing (Line)
+import Types.Scale exposing (ScaleDef, Scale(..), ionian, majorMinorSixthPentatonic, minorSixthPentatonic, minorSevenDiminishedFifthPentatonic, minorPentatonic, majorPentatonic, majorMinorSecondPentatonic)
+import Types.Range as Range exposing (Range, highest, lowest)
+import Types.PitchClass exposing (PitchClass(..), Letter(..), Accidental(..))
+import Score exposing (render)
+import Types.Formula as Formula exposing (Formula)
 import SelectList exposing (SelectList)
 import Json.Encode exposing (Value)
 import Json.Decode as Decode

@@ -1,9 +1,9 @@
 module Styles exposing (userSelectNone, stylesheet, AppStyles(..))
 
 import Style
-import Style.Color as Color exposing (..)
+import Style.Color as Color
 import Style.Font as Font
-import Color exposing (..)
+import Color exposing (white, grayscale, rgba)
 import Element.Attributes exposing (inlineStyle)
 
 
@@ -69,18 +69,18 @@ stylesheet =
         , Style.style Button buttonStyle
         , Style.style LightButton
             [ Color.background (grayscale 0.05)
-            , Color.text (greyscale 0.6)
+            , Color.text (grayscale 0.6)
             ]
         , Style.style Score [ Color.background white ]
         , Style.style Footer [ Font.size 16 ]
         , Style.style Subtitle [ Font.light, Font.size 20 ]
         , Style.style DarkButton
             [ Color.background (grayscale 0.75)
-            , Color.text (greyscale 0.1)
+            , Color.text (grayscale 0.1)
             ]
         , Style.style Dialog
             [ Color.background (rgba 0 0 0 0.8)
-            , Color.text (greyscale 0.1)
+            , Color.text (grayscale 0.1)
             , font
             , Font.size 18
             ]
@@ -102,13 +102,13 @@ stylesheet =
             [ Font.size 11
             ]
         , Style.style Settings
-            [ Color.background (greyscale 0.75)
+            [ Color.background (grayscale 0.75)
             ]
         , Style.style RangeButton
             (buttonStyle
                 ++ [ Font.size 12
-                   , Color.background (greyscale 0.75)
-                   , Color.text (greyscale 0.35)
+                   , Color.background (grayscale 0.75)
+                   , Color.text (grayscale 0.35)
                    ]
             )
         ]
