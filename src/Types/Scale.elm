@@ -32,33 +32,33 @@ minorPentatonic =
         |> ScaleDef
 
 
-minorSevenDiminishedFifthPentatonic : ScaleDef
-minorSevenDiminishedFifthPentatonic =
-    [ minorThird, perfectFourth, diminishedFifth, minorSeventh ]
-        |> ScaleDef
-
-
-minorSixthPentatonic : ScaleDef
-minorSixthPentatonic =
-    [ minorThird, perfectFourth, perfectFifth, minorSixth ]
-        |> ScaleDef
-
-
 majorPentatonic : ScaleDef
 majorPentatonic =
     [ majorSecond, majorThird, perfectFifth, majorSixth ]
         |> ScaleDef
 
 
-majorMinorSecondPentatonic : ScaleDef
-majorMinorSecondPentatonic =
-    [ minorSecond, majorThird, perfectFifth, majorSixth ]
+minorSixthPentatonic : ScaleDef
+minorSixthPentatonic =
+    [ minorThird, perfectFourth, perfectFifth, majorSixth ]
         |> ScaleDef
 
 
 majorMinorSixthPentatonic : ScaleDef
 majorMinorSixthPentatonic =
     [ majorSecond, majorThird, perfectFifth, minorSixth ]
+        |> ScaleDef
+
+
+minorSevenDiminishedFifthPentatonic : ScaleDef
+minorSevenDiminishedFifthPentatonic =
+    [ minorThird, perfectFourth, diminishedFifth, minorSeventh ]
+        |> ScaleDef
+
+
+majorMinorSecondPentatonic : ScaleDef
+majorMinorSecondPentatonic =
+    [ minorSecond, majorThird, perfectFifth, majorSixth ]
         |> ScaleDef
 
 

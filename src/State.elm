@@ -26,9 +26,9 @@ scales =
     SelectList.fromLists []
         ( "Major Pentatonic", majorPentatonic )
         [ ( "Minor Pentatonic", minorPentatonic )
-        , ( "Minor ♭6 Pentatonic", minorSixthPentatonic )
+        , ( "Minor 6 Pentatonic", minorSixthPentatonic )
+        , ( "Major ♭6 Pentatonic", majorMinorSixthPentatonic )
         , ( "Minor 7 ♭5 Pentatonic", minorSevenDiminishedFifthPentatonic )
-        , ( "Major 6 Pentatonic", majorMinorSixthPentatonic )
         , ( "Major ♭2 Pentatonic", majorMinorSecondPentatonic )
         , ( "Diatonic Major", ionian )
         ]
