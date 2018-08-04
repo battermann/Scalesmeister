@@ -4,6 +4,7 @@ module Types.Scale
         , intervals
         , notes
         , Scale(..)
+        , root
         , minorPentatonic
         , majorPentatonic
         , minorSevenDiminishedFifthPentatonic
@@ -14,7 +15,7 @@ module Types.Scale
         )
 
 import Types.PitchClass as Note exposing (..)
-import Types.Interval as Interval exposing (..)
+import Types.Interval exposing (..)
 
 
 type ScaleDef

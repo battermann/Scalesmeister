@@ -2,7 +2,7 @@ module Types exposing (..)
 
 import Types.Range exposing (..)
 import Types.PitchClass exposing (..)
-import Types.Formula as Formula exposing (..)
+import Types.Formula exposing (..)
 import Types.Scale exposing (..)
 import SelectList exposing (SelectList)
 import Types.TimeSignature exposing (..)

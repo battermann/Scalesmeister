@@ -8,7 +8,7 @@ import BinaryBase64
 
 toMidiNumber : Pitch -> Int
 toMidiNumber =
-    Pitch.semitoneOffset >> ((+) 12)
+    Pitch.semitoneOffset >> (+) 12
 
 
 toMidi : List Pitch -> List Midi.Types.Byte

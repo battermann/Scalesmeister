@@ -91,7 +91,7 @@ stylesheet =
             [ Font.underline
             ]
         , Style.style SkipsNSteps
-            ((Font.size 20) :: buttonStyle)
+            (Font.size 20 :: buttonStyle)
         , Style.style GitHubIcon
             [ Font.size 30
             ]

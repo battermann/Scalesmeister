@@ -2,10 +2,10 @@ module Types.Line exposing (..)
 
 import List.Extra exposing (..)
 import Types.Scale exposing (Scale, notes)
-import Types.Pitch as Pitch exposing (Pitch(..), note)
-import Types.PitchClass as Note exposing (..)
+import Types.Pitch as Pitch exposing (Pitch(..))
+import Types.PitchClass exposing (..)
 import Types.Range as Range exposing (..)
-import Types.Formula as Formula exposing (..)
+import Types.Formula exposing (..)
 import Maybe.Extra
 
 
@@ -21,7 +21,7 @@ fromScale scale =
 fromScaleWithinRange : Range -> Scale -> Line
 fromScaleWithinRange range scale =
     Pitch.all
-        |> List.filter (\pitch -> (range |> contains pitch) && (scale |> notes |> List.member (note pitch)))
+        |> List.filter (\pitch -> (range |> contains pitch) && (scale |> notes |> List.member (Pitch.note pitch)))
 
 
 fitFormula : Int -> List Int -> List a -> Maybe (List a)
@@ -71,7 +71,7 @@ applyFormulaFromFirstViableIndex formula line startingIndices =
             []
 
         head :: tail ->
-            case (fitFormulaRecursively formula line [] head) of
+            case fitFormulaRecursively formula line [] head of
                 [] ->
                     applyFormulaFromFirstViableIndex formula line tail
 

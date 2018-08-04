@@ -32,7 +32,7 @@ all =
 
 semitoneOffset : Pitch -> Semitones
 semitoneOffset (Pitch note octave) =
-    Note.semitoneOffset note + (Octave.number octave) * 12
+    Note.semitoneOffset note + Octave.number octave * 12
 
 
 choose : Accidental -> List Pitch -> Maybe Pitch
@@ -75,24 +75,21 @@ choice choices pitches =
 enharmonicEquivalents : Semitones -> List Pitch
 enharmonicEquivalents semitones =
     let
-        octave =
-            semitones // 12
-
         remainder =
             semitones % 12
 
         notes =
-            Note.all |> List.filter (Note.semitoneOffset >> ((==) remainder))
+            Note.all |> List.filter (Note.semitoneOffset >> (==) remainder)
     in
         notes
             |> List.filterMap
                 (\n ->
                     Octave.all
-                        |> List.Extra.find (\o -> (Octave.number o) * 12 + (Note.semitoneOffset n) == semitones)
+                        |> List.Extra.find (\o -> Octave.number o * 12 + Note.semitoneOffset n == semitones)
                         |> Maybe.map (Pitch n)
                 )
 
 
 displayPitch : Pitch -> String
 displayPitch (Pitch note octave) =
-    (noteToString note) ++ (Octave.number octave |> toString)
+    noteToString note ++ (Octave.number octave |> toString)

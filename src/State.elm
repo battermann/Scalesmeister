@@ -1,7 +1,6 @@
 module State exposing (..)
 
 import Audio
-import Score
 import Types exposing (..)
 import Types.Pitch as Pitch exposing (..)
 import Types.Octave as Octave
@@ -39,17 +38,17 @@ roots =
     SelectList.fromLists
         []
         (PitchClass C Natural)
-        [ (PitchClass D Flat)
-        , (PitchClass D Natural)
-        , (PitchClass E Flat)
-        , (PitchClass E Natural)
-        , (PitchClass F Natural)
-        , (PitchClass G Flat)
-        , (PitchClass G Natural)
-        , (PitchClass A Flat)
-        , (PitchClass A Natural)
-        , (PitchClass B Flat)
-        , (PitchClass B Natural)
+        [ PitchClass D Flat
+        , PitchClass D Natural
+        , PitchClass E Flat
+        , PitchClass E Natural
+        , PitchClass F Natural
+        , PitchClass G Flat
+        , PitchClass G Natural
+        , PitchClass A Flat
+        , PitchClass A Natural
+        , PitchClass B Flat
+        , PitchClass B Natural
         ]
 
 
@@ -102,7 +101,7 @@ init =
                 |> Range.setHighest (Pitch (PitchClass B Natural) Octave.six)
 
         timeSignature =
-            (TimeSignature Four TimeSignature.Quarter)
+            TimeSignature Four TimeSignature.Quarter
 
         noteDuration =
             Note.Eighth Note.None
@@ -188,7 +187,7 @@ update msg model =
 
         ScaleSelected scale ->
             { model
-                | scales = model.scales |> SelectList.select (Tuple.second >> ((==) scale))
+                | scales = model.scales |> SelectList.select (Tuple.second >> (==) scale)
                 , playingState = Stopped
                 , startingNote = SelectList.selected model.roots
             }
@@ -326,7 +325,7 @@ decodeValue x =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.batch
         [ Audio.samplesLoaded decodeValue
         , Window.resizes (classifyDevice >> WindowResize)

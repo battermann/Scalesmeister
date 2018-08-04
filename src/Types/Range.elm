@@ -10,7 +10,7 @@ type Range
 
 
 highest : Range -> Pitch
-highest (Range l h) =
+highest (Range _ h) =
     h
 
 
@@ -27,7 +27,7 @@ contains pitch (Range l h) =
 setLowest : Pitch -> Range -> Range
 setLowest pitch (Range l h) =
     if semitoneOffset pitch >= semitoneOffset h || not (contains pitch piano) then
-        (Range l h)
+        Range l h
     else
         Range pitch h
 
@@ -35,7 +35,7 @@ setLowest pitch (Range l h) =
 setHighest : Pitch -> Range -> Range
 setHighest pitch (Range l h) =
     if semitoneOffset pitch <= semitoneOffset l || not (contains pitch piano) then
-        (Range l h)
+        Range l h
     else
         Range l pitch
 
