@@ -1,4 +1,4 @@
-import {Sampler, Sequence, Transport} from 'tone';
+import {Sampler, Sequence, Transport, Part, Time} from 'tone';
 import svg2pdf from 'svg2pdf.js';
 import jsPDF from 'jspdf-yworks';
 import abcjs from "abcjs";
@@ -47,15 +47,17 @@ app.ports.loadSamples.subscribe(function(pitchToSampleUrlMapping){
   } ).toMaster();
 });
 
-app.ports.startSequence.subscribe(function(seq){
-  const noteLength = "8n"
-  const subdivision = "8n"
-  sequence = new Sequence(function(_, note){
-    sampler.triggerAttackRelease(note, noteLength)
-  }, seq, subdivision);
+app.ports.startSequence.subscribe(function(data){
+  Transport.timeSignature = data.timeSignature;
+  Transport.bpm.value = 140;
+  Transport.loop = true;
+  Transport.loopEnd = data.loopEnd;
 
-  sequence.start();
-  Transport.bpm.value = 160;
+  sequence = new Part(function(time, note){
+    sampler.triggerAttackRelease(note, data.noteLength, time);
+  }, data.notes);
+
+  sequence.start(0);
   Transport.start("+0.1");
 });
 

@@ -4,6 +4,8 @@ import Types.Pitch as Pitch exposing (Pitch(..), choice, flat, sharp, natural)
 import Types.PitchClass exposing (PitchClass(..), Accidental(..), Letter(..))
 import Types.Octave as Octave
 import Json.Encode exposing (Value)
+import Types.Orchestration exposing (Orchestration(..), Beamed, Bar(..))
+import Types.TimeSignature exposing (TimeSignature(..))
 
 
 type alias SampleUrl =
@@ -14,10 +16,22 @@ type alias ScientificPitchNotation =
     String
 
 
+type alias Note =
+    ( String, String )
+
+
+type alias PlaybackData =
+    { timeSignature : ( String, String )
+    , loopEnd : String
+    , noteLength : String
+    , notes : List Note
+    }
+
+
 port loadSamples : List ( ScientificPitchNotation, SampleUrl ) -> Cmd msg
 
 
-port startSequence : List ScientificPitchNotation -> Cmd msg
+port startSequence : PlaybackData -> Cmd msg
 
 
 port stopSequence : () -> Cmd msg
@@ -95,7 +109,28 @@ loadPianoSamples =
 
 play : List Pitch -> Cmd msg
 play pitches =
-    startSequence (List.filterMap toScientificPitchNotation pitches)
+    --startSequence (List.filterMap toScientificPitchNotation pitches)
+    startSequence
+        { timeSignature = ( "4", "4" )
+        , loopEnd = "1m"
+        , noteLength = "4n"
+        , notes = [ ( "0:0:0", "C4" ), ( "0:0:3", "D4" ), ( "0:1:0", "E4" ), ( "0:1:3", "F4" ) ]
+        }
+
+
+timeSignature : TimeSignature -> ( String, String )
+timeSignature (TimeSignature numBeats beatDuration) =
+    ( numBeats |> toString, beatDuration |> toString )
+
+
+numberOfBars : Orchestration -> String
+numberOfBars (Orchestration ts bars) =
+    bars |> List.length |> toString
+
+
+play2 : Orchestration -> Cmd msg
+play2 (Orchestration ts bars) =
+    Cmd.none
 
 
 stop : Cmd msg
