@@ -1,4 +1,5 @@
-import {Sampler, Sequence, Transport} from 'tone';
+import {Sampler, Sequence, Transport, Synth} from 'tone';
+import StartAudioContext from 'startaudiocontext';
 import svg2pdf from 'svg2pdf.js';
 import jsPDF from 'jspdf-yworks';
 import abcjs from "abcjs";
@@ -10,6 +11,12 @@ const app = Elm.Main.embed(root);
 
 var sampler = null;
 var sequence = null;
+
+
+var button = document.getElementById('play-button');
+
+StartAudioContext(Transport.context, button, function(){
+});
 
 app.ports.downloadPdf.subscribe(function() {
   const svgElement = document.getElementById('score').lastChild;
@@ -42,6 +49,7 @@ app.ports.loadSamples.subscribe(function(pitchToSampleUrlMapping){
        obj[item[0]] = item[1]
        return obj
      }, {});
+
   sampler = new Sampler(toObj(pitchToSampleUrlMapping), function() {
     app.ports.samplesLoaded.send(null);
   } ).toMaster();
@@ -50,6 +58,7 @@ app.ports.loadSamples.subscribe(function(pitchToSampleUrlMapping){
 app.ports.startSequence.subscribe(function(seq){
   const noteLength = "8n"
   const subdivision = "8n"
+  var synth = new Synth().toMaster()
   sequence = new Sequence(function(_, note){
     sampler.triggerAttackRelease(note, noteLength)
   }, seq, subdivision);
@@ -63,5 +72,6 @@ app.ports.stopSequence.subscribe(function(){
   Transport.stop()
   if (sequence != null)  {
     sequence.removeAll();
+    sequence = null;
   };
 });

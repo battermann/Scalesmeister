@@ -175,6 +175,7 @@ playAndDownload model =
                  , userSelectNone
                  , height (px 60)
                  , width (px 60)
+                 , id "play-button"
                  ]
                     ++ event
                 )
@@ -393,6 +394,11 @@ view model =
                         [ center ]
                         [ text "sound samples from "
                         , link "https://archive.org/details/SalamanderGrandPianoV3" <| el Link [] (text "Salamander Grand Piano")
+                        ]
+                    , row None
+                        [ center ]
+                        [ text "Inspired by "
+                        , link "https://learningmusic.ableton.com/" <| el Link [] (text "Ableton Learning Music")
                         ]
                     , el GitHubIcon [ center ] (link "https://github.com/battermann/Luigi" <| Icons.github)
                     ]
