@@ -8,8 +8,6 @@ import Ports.Out
 import Ports.In
 import Types.Note as Note exposing (Duration(..), Altered(..))
 import Ratio
-import List.Extra
-import Maybe.Extra
 
 
 toScientificPitchNotation : Pitch -> Maybe Ports.Out.ScientificPitchNotation
@@ -87,7 +85,7 @@ play ts duration line =
 
         numBars =
             notesPerBar
-                |> Maybe.map (\npb -> (line |> List.length |> toFloat) / (toFloat npb) |> ceiling)
+                |> Maybe.map (\npb -> (line |> List.length |> toFloat) / toFloat npb |> ceiling)
                 |> Maybe.withDefault 0
 
         numDurationsPerQuarter =
@@ -108,13 +106,23 @@ play ts duration line =
                         line
                             |> List.drop 1
                             |> List.scanl
-                                (\pitch ( index, _, _, _, _ ) ->
-                                    ( index + 1
-                                    , (index + 1) // npb
-                                    , (rem (index + 1) npb) // ndq
-                                    , (((rem (index + 1) npb) - ndq * ((rem (index + 1) npb) // ndq)) |> toFloat) * (Note.toSixteenthNotes duration |> Ratio.toFloat)
-                                    , pitch
-                                    )
+                                (\pitch ( i, _, _, _, _ ) ->
+                                    let
+                                        index =
+                                            i + 1
+
+                                        bar =
+                                            index // npb
+
+                                        quarter =
+                                            rem index npb // ndq
+                                    in
+                                        ( index
+                                        , bar
+                                        , quarter
+                                        , ((rem index npb - ndq * quarter) |> toFloat) * (Note.toSixteenthNotes duration |> Ratio.toFloat)
+                                        , pitch
+                                        )
                                 )
                                 ( 0, 0, 0, 0.0, firstPitch )
                     )
@@ -131,13 +139,6 @@ play ts duration line =
             , noteLength = noteLength duration
             , notes = notes
             }
-
-
-durationToSixteenth : Duration -> String
-durationToSixteenth duration =
-    Note.toSixteenthNotes duration
-        |> Ratio.toFloat
-        |> toString
 
 
 timeSignature : TimeSignature -> ( String, String )

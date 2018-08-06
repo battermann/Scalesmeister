@@ -16,7 +16,7 @@ module Types.TimeSignature
         )
 
 import Types.Note as Note exposing (Note(..), Duration(..), Rest(..), Altered(..))
-import Ratio exposing (over, Rational(..), divide, split, divideIntBy)
+import Ratio exposing (Rational(..), split, divideIntBy)
 
 
 type BeatDuration
