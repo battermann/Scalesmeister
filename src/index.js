@@ -13,18 +13,9 @@ var sampler = null;
 var sequence = null;
 
 
-var debug = document.querySelector("#tone-debug");
-
-function log(msg) {
-    debug.textContent = debug.textContent + "; " + msg
-}
-
-var button = document.getElementById('audio-context');
+var button = document.getElementById('play-button');
 
 StartAudioContext(Transport.context, button, function(){
-  log("audio context started");
-  log(Transport.context.state);
-  button.remove();
 });
 
 app.ports.downloadPdf.subscribe(function() {
@@ -69,9 +60,7 @@ app.ports.startSequence.subscribe(function(seq){
   const subdivision = "8n"
   var synth = new Synth().toMaster()
   sequence = new Sequence(function(_, note){
-    //sampler.triggerAttackRelease(note, noteLength)
-    synth.triggerAttackRelease(note, noteLength)
-    log(note);
+    sampler.triggerAttackRelease(note, noteLength)
   }, seq, subdivision);
 
   sequence.start();
