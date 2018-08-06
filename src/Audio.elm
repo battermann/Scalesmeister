@@ -3,8 +3,11 @@ module Audio exposing (loadPianoSamples, play, stop, samplesLoaded)
 import Types.Pitch as Pitch exposing (Pitch(..), choice, flat, sharp, natural)
 import Types.PitchClass exposing (PitchClass(..), Accidental(..), Letter(..))
 import Types.Octave as Octave
+import Types.TimeSignature as TimeSignature exposing (TimeSignature(..))
 import Ports.Out
 import Ports.In
+import Types.Note as Note exposing (Duration(..), Altered(..))
+import Ratio
 
 
 toScientificPitchNotation : Pitch -> Maybe Ports.Out.ScientificPitchNotation
@@ -74,9 +77,104 @@ loadPianoSamples =
         |> Ports.Out.loadSamples
 
 
-play : List Pitch -> Cmd msg
-play pitches =
-    Ports.Out.startSequence (List.filterMap toScientificPitchNotation pitches)
+play : TimeSignature -> Duration -> List Pitch -> Cmd msg
+play ts duration line =
+    let
+        notesPerBar =
+            TimeSignature.durationsPerBar ts duration
+
+        numBars =
+            notesPerBar
+                |> Maybe.map (\npb -> (line |> List.length |> toFloat) / toFloat npb |> ceiling)
+                |> Maybe.withDefault 0
+
+        numDurationsPerQuarter =
+            case Ratio.divideIntBy 4 (Note.toSixteenthNotes duration) |> Ratio.split of
+                ( x, 1 ) ->
+                    Just x
+
+                _ ->
+                    Nothing
+
+        notes : List ( String, String )
+        notes =
+            notesPerBar
+                |> Maybe.andThen (\npb -> line |> List.head |> Maybe.map ((,) npb))
+                |> Maybe.andThen (\( a, b ) -> numDurationsPerQuarter |> Maybe.map ((,,) a b))
+                |> Maybe.map
+                    (\( npb, firstPitch, ndq ) ->
+                        line
+                            |> List.drop 1
+                            |> List.scanl
+                                (\pitch ( i, _, _, _, _ ) ->
+                                    let
+                                        index =
+                                            i + 1
+
+                                        bar =
+                                            index // npb
+
+                                        quarter =
+                                            rem index npb // ndq
+                                    in
+                                        ( index
+                                        , bar
+                                        , quarter
+                                        , ((rem index npb - ndq * quarter) |> toFloat) * (Note.toSixteenthNotes duration |> Ratio.toFloat)
+                                        , pitch
+                                        )
+                                )
+                                ( 0, 0, 0, 0.0, firstPitch )
+                    )
+                |> Maybe.withDefault []
+                |> List.filterMap (\( _, bar, quarter, sixteenth, pitch ) -> pitch |> toScientificPitchNotation |> Maybe.map (\p -> ( bar, quarter, sixteenth, p )))
+                |> List.map
+                    (\( bar, quarter, sixteenth, pitch ) ->
+                        ( [ bar |> toString, quarter |> toString, sixteenth |> toString ] |> String.join ":", pitch )
+                    )
+    in
+        Ports.Out.startSequence
+            { timeSignature = timeSignature ts
+            , loopEnd = (numBars |> toString) ++ "m"
+            , noteLength = noteLength duration
+            , notes = notes
+            }
+
+
+timeSignature : TimeSignature -> ( String, String )
+timeSignature (TimeSignature numBeats beatDuration) =
+    ( numBeats |> TimeSignature.numberOfBeatsToInt |> toString, beatDuration |> TimeSignature.beatDurationToInt |> toString )
+
+
+noteLength : Duration -> String
+noteLength duration =
+    case duration of
+        Whole ->
+            "1n"
+
+        Half ->
+            "2n"
+
+        Quarter None ->
+            "4n"
+
+        Quarter Triplet ->
+            "3n"
+
+        Quarter Dotted ->
+            "4n."
+
+        Eighth None ->
+            "8n"
+
+        Eighth Triplet ->
+            "12n"
+
+        Eighth Dotted ->
+            "8n."
+
+        Sixteenth ->
+            "16n"
 
 
 stop : Cmd msg

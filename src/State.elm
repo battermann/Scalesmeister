@@ -157,7 +157,7 @@ update msg model =
         TogglePlay ->
             case model.playingState of
                 Stopped ->
-                    ( { model | playingState = Playing }, Audio.play (line model) )
+                    ( { model | playingState = Playing }, Audio.play model.timeSignature model.noteDuration (line model) )
 
                 Playing ->
                     ( { model | playingState = Stopped }, Audio.stop )

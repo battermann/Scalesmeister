@@ -9,6 +9,7 @@ port module Ports.Out
         , ScientificPitchNotation
         , SampleUrl
         , ElementId
+        , PlaybackData
         )
 
 --- SCORE
@@ -45,10 +46,22 @@ type alias ScientificPitchNotation =
     String
 
 
+type alias Note =
+    ( String, String )
+
+
+type alias PlaybackData =
+    { timeSignature : ( String, String )
+    , loopEnd : String
+    , noteLength : String
+    , notes : List Note
+    }
+
+
 port loadSamples : List ( ScientificPitchNotation, SampleUrl ) -> Cmd msg
 
 
-port startSequence : List ScientificPitchNotation -> Cmd msg
+port startSequence : PlaybackData -> Cmd msg
 
 
 port stopSequence : () -> Cmd msg

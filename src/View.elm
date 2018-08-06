@@ -53,7 +53,7 @@ noteValue model =
                 el (Note.Eighth Note.Triplet |> style)
                     [ padding 10
                     ]
-                    (decorativeImage None [ height (px 20) ] { src = fileName (Note.Eighth Note.Triplet) "triplet" })
+                    (decorativeImage Disabled [ height (px 20) ] { src = fileName (Note.Eighth Note.Triplet) "triplet" })
             ]
 
 
@@ -180,13 +180,6 @@ playAndDownload model =
                     ++ event
                 )
                 icon
-            , button Page
-                [ onClick DownloadPdf
-                , padding 10
-                , userSelectNone
-                , verticalCenter
-                ]
-                (row None [] [ Icons.download, text " PDF" ])
             ]
 
 

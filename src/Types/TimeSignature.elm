@@ -16,7 +16,7 @@ module Types.TimeSignature
         )
 
 import Types.Note as Note exposing (Note(..), Duration(..), Rest(..), Altered(..))
-import Ratio exposing (over, Rational(..), divide, split, divideIntBy)
+import Ratio exposing (Rational(..), split, divideIntBy)
 
 
 type BeatDuration
@@ -52,7 +52,7 @@ setDuration duration (TimeSignature numBeats _) =
 
 durationsPerBar : TimeSignature -> Duration -> Maybe Int
 durationsPerBar timeSignature duration =
-    case divide (sixteenthPerBar2 timeSignature) (Note.toSixteenthNotes duration) |> split of
+    case Ratio.divideIntBy (sixteenthPerBar timeSignature) (Note.toSixteenthNotes duration) |> split of
         ( x, 1 ) ->
             Just x
 
@@ -127,11 +127,6 @@ numberOfSixteenth beatDuration =
 sixteenthPerBar : TimeSignature -> Int
 sixteenthPerBar (TimeSignature numBeats beatDuration) =
     numberOfBeatsToInt numBeats * numberOfSixteenth beatDuration
-
-
-sixteenthPerBar2 : TimeSignature -> Rational
-sixteenthPerBar2 (TimeSignature numBeats beatDuration) =
-    over (numberOfSixteenth beatDuration * numberOfBeatsToInt numBeats) 1
 
 
 durationGte : BeatDuration -> BeatDuration -> Bool
