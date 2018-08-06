@@ -1,23 +1,21 @@
 module View exposing (view)
 
-import Html exposing (i, div, Html, img)
-import Types exposing (..)
-import Styles exposing (..)
-import Element exposing (..)
-import Styles exposing (..)
-import Element.Events exposing (..)
-import Element.Attributes exposing (..)
+import Html exposing (Html)
+import Types exposing (Model, Msg(..), Dialog(..), PlayingState(..))
+import Styles exposing (AppStyles(..), stylesheet, userSelectNone)
+import Element exposing (button, link, el, text, row, column, paragraph, h1, empty, Element, h2, modal, decorativeImage)
+import Element.Events exposing (onClick)
+import Element.Attributes exposing (center, spacing, padding, width, height, percent, paddingBottom, paddingXY, paddingTop, id, xScrollbar, px, fill, scrollbars, alignLeft, verticalCenter, alignBottom)
 import Score
-import Types.PitchClass exposing (..)
-import SelectList exposing (SelectList)
+import Types.PitchClass exposing (PitchClass, pitchClassToString)
+import SelectList
 import List.Extra
-import Types.Scale exposing (ScaleDef)
 import Types.Formula exposing (Formula)
 import View.FontAwesome as Icons
-import Types.Range as Range exposing (Range)
-import Types.Pitch exposing (..)
-import Types.Scale as Scale exposing (Scale(..))
-import Types.TimeSignature exposing (..)
+import Types.Range as Range
+import Types.Pitch exposing (displayPitch)
+import Types.Scale as Scale exposing (Scale(..), ScaleDef)
+import Types.TimeSignature exposing (timeSignatureToString, TimeSignature(..), BeatDuration(..), NumberOfBeats(..), beatDuration)
 import Types.Note as Note
 
 
@@ -63,8 +61,8 @@ timeSignature : Model -> Element AppStyles variation Msg
 timeSignature model =
     let
         style : TimeSignature -> AppStyles
-        style timeSignature =
-            if timeSignature == model.timeSignature then
+        style ts =
+            if ts == model.timeSignature then
                 LightButton
             else
                 Page
@@ -76,21 +74,21 @@ timeSignature model =
                 10
 
         buttons =
-            [ (TimeSignature Three Quarter)
-            , (TimeSignature Four Quarter)
-            , (TimeSignature Five Quarter)
-            , (TimeSignature Six Quarter)
-            , (TimeSignature Three Eighth)
-            , (TimeSignature Five Eighth)
-            , (TimeSignature Six Eighth)
-            , (TimeSignature Seven Eighth)
-            , (TimeSignature Nine Eighth)
-            , (TimeSignature Twelve Eighth)
+            [ TimeSignature Three Quarter
+            , TimeSignature Four Quarter
+            , TimeSignature Five Quarter
+            , TimeSignature Six Quarter
+            , TimeSignature Three Eighth
+            , TimeSignature Five Eighth
+            , TimeSignature Six Eighth
+            , TimeSignature Seven Eighth
+            , TimeSignature Nine Eighth
+            , TimeSignature Twelve Eighth
             ]
                 |> List.map (\ts -> button (style ts) [ width fill, padding 10, onClick (SetTimeSignature ts) ] (ts |> timeSignatureToString |> text))
                 |> List.Extra.greedyGroupsOf rowLength
                 |> List.map (row None [ spacing 2 ])
-                |> (column None [ spacing 6 ])
+                |> column None [ spacing 6 ]
     in
         column None
             [ width fill, spacing 2, userSelectNone ]
@@ -142,12 +140,10 @@ rangeView model =
 
 formulaPartToString : Int -> Element style variation msg
 formulaPartToString n =
-    case n < 0 of
-        False ->
-            text ("↑" ++ (toString (abs n)))
-
-        True ->
-            text ("↓" ++ (toString (abs n)))
+    if n < 0 then
+        text ("↑" ++ toString (abs n))
+    else
+        text ("↓" ++ toString (abs n))
 
 
 displayFormula : Formula -> Element AppStyles variation msg
@@ -155,7 +151,7 @@ displayFormula formula =
     formula
         |> List.map formulaPartToString
         |> List.intersperse (text "  ")
-        |> (row None [])
+        |> row None []
 
 
 playAndDownload : Model -> Element AppStyles variation Msg
@@ -213,7 +209,7 @@ settings model =
                 , onClick (Open SelectRoot)
                 , width fill
                 ]
-                (noteToString (SelectList.selected model.roots) |> text)
+                (pitchClassToString (SelectList.selected model.roots) |> text)
             ]
         , column None
             [ width fill, spacing 2 ]
@@ -243,16 +239,16 @@ settings model =
                 , width fill
                 , onClick (Open SelectStartingNote)
                 ]
-                (noteToString model.startingNote |> text)
+                (pitchClassToString model.startingNote |> text)
             ]
         ]
             |> List.Extra.greedyGroupsOf columns
             |> List.map (row None [ spacing 2 ])
-            |> (column None [ spacing 6 ])
+            |> column None [ spacing 6 ]
 
 
-modalDialog : Model -> Element AppStyles variation Msg -> Element AppStyles variation Msg
-modalDialog model element =
+modalDialog : Element AppStyles variation Msg -> Element AppStyles variation Msg
+modalDialog element =
     modal Dialog
         [ width fill
         , height fill
@@ -270,7 +266,7 @@ modalDialog model element =
 
 selectNoteButton : (PitchClass -> Msg) -> PitchClass -> Element AppStyles variation Msg
 selectNoteButton event note =
-    button DarkButton [ userSelectNone, onClick (event note), padding 10, width fill ] (noteToString note |> text)
+    button DarkButton [ userSelectNone, onClick (event note), padding 10, width fill ] (pitchClassToString note |> text)
 
 
 selectScaleButton : ( String, ScaleDef ) -> Element AppStyles variation Msg
@@ -285,10 +281,10 @@ selectFormulaButton formula =
 
 selectScaleDialog : Model -> Element AppStyles variation Msg
 selectScaleDialog model =
-    modalDialog model
+    modalDialog
         (column None
             [ spacing 2 ]
-            ((h2 H2 [ center ] (text "Scale"))
+            (h2 H2 [ center ] (text "Scale")
                 :: (SelectList.toList model.scales |> List.map selectScaleButton)
             )
         )
@@ -296,10 +292,10 @@ selectScaleDialog model =
 
 selectRootDialog : Model -> Element AppStyles variation Msg
 selectRootDialog model =
-    modalDialog model
+    modalDialog
         (column None
             [ spacing 2, width (px 220) ]
-            ((h2 H2 [ center ] (text "Root"))
+            (h2 H2 [ center ] (text "Root")
                 :: (SelectList.toList model.roots |> List.map (selectNoteButton RootSelected) |> List.Extra.greedyGroupsOf 3 |> List.map (row None [ spacing 2 ]))
             )
         )
@@ -307,21 +303,21 @@ selectRootDialog model =
 
 selectStartingNoteDialog : Model -> Element AppStyles variation Msg
 selectStartingNoteDialog model =
-    modalDialog model
+    modalDialog
         (column None
             [ spacing 2, width (px 220) ]
-            ((h2 H2 [ center ] (text "Starting note"))
-                :: (SelectList.selected model.scales |> (Tuple.second >> (Scale (SelectList.selected model.roots)) >> Scale.notes) |> List.map (selectNoteButton StartingNoteSelected) |> List.Extra.greedyGroupsOf 3 |> List.map (row None [ spacing 2 ]))
+            (h2 H2 [ center ] (text "Starting note")
+                :: (SelectList.selected model.scales |> (Tuple.second >> Scale (SelectList.selected model.roots) >> Scale.notes) |> List.map (selectNoteButton StartingNoteSelected) |> List.Extra.greedyGroupsOf 3 |> List.map (row None [ spacing 2 ]))
             )
         )
 
 
 selectFormulaDialog : Model -> Element AppStyles variation Msg
 selectFormulaDialog model =
-    modalDialog model
+    modalDialog
         (column None
             [ spacing 2 ]
-            ((h2 H2 [ center ] (text "Formula"))
+            (h2 H2 [ center ] (text "Formula")
                 :: (SelectList.toList model.formulas |> List.map selectFormulaButton |> List.Extra.greedyGroupsOf 2 |> List.map (row None [ spacing 2 ]))
             )
         )
@@ -362,7 +358,7 @@ view model =
                 )
     in
         Element.viewport stylesheet <|
-            (column Page
+            column Page
                 [ spacing 40, paddingXY 10 10, pagePaddingTop ]
                 [ h1 H1 [ center ] (text "Luigi")
                 , paragraph Subtitle [ paddingBottom 40, center ] [ text "Generate lines for jazz improvisation based on scales and formulas." ]
@@ -403,4 +399,3 @@ view model =
                     ]
                 , chooseDialog model
                 ]
-            )

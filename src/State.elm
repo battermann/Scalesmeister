@@ -1,19 +1,16 @@
-module State exposing (..)
+module State exposing (init, update, subscriptions)
 
 import Audio
-import Score
-import Types exposing (..)
-import Types.Pitch as Pitch exposing (..)
+import Types exposing (Model, Msg(..), PlayingState(..), Device)
+import Types.Pitch as Pitch exposing (Pitch(..), sharp, natural, flat)
 import Types.Octave as Octave
-import Types.Line as Line exposing (..)
-import Types.Scale exposing (..)
-import Types.Range as Range exposing (..)
-import Types.PitchClass exposing (..)
-import Score exposing (..)
-import Types.Formula as Formula exposing (..)
+import Types.Line as Line exposing (Line)
+import Types.Scale exposing (ScaleDef, Scale(..), ionian, majorMinorSixthPentatonic, minorSixthPentatonic, minorSevenDiminishedFifthPentatonic, minorPentatonic, majorPentatonic, majorMinorSecondPentatonic)
+import Types.Range as Range exposing (Range, highest, lowest)
+import Types.PitchClass exposing (PitchClass(..), Letter(..), Accidental(..))
+import Score exposing (render)
+import Types.Formula as Formula exposing (Formula)
 import SelectList exposing (SelectList)
-import Json.Encode exposing (Value)
-import Json.Decode as Decode
 import Window
 import Task
 import Types.Orchestration as Orchestration
@@ -26,9 +23,9 @@ scales =
     SelectList.fromLists []
         ( "Major Pentatonic", majorPentatonic )
         [ ( "Minor Pentatonic", minorPentatonic )
-        , ( "Minor ♭6 Pentatonic", minorSixthPentatonic )
+        , ( "Minor 6 Pentatonic", minorSixthPentatonic )
+        , ( "Major ♭6 Pentatonic", majorMinorSixthPentatonic )
         , ( "Minor 7 ♭5 Pentatonic", minorSevenDiminishedFifthPentatonic )
-        , ( "Major 6 Pentatonic", majorMinorSixthPentatonic )
         , ( "Major ♭2 Pentatonic", majorMinorSecondPentatonic )
         , ( "Diatonic Major", ionian )
         ]
@@ -39,17 +36,17 @@ roots =
     SelectList.fromLists
         []
         (PitchClass C Natural)
-        [ (PitchClass D Flat)
-        , (PitchClass D Natural)
-        , (PitchClass E Flat)
-        , (PitchClass E Natural)
-        , (PitchClass F Natural)
-        , (PitchClass G Flat)
-        , (PitchClass G Natural)
-        , (PitchClass A Flat)
-        , (PitchClass A Natural)
-        , (PitchClass B Flat)
-        , (PitchClass B Natural)
+        [ PitchClass D Flat
+        , PitchClass D Natural
+        , PitchClass E Flat
+        , PitchClass E Natural
+        , PitchClass F Natural
+        , PitchClass G Flat
+        , PitchClass G Natural
+        , PitchClass A Flat
+        , PitchClass A Natural
+        , PitchClass B Flat
+        , PitchClass B Natural
         ]
 
 
@@ -102,7 +99,7 @@ init =
                 |> Range.setHighest (Pitch (PitchClass B Natural) Octave.six)
 
         timeSignature =
-            (TimeSignature Four TimeSignature.Quarter)
+            TimeSignature Four TimeSignature.Quarter
 
         noteDuration =
             Note.Eighth Note.None
@@ -188,7 +185,7 @@ update msg model =
 
         ScaleSelected scale ->
             { model
-                | scales = model.scales |> SelectList.select (Tuple.second >> ((==) scale))
+                | scales = model.scales |> SelectList.select (Tuple.second >> (==) scale)
                 , playingState = Stopped
                 , startingNote = SelectList.selected model.roots
             }
@@ -301,33 +298,13 @@ update msg model =
         SamplesLoaded ->
             ( { model | samplesLoaded = True }, Cmd.none )
 
-        UnknownSub _ ->
-            ( model, Cmd.none )
-
         WindowResize device ->
             ( { model | device = device }, Cmd.none )
 
 
-decodeValue : Value -> Msg
-decodeValue x =
-    let
-        result =
-            Decode.decodeValue Decode.string x
-    in
-        case result of
-            Ok "samples loaded" ->
-                SamplesLoaded
-
-            Ok string ->
-                UnknownSub string
-
-            Err err ->
-                UnknownSub err
-
-
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.batch
-        [ Audio.samplesLoaded decodeValue
+        [ Audio.samplesLoaded SamplesLoaded
         , Window.resizes (classifyDevice >> WindowResize)
         ]

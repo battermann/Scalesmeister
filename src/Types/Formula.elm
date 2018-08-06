@@ -1,4 +1,15 @@
-module Types.Formula exposing (..)
+module Types.Formula
+    exposing
+        ( Formula
+        , direction
+        , Direction(..)
+        , invert
+        , formula1
+        , formula2
+        , formula3
+        , formula4
+        , formula5
+        )
 
 
 type alias Formula =

@@ -60,8 +60,8 @@ app.ports.loadSamples.subscribe(function(pitchToSampleUrlMapping){
      }, {});
 
   sampler = new Sampler(toObj(pitchToSampleUrlMapping), function() {
-    app.ports.samplesLoaded.send("samples loaded");
-  }).toMaster();
+    app.ports.samplesLoaded.send(null);
+  } ).toMaster();
 });
 
 app.ports.startSequence.subscribe(function(seq){

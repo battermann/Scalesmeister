@@ -4,6 +4,7 @@ module Types.Scale
         , intervals
         , notes
         , Scale(..)
+        , root
         , minorPentatonic
         , majorPentatonic
         , minorSevenDiminishedFifthPentatonic
@@ -13,8 +14,8 @@ module Types.Scale
         , ionian
         )
 
-import Types.PitchClass as Note exposing (..)
-import Types.Interval as Interval exposing (..)
+import Types.PitchClass as PitchClass exposing (PitchClass(..))
+import Types.Interval exposing (Interval, minorThird, perfectFourth, perfectFifth, minorSeventh, majorSixth, majorSeventh, majorThird, majorSecond, minorSecond, diminishedFifth, minorSixth)
 
 
 type ScaleDef
@@ -32,33 +33,33 @@ minorPentatonic =
         |> ScaleDef
 
 
-minorSevenDiminishedFifthPentatonic : ScaleDef
-minorSevenDiminishedFifthPentatonic =
-    [ minorThird, perfectFourth, diminishedFifth, minorSeventh ]
-        |> ScaleDef
-
-
-minorSixthPentatonic : ScaleDef
-minorSixthPentatonic =
-    [ minorThird, perfectFourth, perfectFifth, minorSixth ]
-        |> ScaleDef
-
-
 majorPentatonic : ScaleDef
 majorPentatonic =
     [ majorSecond, majorThird, perfectFifth, majorSixth ]
         |> ScaleDef
 
 
-majorMinorSecondPentatonic : ScaleDef
-majorMinorSecondPentatonic =
-    [ minorSecond, majorThird, perfectFifth, majorSixth ]
+minorSixthPentatonic : ScaleDef
+minorSixthPentatonic =
+    [ minorThird, perfectFourth, perfectFifth, majorSixth ]
         |> ScaleDef
 
 
 majorMinorSixthPentatonic : ScaleDef
 majorMinorSixthPentatonic =
     [ majorSecond, majorThird, perfectFifth, minorSixth ]
+        |> ScaleDef
+
+
+minorSevenDiminishedFifthPentatonic : ScaleDef
+minorSevenDiminishedFifthPentatonic =
+    [ minorThird, perfectFourth, diminishedFifth, minorSeventh ]
+        |> ScaleDef
+
+
+majorMinorSecondPentatonic : ScaleDef
+majorMinorSecondPentatonic =
+    [ minorSecond, majorThird, perfectFifth, majorSixth ]
         |> ScaleDef
 
 
@@ -86,4 +87,4 @@ root (Scale rootNote _) =
 
 notes : Scale -> List PitchClass
 notes (Scale note (ScaleDef intervals)) =
-    note :: (intervals |> List.filterMap (\interval -> Note.transpose interval note))
+    note :: (intervals |> List.filterMap (\interval -> PitchClass.transpose interval note))
