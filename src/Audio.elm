@@ -1,32 +1,13 @@
-port module Audio exposing (loadPianoSamples, play, stop, samplesLoaded)
+module Audio exposing (loadPianoSamples, play, stop, samplesLoaded)
 
 import Types.Pitch as Pitch exposing (Pitch(..), choice, flat, sharp, natural)
 import Types.PitchClass exposing (PitchClass(..), Accidental(..), Letter(..))
 import Types.Octave as Octave
-import Json.Encode exposing (Value)
+import Ports.Out
+import Ports.In
 
 
-type alias SampleUrl =
-    String
-
-
-type alias ScientificPitchNotation =
-    String
-
-
-port loadSamples : List ( ScientificPitchNotation, SampleUrl ) -> Cmd msg
-
-
-port startSequence : List ScientificPitchNotation -> Cmd msg
-
-
-port stopSequence : () -> Cmd msg
-
-
-port samplesLoaded : (Value -> msg) -> Sub msg
-
-
-toScientificPitchNotation : Pitch -> Maybe ScientificPitchNotation
+toScientificPitchNotation : Pitch -> Maybe Ports.Out.ScientificPitchNotation
 toScientificPitchNotation pitch =
     Pitch.enharmonicEquivalents (pitch |> Pitch.semitoneOffset)
         |> choice [ natural, sharp, flat ]
@@ -51,7 +32,7 @@ toScientificPitchNotation pitch =
             )
 
 
-pitchToSampleUrlMapping : Pitch -> Maybe ( ScientificPitchNotation, SampleUrl )
+pitchToSampleUrlMapping : Pitch -> Maybe ( Ports.Out.ScientificPitchNotation, Ports.Out.SampleUrl )
 pitchToSampleUrlMapping (Pitch (PitchClass letter accidental) octave) =
     let
         acc =
@@ -90,14 +71,19 @@ loadPianoSamples =
             )
         |> (++) [ Pitch (PitchClass A Natural) Octave.zero, Pitch (PitchClass C Natural) Octave.eight ]
         |> List.filterMap pitchToSampleUrlMapping
-        |> loadSamples
+        |> Ports.Out.loadSamples
 
 
 play : List Pitch -> Cmd msg
 play pitches =
-    startSequence (List.filterMap toScientificPitchNotation pitches)
+    Ports.Out.startSequence (List.filterMap toScientificPitchNotation pitches)
 
 
 stop : Cmd msg
 stop =
-    stopSequence ()
+    Ports.Out.stopSequence ()
+
+
+samplesLoaded : msg -> Sub msg
+samplesLoaded msg =
+    Ports.In.samplesLoaded (always msg)

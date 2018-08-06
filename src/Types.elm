@@ -56,7 +56,6 @@ type Msg
     | FormulaSelected Formula
     | Open Dialog
     | SamplesLoaded
-    | UnknownSub String
     | WindowResize Device
     | SetTimeSignature TimeSignature
     | ToggleNoteValue

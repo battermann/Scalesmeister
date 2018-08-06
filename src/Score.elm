@@ -1,4 +1,4 @@
-port module Score exposing (render, downloadAsPdf, elementId)
+module Score exposing (render, downloadAsPdf, elementId)
 
 import Types.Pitch exposing (Pitch(..))
 import Types.PitchClass exposing (PitchClass(..), Accidental(..))
@@ -8,25 +8,12 @@ import Types.Note as Note exposing (Note(..), Rest(..), Duration(..), Altered(..
 import Util exposing (Either(..))
 import Types.TimeSignature exposing (TimeSignature(..), beatDurationToInt, numberOfBeatsToInt)
 import List.Extra
+import Ports.Out
 
 
-type alias ElementId =
-    String
-
-
-type alias AbcNotation =
-    String
-
-
-elementId : ElementId
+elementId : Ports.Out.ElementId
 elementId =
     "score"
-
-
-port renderScore : ( ElementId, AbcNotation ) -> Cmd msg
-
-
-port downloadPdf : () -> Cmd msg
 
 
 type Header
@@ -119,7 +106,7 @@ headerToString (Header (ReferenceNumber x) (Title title) (Meter beatsPerBar beat
 
 render : Orchestration -> Cmd msg
 render orchestration =
-    renderScore ( elementId, orchestration |> orchestrationToAbcNotation )
+    Ports.Out.renderScore ( Ports.Out.elementId, orchestration |> orchestrationToAbcNotation )
 
 
 timeSignature : TimeSignature -> Meter
@@ -129,7 +116,7 @@ timeSignature (TimeSignature numBeats beatDuration) =
 
 downloadAsPdf : Cmd msg
 downloadAsPdf =
-    downloadPdf ()
+    Ports.Out.downloadPdf ()
 
 
 addAbcDuration : Duration -> String -> String

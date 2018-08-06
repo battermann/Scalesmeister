@@ -11,8 +11,6 @@ import Types.PitchClass exposing (PitchClass(..), Letter(..), Accidental(..))
 import Score exposing (render)
 import Types.Formula as Formula exposing (Formula)
 import SelectList exposing (SelectList)
-import Json.Encode exposing (Value)
-import Json.Decode as Decode
 import Window
 import Task
 import Types.Orchestration as Orchestration
@@ -300,33 +298,13 @@ update msg model =
         SamplesLoaded ->
             ( { model | samplesLoaded = True }, Cmd.none )
 
-        UnknownSub _ ->
-            ( model, Cmd.none )
-
         WindowResize device ->
             ( { model | device = device }, Cmd.none )
-
-
-decodeValue : Value -> Msg
-decodeValue x =
-    let
-        result =
-            Decode.decodeValue Decode.string x
-    in
-        case result of
-            Ok "samples loaded" ->
-                SamplesLoaded
-
-            Ok string ->
-                UnknownSub string
-
-            Err err ->
-                UnknownSub err
 
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
-        [ Audio.samplesLoaded decodeValue
+        [ Audio.samplesLoaded SamplesLoaded
         , Window.resizes (classifyDevice >> WindowResize)
         ]
