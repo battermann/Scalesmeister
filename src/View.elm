@@ -395,6 +395,11 @@ view model =
                         [ text "sound samples from "
                         , link "https://archive.org/details/SalamanderGrandPianoV3" <| el Link [] (text "Salamander Grand Piano")
                         ]
+                    , row None
+                        [ center ]
+                        [ text "Inspired by "
+                        , link "https://learningmusic.ableton.com/" <| el Link [] (text "Ableton Learning Music")
+                        ]
                     , el GitHubIcon [ center ] (link "https://github.com/battermann/Luigi" <| Icons.github)
                     ]
                 , chooseDialog model
