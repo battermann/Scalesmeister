@@ -1,4 +1,5 @@
-import {Sampler, Sequence, Transport, Part, Time} from 'tone';
+import {Sampler, Transport, Part, Time} from 'tone';
+import StartAudioContext from 'startaudiocontext';
 import svg2pdf from 'svg2pdf.js';
 import jsPDF from 'jspdf-yworks';
 import abcjs from "abcjs";
@@ -9,7 +10,13 @@ const root = document.getElementById('root');
 const app = Elm.Main.embed(root);
 
 var sampler = null;
-var sequence = null;
+var part = null;
+
+
+var button = document.getElementById('play-button');
+
+StartAudioContext(Transport.context, button, function(){
+});
 
 app.ports.downloadPdf.subscribe(function() {
   const svgElement = document.getElementById('score').lastChild;
@@ -42,8 +49,9 @@ app.ports.loadSamples.subscribe(function(pitchToSampleUrlMapping){
        obj[item[0]] = item[1]
        return obj
      }, {});
+
   sampler = new Sampler(toObj(pitchToSampleUrlMapping), function() {
-    app.ports.samplesLoaded.send("samples loaded");
+    app.ports.samplesLoaded.send(null);
   } ).toMaster();
 });
 
@@ -53,17 +61,18 @@ app.ports.startSequence.subscribe(function(data){
   Transport.loop = true;
   Transport.loopEnd = data.loopEnd;
 
-  sequence = new Part(function(time, note){
+  part = new Part(function(time, note){
     sampler.triggerAttackRelease(note, data.noteLength, time);
   }, data.notes);
 
-  sequence.start(0);
+  part.start(0);
   Transport.start("+0.1");
 });
 
 app.ports.stopSequence.subscribe(function(){
   Transport.stop()
-  if (sequence != null)  {
-    sequence.removeAll();
+  if (part != null)  {
+    part.removeAll();
+    part = null;
   };
 });

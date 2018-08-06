@@ -53,7 +53,7 @@ noteValue model =
                 el (Note.Eighth Note.Triplet |> style)
                     [ padding 10
                     ]
-                    (decorativeImage None [ height (px 20) ] { src = fileName (Note.Eighth Note.Triplet) "triplet" })
+                    (decorativeImage Disabled [ height (px 20) ] { src = fileName (Note.Eighth Note.Triplet) "triplet" })
             ]
 
 
@@ -175,17 +175,11 @@ playAndDownload model =
                  , userSelectNone
                  , height (px 60)
                  , width (px 60)
+                 , id "play-button"
                  ]
                     ++ event
                 )
                 icon
-            , button Page
-                [ onClick DownloadPdf
-                , padding 10
-                , userSelectNone
-                , verticalCenter
-                ]
-                (row None [] [ Icons.download, text " PDF" ])
             ]
 
 
@@ -393,6 +387,11 @@ view model =
                         [ center ]
                         [ text "sound samples from "
                         , link "https://archive.org/details/SalamanderGrandPianoV3" <| el Link [] (text "Salamander Grand Piano")
+                        ]
+                    , row None
+                        [ center ]
+                        [ text "Inspired by "
+                        , link "https://learningmusic.ableton.com/" <| el Link [] (text "Ableton Learning Music")
                         ]
                     , el GitHubIcon [ center ] (link "https://github.com/battermann/Luigi" <| Icons.github)
                     ]

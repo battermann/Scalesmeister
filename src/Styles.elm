@@ -26,6 +26,7 @@ type AppStyles
     | RangeButton
     | Settings
     | LightButton
+    | Disabled
     | None
 
 
@@ -111,4 +112,6 @@ stylesheet =
                    , Color.text (grayscale 0.35)
                    ]
             )
+        , Style.style Disabled
+            [ Style.opacity 0.2 ]
         ]

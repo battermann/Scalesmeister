@@ -1,46 +1,18 @@
-port module Audio exposing (loadPianoSamples, play, stop, samplesLoaded)
+module Audio exposing (loadPianoSamples, play, stop, samplesLoaded)
 
 import Types.Pitch as Pitch exposing (Pitch(..), choice, flat, sharp, natural)
 import Types.PitchClass exposing (PitchClass(..), Accidental(..), Letter(..))
 import Types.Octave as Octave
-import Json.Encode exposing (Value)
-import Types.Orchestration exposing (Orchestration(..), Beamed, Bar(..))
-import Types.TimeSignature exposing (TimeSignature(..))
+import Types.TimeSignature as TimeSignature exposing (TimeSignature(..))
+import Ports.Out
+import Ports.In
+import Types.Note as Note exposing (Duration(..), Altered(..))
+import Ratio
+import List.Extra
+import Maybe.Extra
 
 
-type alias SampleUrl =
-    String
-
-
-type alias ScientificPitchNotation =
-    String
-
-
-type alias Note =
-    ( String, String )
-
-
-type alias PlaybackData =
-    { timeSignature : ( String, String )
-    , loopEnd : String
-    , noteLength : String
-    , notes : List Note
-    }
-
-
-port loadSamples : List ( ScientificPitchNotation, SampleUrl ) -> Cmd msg
-
-
-port startSequence : PlaybackData -> Cmd msg
-
-
-port stopSequence : () -> Cmd msg
-
-
-port samplesLoaded : (Value -> msg) -> Sub msg
-
-
-toScientificPitchNotation : Pitch -> Maybe ScientificPitchNotation
+toScientificPitchNotation : Pitch -> Maybe Ports.Out.ScientificPitchNotation
 toScientificPitchNotation pitch =
     Pitch.enharmonicEquivalents (pitch |> Pitch.semitoneOffset)
         |> choice [ natural, sharp, flat ]
@@ -65,7 +37,7 @@ toScientificPitchNotation pitch =
             )
 
 
-pitchToSampleUrlMapping : Pitch -> Maybe ( ScientificPitchNotation, SampleUrl )
+pitchToSampleUrlMapping : Pitch -> Maybe ( Ports.Out.ScientificPitchNotation, Ports.Out.SampleUrl )
 pitchToSampleUrlMapping (Pitch (PitchClass letter accidental) octave) =
     let
         acc =
@@ -104,35 +76,111 @@ loadPianoSamples =
             )
         |> (++) [ Pitch (PitchClass A Natural) Octave.zero, Pitch (PitchClass C Natural) Octave.eight ]
         |> List.filterMap pitchToSampleUrlMapping
-        |> loadSamples
+        |> Ports.Out.loadSamples
 
 
-play : List Pitch -> Cmd msg
-play pitches =
-    --startSequence (List.filterMap toScientificPitchNotation pitches)
-    startSequence
-        { timeSignature = ( "4", "4" )
-        , loopEnd = "1m"
-        , noteLength = "4n"
-        , notes = [ ( "0:0:0", "C4" ), ( "0:0:3", "D4" ), ( "0:1:0", "E4" ), ( "0:1:3", "F4" ) ]
-        }
+play : TimeSignature -> Duration -> List Pitch -> Cmd msg
+play ts duration line =
+    let
+        notesPerBar =
+            TimeSignature.durationsPerBar ts duration
+
+        numBars =
+            notesPerBar
+                |> Maybe.map (\npb -> (line |> List.length |> toFloat) / (toFloat npb) |> ceiling)
+                |> Maybe.withDefault 0
+
+        numDurationsPerQuarter =
+            case Ratio.divideIntBy 4 (Note.toSixteenthNotes duration) |> Ratio.split of
+                ( x, 1 ) ->
+                    Just x
+
+                _ ->
+                    Nothing
+
+        notes : List ( String, String )
+        notes =
+            notesPerBar
+                |> Maybe.andThen (\npb -> line |> List.head |> Maybe.map ((,) npb))
+                |> Maybe.andThen (\( a, b ) -> numDurationsPerQuarter |> Maybe.map ((,,) a b))
+                |> Maybe.map
+                    (\( npb, firstPitch, ndq ) ->
+                        line
+                            |> List.drop 1
+                            |> List.scanl
+                                (\pitch ( index, _, _, _, _ ) ->
+                                    ( index + 1
+                                    , (index + 1) // npb
+                                    , (rem (index + 1) npb) // ndq
+                                    , (((rem (index + 1) npb) - ndq * ((rem (index + 1) npb) // ndq)) |> toFloat) * (Note.toSixteenthNotes duration |> Ratio.toFloat)
+                                    , pitch
+                                    )
+                                )
+                                ( 0, 0, 0, 0.0, firstPitch )
+                    )
+                |> Maybe.withDefault []
+                |> List.filterMap (\( _, bar, quarter, sixteenth, pitch ) -> pitch |> toScientificPitchNotation |> Maybe.map (\p -> ( bar, quarter, sixteenth, p )))
+                |> List.map
+                    (\( bar, quarter, sixteenth, pitch ) ->
+                        ( [ bar |> toString, quarter |> toString, sixteenth |> toString ] |> String.join ":", pitch )
+                    )
+    in
+        Ports.Out.startSequence
+            { timeSignature = timeSignature ts
+            , loopEnd = (numBars |> toString) ++ "m"
+            , noteLength = noteLength duration
+            , notes = notes
+            }
+
+
+durationToSixteenth : Duration -> String
+durationToSixteenth duration =
+    Note.toSixteenthNotes duration
+        |> Ratio.toFloat
+        |> toString
 
 
 timeSignature : TimeSignature -> ( String, String )
 timeSignature (TimeSignature numBeats beatDuration) =
-    ( numBeats |> toString, beatDuration |> toString )
+    ( numBeats |> TimeSignature.numberOfBeatsToInt |> toString, beatDuration |> TimeSignature.beatDurationToInt |> toString )
 
 
-numberOfBars : Orchestration -> String
-numberOfBars (Orchestration ts bars) =
-    bars |> List.length |> toString
+noteLength : Duration -> String
+noteLength duration =
+    case duration of
+        Whole ->
+            "1n"
 
+        Half ->
+            "2n"
 
-play2 : Orchestration -> Cmd msg
-play2 (Orchestration ts bars) =
-    Cmd.none
+        Quarter None ->
+            "4n"
+
+        Quarter Triplet ->
+            "3n"
+
+        Quarter Dotted ->
+            "4n."
+
+        Eighth None ->
+            "8n"
+
+        Eighth Triplet ->
+            "12n"
+
+        Eighth Dotted ->
+            "8n."
+
+        Sixteenth ->
+            "16n"
 
 
 stop : Cmd msg
 stop =
-    stopSequence ()
+    Ports.Out.stopSequence ()
+
+
+samplesLoaded : msg -> Sub msg
+samplesLoaded msg =
+    Ports.In.samplesLoaded (always msg)
