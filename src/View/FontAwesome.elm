@@ -9,6 +9,8 @@ module View.FontAwesome
         , doubleAngleLeft
         , angleRight
         , angleLeft
+        , volumeOff
+        , volumeUp
         )
 
 import Html exposing (div, i)
@@ -21,6 +23,16 @@ import Element.Attributes exposing (verticalCenter, center)
 toEl : String -> Element.Element AppStyles variation msg
 toEl iconStr =
     el None [ center, verticalCenter ] (html (div [] [ i [ class iconStr ] [] ]))
+
+
+volumeUp : Element.Element AppStyles variation msg
+volumeUp =
+    toEl "fas fa-volume-up"
+
+
+volumeOff : Element.Element AppStyles variation msg
+volumeOff =
+    toEl "fas fa-volume-off"
 
 
 download : Element.Element AppStyles variation msg

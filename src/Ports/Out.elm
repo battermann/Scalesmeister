@@ -55,6 +55,7 @@ type alias PlaybackData =
     , loopEnd : String
     , noteLength : String
     , notes : List Note
+    , clicks : List ( String, String )
     }
 
 

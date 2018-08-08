@@ -1,5 +1,6 @@
 module Audio exposing (loadPianoSamples, play, stop, samplesLoaded)
 
+import Types exposing (ClickTrack(..), clickTrackFold)
 import Types.Pitch as Pitch exposing (Pitch(..), choice, flat, sharp, natural)
 import Types.PitchClass exposing (PitchClass(..), Accidental(..), Letter(..))
 import Types.Octave as Octave
@@ -77,8 +78,8 @@ loadPianoSamples =
         |> Ports.Out.loadSamples
 
 
-play : TimeSignature -> Duration -> List Pitch -> Cmd msg
-play ts duration line =
+play : ClickTrack -> TimeSignature -> Duration -> List Pitch -> Cmd msg
+play clickTrack ts duration line =
     let
         notesPerBar =
             TimeSignature.durationsPerBar ts duration
@@ -138,7 +139,33 @@ play ts duration line =
             , loopEnd = (numBars |> toString) ++ "m"
             , noteLength = noteLength duration
             , notes = notes
+            , clicks = clickTrack |> clickTrackFold (clicks ts duration) []
             }
+
+
+clicks : TimeSignature -> Duration -> List ( String, String )
+clicks (TimeSignature numBeats beatDuration) duration =
+    case ( numBeats, beatDuration, duration ) of
+        ( TimeSignature.Four, TimeSignature.Quarter, Eighth None ) ->
+            [ ( "0:0:0", "" ), ( "0:2:0", "" ) ]
+
+        ( TimeSignature.Five, TimeSignature.Quarter, Eighth None ) ->
+            [ ( "0:0:0", "" ), ( "0:3:0", "" ) ]
+
+        ( TimeSignature.Six, TimeSignature.Quarter, Eighth None ) ->
+            [ ( "0:0:0", "" ), ( "0:3:0", "" ) ]
+
+        ( TimeSignature.Five, TimeSignature.Eighth, Eighth None ) ->
+            [ ( "0:0:0", "" ), ( "0:1:2", "" ) ]
+
+        ( TimeSignature.Seven, TimeSignature.Eighth, Eighth None ) ->
+            [ ( "0:0:0", "" ), ( "0:2:0", "" ) ]
+
+        ( TimeSignature.Twelve, TimeSignature.Eighth, Eighth None ) ->
+            [ ( "0:0:0", "" ), ( "0:3:0", "" ) ]
+
+        _ ->
+            [ ( "0:0:0", "" ) ]
 
 
 timeSignature : TimeSignature -> ( String, String )

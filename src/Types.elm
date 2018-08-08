@@ -1,4 +1,4 @@
-module Types exposing (PlayingState(..), Dialog(..), Device, Model, Msg(..))
+module Types exposing (PlayingState(..), Dialog(..), Device, Model, Msg(..), ClickTrack(..), clickTrackFold)
 
 import Types.Range exposing (Range)
 import Types.PitchClass exposing (PitchClass)
@@ -7,6 +7,21 @@ import Types.Scale exposing (ScaleDef)
 import SelectList exposing (SelectList)
 import Types.TimeSignature exposing (TimeSignature)
 import Types.Note as Note
+
+
+type ClickTrack
+    = On
+    | Off
+
+
+clickTrackFold : a -> a -> ClickTrack -> a
+clickTrackFold on off ct =
+    case ct of
+        On ->
+            on
+
+        Off ->
+            off
 
 
 type PlayingState
@@ -44,6 +59,7 @@ type alias Model =
     , device : Device
     , timeSignature : TimeSignature
     , noteDuration : Note.Duration
+    , clickTrack : ClickTrack
     }
 
 
@@ -68,3 +84,4 @@ type Msg
     | RangeMaxSkipDown
     | RangeMaxSkipUp
     | CloseDialog
+    | ToggleClick

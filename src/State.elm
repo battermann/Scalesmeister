@@ -1,7 +1,7 @@
 module State exposing (init, update, subscriptions)
 
 import Audio
-import Types exposing (Model, Msg(..), PlayingState(..), Device)
+import Types exposing (Model, Msg(..), PlayingState(..), Device, ClickTrack(..), clickTrackFold)
 import Types.Pitch as Pitch exposing (Pitch(..), sharp, natural, flat)
 import Types.Octave as Octave
 import Types.Line as Line exposing (Line)
@@ -116,6 +116,7 @@ init =
             , device = classifyDevice { width = 0, height = 0 }
             , timeSignature = timeSignature
             , noteDuration = noteDuration
+            , clickTrack = Off
             }
     in
         case line model |> Orchestration.orchestrate timeSignature noteDuration of
@@ -151,13 +152,23 @@ renderNew playingState model =
             ( { model | playingState = Stopped }, Cmd.batch [ Audio.stop, render orchestration ] )
 
 
+toggleClickTrack : Model -> ( Model, Cmd msg )
+toggleClickTrack model =
+    case model.playingState of
+        Playing ->
+            ( { model | playingState = Stopped, clickTrack = model.clickTrack |> clickTrackFold Off On }, Audio.stop )
+
+        Stopped ->
+            ( { model | clickTrack = model.clickTrack |> clickTrackFold Off On }, Cmd.none )
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         TogglePlay ->
             case model.playingState of
                 Stopped ->
-                    ( { model | playingState = Playing }, Audio.play model.timeSignature model.noteDuration (line model) )
+                    ( { model | playingState = Playing }, Audio.play model.clickTrack model.timeSignature model.noteDuration (line model) )
 
                 Playing ->
                     ( { model | playingState = Stopped }, Audio.stop )
@@ -300,6 +311,9 @@ update msg model =
 
         WindowResize device ->
             ( { model | device = device }, Cmd.none )
+
+        ToggleClick ->
+            toggleClickTrack model
 
 
 subscriptions : Model -> Sub Msg
