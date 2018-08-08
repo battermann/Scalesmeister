@@ -1,4 +1,4 @@
-module Audio exposing (loadPianoSamples, play, stop, samplesLoaded)
+module Audio exposing (loadPianoSamples, play, stop, samplesLoaded, setTempo)
 
 import Types exposing (ClickTrack(..), clickTrackFold)
 import Types.Pitch as Pitch exposing (Pitch(..), choice, flat, sharp, natural)
@@ -207,6 +207,11 @@ noteLength duration =
 stop : Cmd msg
 stop =
     Ports.Out.stopSequence ()
+
+
+setTempo : Int -> Cmd msg
+setTempo tempo =
+    Ports.Out.setTempo tempo
 
 
 samplesLoaded : msg -> Sub msg

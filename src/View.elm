@@ -1,6 +1,8 @@
 module View exposing (view)
 
 import Html exposing (Html)
+import Html.Attributes
+import Html.Events
 import Types exposing (Model, Msg(..), Dialog(..), PlayingState(..), clickTrackFold)
 import Styles exposing (AppStyles(..), stylesheet, userSelectNone)
 import Element exposing (button, link, el, text, row, column, paragraph, h1, empty, Element, h2, modal, decorativeImage)
@@ -54,12 +56,40 @@ noteValueAndClick model =
                     [ padding 10
                     ]
                     (decorativeImage Disabled [ height (px 20) ] { src = fileName (Note.Eighth Note.Triplet) "triplet" })
+            ]
+
+
+slider : Model -> Element AppStyles variation Msg
+slider model =
+    row None
+        [ spacing 15 ]
+        [ column None
+            [ width fill, spacing 2 ]
+            [ el SmallText [] ("Tempo: " ++ (toString model.tempo) ++ " bpm" |> text)
+            , row None
+                [ spacing 10, padding 2, height (px 40) ]
+                [ Element.html <|
+                    Html.input
+                        [ Html.Attributes.type_ "range"
+                        , Html.Attributes.min "60"
+                        , Html.Attributes.max "220"
+                        , Html.Attributes.value <| toString model.tempo
+                        , Html.Events.onInput UpdateTempo
+                        , Html.Attributes.style [ ( "width", "100%" ), ( "pointer-events", "auto" ) ]
+                        ]
+                        []
+                ]
+            ]
+        , column None
+            [ spacing 2, width (px 40) ]
+            [ el SmallText [] (text "Click")
             , button (model.clickTrack |> clickTrackFold LightButton Page)
                 [ padding 10
                 , onClick ToggleClick
                 ]
-                (row None [ spacing 4, width (px 60) ] [ model.clickTrack |> clickTrackFold Icons.volumeUp Icons.volumeOff, text "Click" ])
+                (el None [] (model.clickTrack |> clickTrackFold Icons.volumeUp Icons.volumeOff))
             ]
+        ]
 
 
 timeSignature : Model -> Element AppStyles variation Msg
@@ -371,7 +401,8 @@ view model =
                                 [ playAndDownload model
                                 , column Settings
                                     [ padding 20, spacing 6 ]
-                                    [ settings model
+                                    [ slider model
+                                    , settings model
                                     , rangeView model
                                     , timeSignature model
                                     , noteValueAndClick model

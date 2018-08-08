@@ -10,6 +10,7 @@ port module Ports.Out
         , SampleUrl
         , ElementId
         , PlaybackData
+        , setTempo
         )
 
 --- SCORE
@@ -66,3 +67,6 @@ port startSequence : PlaybackData -> Cmd msg
 
 
 port stopSequence : () -> Cmd msg
+
+
+port setTempo : Int -> Cmd msg

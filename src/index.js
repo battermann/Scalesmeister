@@ -62,6 +62,11 @@ app.ports.loadSamples.subscribe(function(pitchToSampleUrlMapping){
 
 });
 
+app.ports.setTempo.subscribe(function(tempo){
+  Transport.bpm.value = tempo;
+});
+
+
 app.ports.startSequence.subscribe(function(data){
 
   Transport.timeSignature = data.timeSignature;

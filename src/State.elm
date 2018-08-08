@@ -117,6 +117,7 @@ init =
             , timeSignature = timeSignature
             , noteDuration = noteDuration
             , clickTrack = Off
+            , tempo = 160
             }
     in
         case line model |> Orchestration.orchestrate timeSignature noteDuration of
@@ -152,14 +153,14 @@ renderNew playingState model =
             ( { model | playingState = Stopped }, Cmd.batch [ Audio.stop, render orchestration ] )
 
 
-toggleClickTrack : Model -> ( Model, Cmd msg )
-toggleClickTrack model =
-    case model.playingState of
+stopIfPlayingOnAction : PlayingState -> ( Model, Cmd msg ) -> ( Model, Cmd msg )
+stopIfPlayingOnAction playingState ( model, cmd ) =
+    case playingState of
         Playing ->
-            ( { model | playingState = Stopped, clickTrack = model.clickTrack |> clickTrackFold Off On }, Audio.stop )
+            ( { model | playingState = Stopped }, Cmd.batch [ cmd, Audio.stop ] )
 
         Stopped ->
-            ( { model | clickTrack = model.clickTrack |> clickTrackFold Off On }, Cmd.none )
+            ( model, cmd )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -313,7 +314,11 @@ update msg model =
             ( { model | device = device }, Cmd.none )
 
         ToggleClick ->
-            toggleClickTrack model
+            ( { model | clickTrack = model.clickTrack |> clickTrackFold Off On }, Cmd.none )
+                |> stopIfPlayingOnAction model.playingState
+
+        UpdateTempo tempo ->
+            ( { model | tempo = String.toFloat tempo |> Result.withDefault 160.0 }, String.toFloat tempo |> Result.withDefault 160.0 |> round |> Audio.setTempo )
 
 
 subscriptions : Model -> Sub Msg

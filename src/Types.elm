@@ -60,6 +60,7 @@ type alias Model =
     , timeSignature : TimeSignature
     , noteDuration : Note.Duration
     , clickTrack : ClickTrack
+    , tempo : Float
     }
 
 
@@ -85,3 +86,4 @@ type Msg
     | RangeMaxSkipUp
     | CloseDialog
     | ToggleClick
+    | UpdateTempo String
