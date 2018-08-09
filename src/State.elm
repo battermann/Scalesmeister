@@ -1,7 +1,8 @@
 module State exposing (init, update, subscriptions)
 
 import Audio
-import Types exposing (Model, Msg(..), PlayingState(..), Device, ClickTrack(..), clickTrackFold)
+import Types exposing (Model, Msg(..), PlayingState(..), Device)
+import Types.Switch as Switch
 import Types.Pitch as Pitch exposing (Pitch(..), sharp, natural, flat)
 import Types.Octave as Octave
 import Types.Line as Line exposing (Line)
@@ -116,7 +117,7 @@ init =
             , device = classifyDevice { width = 0, height = 0 }
             , timeSignature = timeSignature
             , noteDuration = noteDuration
-            , clickTrack = Off
+            , clickTrack = Switch.off
             , tempo = 160
             }
     in
@@ -151,16 +152,6 @@ renderNew playingState model =
 
         ( Playing, Just orchestration ) ->
             ( { model | playingState = Stopped }, Cmd.batch [ Audio.stop, render orchestration ] )
-
-
-stopIfPlayingOnAction : PlayingState -> ( Model, Cmd msg ) -> ( Model, Cmd msg )
-stopIfPlayingOnAction playingState ( model, cmd ) =
-    case playingState of
-        Playing ->
-            ( { model | playingState = Stopped }, Cmd.batch [ cmd, Audio.stop ] )
-
-        Stopped ->
-            ( model, cmd )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -314,8 +305,7 @@ update msg model =
             ( { model | device = device }, Cmd.none )
 
         ToggleClick ->
-            ( { model | clickTrack = model.clickTrack |> clickTrackFold Off On }, Cmd.none )
-                |> stopIfPlayingOnAction model.playingState
+            ( { model | clickTrack = model.clickTrack |> Switch.toggle }, model.clickTrack |> Switch.fold Audio.muteClick Audio.unMuteClick )
 
         UpdateTempo tempo ->
             ( { model | tempo = String.toFloat tempo |> Result.withDefault 160.0 }, String.toFloat tempo |> Result.withDefault 160.0 |> round |> Audio.setTempo )

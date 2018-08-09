@@ -11,6 +11,7 @@ port module Ports.Out
         , ElementId
         , PlaybackData
         , setTempo
+        , setClickMute
         )
 
 --- SCORE
@@ -57,6 +58,7 @@ type alias PlaybackData =
     , noteLength : String
     , notes : List Note
     , clicks : List ( String, String )
+    , clickMuted : Bool
     }
 
 
@@ -70,3 +72,6 @@ port stopSequence : () -> Cmd msg
 
 
 port setTempo : Int -> Cmd msg
+
+
+port setClickMute : Bool -> Cmd msg

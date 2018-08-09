@@ -66,6 +66,11 @@ app.ports.setTempo.subscribe(function(tempo){
   Transport.bpm.value = tempo;
 });
 
+app.ports.setClickMute.subscribe(function(mute){
+  if (clickTrack != null) {
+    clickTrack.mute = mute;
+  };
+});
 
 app.ports.startSequence.subscribe(function(data){
 
@@ -81,6 +86,7 @@ app.ports.startSequence.subscribe(function(data){
     player.start(time);
   }, data.clicks);
 
+  clickTrack.mute = data.clickMuted;
   clickTrack.start(0);
   clickTrack.loop = true;
 

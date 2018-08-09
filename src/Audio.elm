@@ -1,6 +1,6 @@
-module Audio exposing (loadPianoSamples, play, stop, samplesLoaded, setTempo)
+module Audio exposing (loadPianoSamples, play, stop, samplesLoaded, setTempo, muteClick, unMuteClick)
 
-import Types exposing (ClickTrack(..), clickTrackFold)
+import Types.Switch as Switch exposing (Switch)
 import Types.Pitch as Pitch exposing (Pitch(..), choice, flat, sharp, natural)
 import Types.PitchClass exposing (PitchClass(..), Accidental(..), Letter(..))
 import Types.Octave as Octave
@@ -78,8 +78,8 @@ loadPianoSamples =
         |> Ports.Out.loadSamples
 
 
-play : ClickTrack -> TimeSignature -> Duration -> List Pitch -> Cmd msg
-play clickTrack ts duration line =
+play : Switch -> TimeSignature -> Duration -> List Pitch -> Cmd msg
+play clickTrackSwitch ts duration line =
     let
         notesPerBar =
             TimeSignature.durationsPerBar ts duration
@@ -139,7 +139,8 @@ play clickTrack ts duration line =
             , loopEnd = (numBars |> toString) ++ "m"
             , noteLength = noteLength duration
             , notes = notes
-            , clicks = clickTrack |> clickTrackFold (clicks ts duration) []
+            , clicks = clicks ts duration
+            , clickMuted = clickTrackSwitch |> Switch.fold False True
             }
 
 
@@ -212,6 +213,16 @@ stop =
 setTempo : Int -> Cmd msg
 setTempo tempo =
     Ports.Out.setTempo tempo
+
+
+muteClick : Cmd msg
+muteClick =
+    Ports.Out.setClickMute True
+
+
+unMuteClick : Cmd msg
+unMuteClick =
+    Ports.Out.setClickMute False
 
 
 samplesLoaded : msg -> Sub msg
