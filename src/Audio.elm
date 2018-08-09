@@ -1,5 +1,6 @@
-module Audio exposing (loadPianoSamples, play, stop, samplesLoaded)
+module Audio exposing (loadPianoSamples, play, stop, samplesLoaded, setTempo, muteClick, unMuteClick)
 
+import Types.Switch as Switch exposing (Switch)
 import Types.Pitch as Pitch exposing (Pitch(..), choice, flat, sharp, natural)
 import Types.PitchClass exposing (PitchClass(..), Accidental(..), Letter(..))
 import Types.Octave as Octave
@@ -77,8 +78,8 @@ loadPianoSamples =
         |> Ports.Out.loadSamples
 
 
-play : TimeSignature -> Duration -> List Pitch -> Cmd msg
-play ts duration line =
+play : Switch -> TimeSignature -> Duration -> List Pitch -> Cmd msg
+play clickTrackSwitch ts duration line =
     let
         notesPerBar =
             TimeSignature.durationsPerBar ts duration
@@ -138,7 +139,34 @@ play ts duration line =
             , loopEnd = (numBars |> toString) ++ "m"
             , noteLength = noteLength duration
             , notes = notes
+            , clicks = clicks ts duration
+            , clickMuted = clickTrackSwitch |> Switch.fold False True
             }
+
+
+clicks : TimeSignature -> Duration -> List ( String, String )
+clicks (TimeSignature numBeats beatDuration) duration =
+    case ( numBeats, beatDuration, duration ) of
+        ( TimeSignature.Four, TimeSignature.Quarter, Eighth None ) ->
+            [ ( "0:0:0", "" ), ( "0:2:0", "" ) ]
+
+        ( TimeSignature.Five, TimeSignature.Quarter, Eighth None ) ->
+            [ ( "0:0:0", "" ), ( "0:3:0", "" ) ]
+
+        ( TimeSignature.Six, TimeSignature.Quarter, Eighth None ) ->
+            [ ( "0:0:0", "" ), ( "0:3:0", "" ) ]
+
+        ( TimeSignature.Five, TimeSignature.Eighth, Eighth None ) ->
+            [ ( "0:0:0", "" ), ( "0:1:2", "" ) ]
+
+        ( TimeSignature.Seven, TimeSignature.Eighth, Eighth None ) ->
+            [ ( "0:0:0", "" ), ( "0:2:0", "" ) ]
+
+        ( TimeSignature.Twelve, TimeSignature.Eighth, Eighth None ) ->
+            [ ( "0:0:0", "" ), ( "0:3:0", "" ) ]
+
+        _ ->
+            [ ( "0:0:0", "" ) ]
 
 
 timeSignature : TimeSignature -> ( String, String )
@@ -180,6 +208,21 @@ noteLength duration =
 stop : Cmd msg
 stop =
     Ports.Out.stopSequence ()
+
+
+setTempo : Int -> Cmd msg
+setTempo tempo =
+    Ports.Out.setTempo tempo
+
+
+muteClick : Cmd msg
+muteClick =
+    Ports.Out.setClickMute True
+
+
+unMuteClick : Cmd msg
+unMuteClick =
+    Ports.Out.setClickMute False
 
 
 samplesLoaded : msg -> Sub msg

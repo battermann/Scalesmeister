@@ -7,6 +7,7 @@ import Types.Scale exposing (ScaleDef)
 import SelectList exposing (SelectList)
 import Types.TimeSignature exposing (TimeSignature)
 import Types.Note as Note
+import Types.Switch exposing (Switch)
 
 
 type PlayingState
@@ -44,6 +45,8 @@ type alias Model =
     , device : Device
     , timeSignature : TimeSignature
     , noteDuration : Note.Duration
+    , clickTrack : Switch
+    , tempo : Float
     }
 
 
@@ -68,3 +71,5 @@ type Msg
     | RangeMaxSkipDown
     | RangeMaxSkipUp
     | CloseDialog
+    | ToggleClick
+    | UpdateTempo String

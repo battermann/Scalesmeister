@@ -1,6 +1,7 @@
 module View exposing (view)
 
 import Html exposing (Html)
+import Types.Switch as Switch
 import Types exposing (Model, Msg(..), Dialog(..), PlayingState(..))
 import Styles exposing (AppStyles(..), stylesheet, userSelectNone)
 import Element exposing (button, link, el, text, row, column, paragraph, h1, empty, Element, h2, modal, decorativeImage)
@@ -17,10 +18,11 @@ import Types.Pitch exposing (displayPitch)
 import Types.Scale as Scale exposing (Scale(..), ScaleDef)
 import Types.TimeSignature exposing (timeSignatureToString, TimeSignature(..), BeatDuration(..), NumberOfBeats(..), beatDuration)
 import Types.Note as Note
+import View.RangeInput as Slider
 
 
-noteValue : Model -> Element AppStyles variation Msg
-noteValue model =
+noteValueAndClick : Model -> Element AppStyles variation Msg
+noteValueAndClick model =
     let
         style : Note.Duration -> AppStyles
         style duration =
@@ -55,6 +57,29 @@ noteValue model =
                     ]
                     (decorativeImage Disabled [ height (px 20) ] { src = fileName (Note.Eighth Note.Triplet) "triplet" })
             ]
+
+
+slider : Model -> Element AppStyles variation Msg
+slider model =
+    row None
+        [ spacing 15 ]
+        [ column None
+            [ width fill, spacing 2 ]
+            [ el SmallText [] ("Tempo: " ++ toString model.tempo ++ " bpm" |> text)
+            , row None
+                [ spacing 10, padding 2, height (px 40) ]
+                [ Slider.input model.tempo UpdateTempo ]
+            ]
+        , column None
+            [ spacing 2, width (px 40) ]
+            [ el SmallText [] (text "Click")
+            , button (model.clickTrack |> Switch.fold LightButton Page)
+                [ padding 10
+                , onClick ToggleClick
+                ]
+                (el None [] (model.clickTrack |> Switch.fold Icons.volumeUp Icons.volumeOff))
+            ]
+        ]
 
 
 timeSignature : Model -> Element AppStyles variation Msg
@@ -366,10 +391,11 @@ view model =
                                 [ playAndDownload model
                                 , column Settings
                                     [ padding 20, spacing 6 ]
-                                    [ settings model
+                                    [ slider model
+                                    , settings model
                                     , rangeView model
                                     , timeSignature model
-                                    , noteValue model
+                                    , noteValueAndClick model
                                     ]
                                 ]
                             ]

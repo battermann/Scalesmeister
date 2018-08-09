@@ -2,6 +2,7 @@ module State exposing (init, update, subscriptions)
 
 import Audio
 import Types exposing (Model, Msg(..), PlayingState(..), Device)
+import Types.Switch as Switch
 import Types.Pitch as Pitch exposing (Pitch(..), sharp, natural, flat)
 import Types.Octave as Octave
 import Types.Line as Line exposing (Line)
@@ -116,6 +117,8 @@ init =
             , device = classifyDevice { width = 0, height = 0 }
             , timeSignature = timeSignature
             , noteDuration = noteDuration
+            , clickTrack = Switch.off
+            , tempo = 160
             }
     in
         case line model |> Orchestration.orchestrate timeSignature noteDuration of
@@ -157,7 +160,7 @@ update msg model =
         TogglePlay ->
             case model.playingState of
                 Stopped ->
-                    ( { model | playingState = Playing }, Audio.play model.timeSignature model.noteDuration (line model) )
+                    ( { model | playingState = Playing }, Audio.play model.clickTrack model.timeSignature model.noteDuration (line model) )
 
                 Playing ->
                     ( { model | playingState = Stopped }, Audio.stop )
@@ -300,6 +303,12 @@ update msg model =
 
         WindowResize device ->
             ( { model | device = device }, Cmd.none )
+
+        ToggleClick ->
+            ( { model | clickTrack = model.clickTrack |> Switch.toggle }, model.clickTrack |> Switch.fold Audio.muteClick Audio.unMuteClick )
+
+        UpdateTempo tempo ->
+            ( { model | tempo = String.toFloat tempo |> Result.withDefault 160.0 }, String.toFloat tempo |> Result.withDefault 160.0 |> round |> Audio.setTempo )
 
 
 subscriptions : Model -> Sub Msg
