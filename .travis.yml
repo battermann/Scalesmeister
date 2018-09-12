@@ -35,8 +35,7 @@ install: # install specific versions of elm & elm-test
 
 script:
   - elm-test --verbose
-  - npm install
-  - elm-app build
+  - travis_wait npm install
 
 deploy:
   provider: surge
