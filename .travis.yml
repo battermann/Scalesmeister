@@ -36,6 +36,9 @@ install: # install specific versions of elm & elm-test
 
 script:
   - elm-test --verbose
+  - cd src
+  - elm-app make src/Main.elm --output=/dev/null --yes --warn
+  - cd ..
   - travis_wait 30 npm install
 
 deploy:
