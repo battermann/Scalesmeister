@@ -1,22 +1,22 @@
-module State exposing (init, update, subscriptions)
+module State exposing (init, subscriptions, update)
 
 import Audio
-import Types exposing (Model, Msg(..), PlayingState(..), Device)
-import Types.Switch as Switch
-import Types.Pitch as Pitch exposing (Pitch(..), sharp, natural, flat)
-import Types.Octave as Octave
-import Types.Line as Line exposing (Line)
-import Types.Scale exposing (ScaleDef, Scale(..), ionian, majorMinorSixthPentatonic, minorSixthPentatonic, minorSevenDiminishedFifthPentatonic, minorPentatonic, majorPentatonic, majorMinorSecondPentatonic)
-import Types.Range as Range exposing (Range, highest, lowest)
-import Types.PitchClass exposing (PitchClass(..), Letter(..), Accidental(..))
 import Score exposing (render)
-import Types.Formula as Formula exposing (Formula)
 import SelectList exposing (SelectList)
-import Window
 import Task
-import Types.Orchestration as Orchestration
-import Types.TimeSignature as TimeSignature exposing (TimeSignature(..), NumberOfBeats(..), BeatDuration(..), durationGte, beatDuration)
+import Types exposing (Device, Model, Msg(..), PlayingState(..))
+import Types.Formula as Formula exposing (Formula)
+import Types.Line as Line exposing (Line)
 import Types.Note as Note
+import Types.Octave as Octave
+import Types.Orchestration as Orchestration
+import Types.Pitch as Pitch exposing (Pitch(..), flat, natural, sharp)
+import Types.PitchClass exposing (Accidental(..), Letter(..), PitchClass(..))
+import Types.Range as Range exposing (Range, highest, lowest)
+import Types.Scale exposing (Scale(..), ScaleDef, ionian, majorMinorSecondPentatonic, majorMinorSixthPentatonic, majorPentatonic, minorPentatonic, minorSevenDiminishedFifthPentatonic, minorSixthPentatonic)
+import Types.Switch as Switch
+import Types.TimeSignature as TimeSignature exposing (BeatDuration(..), NumberOfBeats(..), TimeSignature(..), beatDuration, durationGte)
+import Window
 
 
 scales : SelectList ( String, ScaleDef )
@@ -121,12 +121,12 @@ init =
             , tempo = 160
             }
     in
-        case line model |> Orchestration.orchestrate timeSignature noteDuration of
-            Just orchestration ->
-                ( model, Cmd.batch [ initialSizeCmd, Audio.loadPianoSamples, Score.render orchestration ] )
+    case line model |> Orchestration.orchestrate timeSignature noteDuration of
+        Just orchestration ->
+            ( model, Cmd.batch [ initialSizeCmd, Audio.loadPianoSamples, Score.render orchestration ] )
 
-            Nothing ->
-                ( model, Cmd.batch [ initialSizeCmd, Audio.loadPianoSamples ] )
+        Nothing ->
+            ( model, Cmd.batch [ initialSizeCmd, Audio.loadPianoSamples ] )
 
 
 classifyDevice : Window.Size -> Device
@@ -176,7 +176,7 @@ update msg model =
 
         RootSelected note ->
             { model
-                | roots = model.roots |> SelectList.select (((==) note))
+                | roots = model.roots |> SelectList.select ((==) note)
                 , playingState = Stopped
                 , startingNote = note
             }
@@ -208,6 +208,7 @@ update msg model =
                 , noteDuration =
                     if durationGte (beatDuration timeSignature) Quarter then
                         model.noteDuration
+
                     else
                         Note.Eighth Note.None
             }
@@ -232,8 +233,8 @@ update msg model =
                     Pitch.transpose [ natural, flat ] (lowest model.range) -1
                         |> Maybe.withDefault (lowest model.range)
             in
-                { model | range = Range.setLowest min model.range }
-                    |> renderNew model.playingState
+            { model | range = Range.setLowest min model.range }
+                |> renderNew model.playingState
 
         RangeMinStepUp ->
             let
@@ -241,8 +242,8 @@ update msg model =
                     Pitch.transpose [ natural, sharp ] (lowest model.range) 1
                         |> Maybe.withDefault (lowest model.range)
             in
-                { model | range = Range.setLowest min model.range }
-                    |> renderNew model.playingState
+            { model | range = Range.setLowest min model.range }
+                |> renderNew model.playingState
 
         RangeMinSkipDown ->
             let
@@ -250,8 +251,8 @@ update msg model =
                     Pitch.transpose [ natural, flat ] (lowest model.range) -12
                         |> Maybe.withDefault (lowest model.range)
             in
-                { model | range = Range.setLowest min model.range }
-                    |> renderNew model.playingState
+            { model | range = Range.setLowest min model.range }
+                |> renderNew model.playingState
 
         RangeMinSkipUp ->
             let
@@ -259,8 +260,8 @@ update msg model =
                     Pitch.transpose [ natural, sharp ] (lowest model.range) 12
                         |> Maybe.withDefault (lowest model.range)
             in
-                { model | range = Range.setLowest min model.range }
-                    |> renderNew model.playingState
+            { model | range = Range.setLowest min model.range }
+                |> renderNew model.playingState
 
         RangeMaxStepDown ->
             let
@@ -268,8 +269,8 @@ update msg model =
                     Pitch.transpose [ natural, flat ] (highest model.range) -1
                         |> Maybe.withDefault (highest model.range)
             in
-                { model | range = Range.setHighest max model.range }
-                    |> renderNew model.playingState
+            { model | range = Range.setHighest max model.range }
+                |> renderNew model.playingState
 
         RangeMaxStepUp ->
             let
@@ -277,8 +278,8 @@ update msg model =
                     Pitch.transpose [ natural, sharp ] (highest model.range) 1
                         |> Maybe.withDefault (highest model.range)
             in
-                { model | range = Range.setHighest max model.range }
-                    |> renderNew model.playingState
+            { model | range = Range.setHighest max model.range }
+                |> renderNew model.playingState
 
         RangeMaxSkipDown ->
             let
@@ -286,8 +287,8 @@ update msg model =
                     Pitch.transpose [ natural, flat ] (highest model.range) -12
                         |> Maybe.withDefault (highest model.range)
             in
-                { model | range = Range.setHighest max model.range }
-                    |> renderNew model.playingState
+            { model | range = Range.setHighest max model.range }
+                |> renderNew model.playingState
 
         RangeMaxSkipUp ->
             let
@@ -295,8 +296,8 @@ update msg model =
                     Pitch.transpose [ natural, sharp ] (highest model.range) 12
                         |> Maybe.withDefault (highest model.range)
             in
-                { model | range = Range.setHighest max model.range }
-                    |> renderNew model.playingState
+            { model | range = Range.setHighest max model.range }
+                |> renderNew model.playingState
 
         SamplesLoaded ->
             ( { model | samplesLoaded = True }, Cmd.none )

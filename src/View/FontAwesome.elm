@@ -1,23 +1,22 @@
-module View.FontAwesome
-    exposing
-        ( download
-        , github
-        , stop
-        , play
-        , spinner
-        , doubleAngleRight
-        , doubleAngleLeft
-        , angleRight
-        , angleLeft
-        , volumeOff
-        , volumeUp
-        )
+module View.FontAwesome exposing
+    ( angleLeft
+    , angleRight
+    , doubleAngleLeft
+    , doubleAngleRight
+    , download
+    , github
+    , play
+    , spinner
+    , stop
+    , volumeOff
+    , volumeUp
+    )
 
+import Element exposing (el, html)
+import Element.Attributes exposing (center, verticalCenter)
 import Html exposing (div, i)
 import Html.Attributes exposing (class)
-import Element exposing (html, el)
 import Styles exposing (AppStyles(..))
-import Element.Attributes exposing (verticalCenter, center)
 
 
 toEl : String -> Element.Element AppStyles variation msg

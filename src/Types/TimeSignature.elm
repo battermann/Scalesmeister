@@ -1,22 +1,21 @@
-module Types.TimeSignature
-    exposing
-        ( BeatDuration(..)
-        , TimeSignature(..)
-        , NumberOfBeats(..)
-        , durationsPerBar
-        , numberOfBeatsToInt
-        , beatDurationToInt
-        , grouping
-        , setDuration
-        , setNumberOfBeats
-        , numberOfBeats
-        , beatDuration
-        , timeSignatureToString
-        , durationGte
-        )
+module Types.TimeSignature exposing
+    ( BeatDuration(..)
+    , NumberOfBeats(..)
+    , TimeSignature(..)
+    , beatDuration
+    , beatDurationToInt
+    , durationGte
+    , durationsPerBar
+    , grouping
+    , numberOfBeats
+    , numberOfBeatsToInt
+    , setDuration
+    , setNumberOfBeats
+    , timeSignatureToString
+    )
 
-import Types.Note as Note exposing (Note(..), Duration(..), Rest(..), Altered(..))
-import Ratio exposing (Rational(..), split, divideIntBy)
+import Ratio exposing (Rational(..), divideIntBy, split)
+import Types.Note as Note exposing (Altered(..), Duration(..), Note(..), Rest(..))
 
 
 type BeatDuration

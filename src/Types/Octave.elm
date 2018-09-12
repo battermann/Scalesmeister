@@ -1,22 +1,21 @@
-module Types.Octave
-    exposing
-        ( Octave
-        , number
-        , add
-        , all
-        , zero
-        , one
-        , two
-        , three
-        , four
-        , five
-        , six
-        , seven
-        , eight
-        , octave
-        , up
-        , down
-        )
+module Types.Octave exposing
+    ( Octave
+    , add
+    , all
+    , down
+    , eight
+    , five
+    , four
+    , number
+    , octave
+    , one
+    , seven
+    , six
+    , three
+    , two
+    , up
+    , zero
+    )
 
 
 type Octave
@@ -27,6 +26,7 @@ octave : Int -> Maybe Octave
 octave n =
     if n >= 0 && n <= 8 then
         Octave n |> Just
+
     else
         Nothing
 

@@ -1,15 +1,14 @@
-module Types.Formula
-    exposing
-        ( Formula
-        , direction
-        , Direction(..)
-        , invert
-        , formula1
-        , formula2
-        , formula3
-        , formula4
-        , formula5
-        )
+module Types.Formula exposing
+    ( Direction(..)
+    , Formula
+    , direction
+    , formula1
+    , formula2
+    , formula3
+    , formula4
+    , formula5
+    , invert
+    )
 
 
 type alias Formula =
@@ -28,12 +27,14 @@ direction formula =
         sum =
             List.sum formula
     in
-        if sum > 0 then
-            Ascending
-        else if sum < 0 then
-            Descending
-        else
-            Static
+    if sum > 0 then
+        Ascending
+
+    else if sum < 0 then
+        Descending
+
+    else
+        Static
 
 
 invert : Formula -> Formula

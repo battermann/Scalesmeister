@@ -1,14 +1,14 @@
-module Score exposing (render, downloadAsPdf, elementId)
+module Score exposing (downloadAsPdf, elementId, render)
 
-import Types.Pitch exposing (Pitch(..))
-import Types.PitchClass exposing (PitchClass(..), Accidental(..))
-import Types.Octave as Octave
-import Types.Orchestration exposing (Orchestration(..), Bar(..), Beamed, Clef(..))
-import Types.Note as Note exposing (Note(..), Rest(..), Duration(..), Altered(..))
-import Util exposing (Either(..))
-import Types.TimeSignature exposing (TimeSignature(..), beatDurationToInt, numberOfBeatsToInt)
 import List.Extra
 import Ports.Out
+import Types.Note as Note exposing (Altered(..), Duration(..), Note(..), Rest(..))
+import Types.Octave as Octave
+import Types.Orchestration exposing (Bar(..), Beamed, Clef(..), Orchestration(..))
+import Types.Pitch exposing (Pitch(..))
+import Types.PitchClass exposing (Accidental(..), PitchClass(..))
+import Types.TimeSignature exposing (TimeSignature(..), beatDurationToInt, numberOfBeatsToInt)
+import Util exposing (Either(..))
 
 
 elementId : Ports.Out.ElementId
@@ -75,10 +75,11 @@ toAbcScoreNote (Pitch (PitchClass letter accidental) octave) =
                 DoubleSharp ->
                     "^"
     in
-        if Octave.number octave < 5 then
-            acc ++ (letter |> toString) ++ (List.repeat (4 - Octave.number octave) ',' |> String.fromList)
-        else
-            acc ++ (letter |> toString |> String.toLower) ++ (List.repeat (Octave.number octave - 5) '\'' |> String.fromList)
+    if Octave.number octave < 5 then
+        acc ++ (letter |> toString) ++ (List.repeat (4 - Octave.number octave) ',' |> String.fromList)
+
+    else
+        acc ++ (letter |> toString |> String.toLower) ++ (List.repeat (Octave.number octave - 5) '\'' |> String.fromList)
 
 
 clefToAbcNotation : Clef -> String
@@ -183,10 +184,11 @@ beamedToAbcNotation list =
         abc =
             list |> List.map noteOrRestToAbcNotation >> String.join ""
     in
-        if list |> List.all isTriplet then
-            "(3:2:" ++ (list |> List.length |> toString) ++ abc
-        else
-            abc
+    if list |> List.all isTriplet then
+        "(3:2:" ++ (list |> List.length |> toString) ++ abc
+
+    else
+        abc
 
 
 barToAbcNotation : Bar -> String

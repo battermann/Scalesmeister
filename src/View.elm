@@ -1,23 +1,23 @@
 module View exposing (view)
 
-import Html exposing (Html)
-import Types.Switch as Switch
-import Types exposing (Model, Msg(..), Dialog(..), PlayingState(..))
-import Styles exposing (AppStyles(..), stylesheet, userSelectNone)
-import Element exposing (button, link, el, text, row, column, paragraph, h1, empty, Element, h2, modal, decorativeImage)
+import Element exposing (Element, button, column, decorativeImage, el, empty, h1, h2, link, modal, paragraph, row, text)
+import Element.Attributes exposing (alignBottom, alignLeft, center, fill, height, id, padding, paddingBottom, paddingTop, paddingXY, percent, px, scrollbars, spacing, verticalCenter, width, xScrollbar)
 import Element.Events exposing (onClick)
-import Element.Attributes exposing (center, spacing, padding, width, height, percent, paddingBottom, paddingXY, paddingTop, id, xScrollbar, px, fill, scrollbars, alignLeft, verticalCenter, alignBottom)
-import Score
-import Types.PitchClass exposing (PitchClass, pitchClassToString)
-import SelectList
+import Html exposing (Html)
 import List.Extra
+import Score
+import SelectList
+import Styles exposing (AppStyles(..), stylesheet, userSelectNone)
+import Types exposing (Dialog(..), Model, Msg(..), PlayingState(..))
 import Types.Formula exposing (Formula)
-import View.FontAwesome as Icons
-import Types.Range as Range
-import Types.Pitch exposing (displayPitch)
-import Types.Scale as Scale exposing (Scale(..), ScaleDef)
-import Types.TimeSignature exposing (timeSignatureToString, TimeSignature(..), BeatDuration(..), NumberOfBeats(..), beatDuration)
 import Types.Note as Note
+import Types.Pitch exposing (displayPitch)
+import Types.PitchClass exposing (PitchClass, pitchClassToString)
+import Types.Range as Range
+import Types.Scale as Scale exposing (Scale(..), ScaleDef)
+import Types.Switch as Switch
+import Types.TimeSignature exposing (BeatDuration(..), NumberOfBeats(..), TimeSignature(..), beatDuration, timeSignatureToString)
+import View.FontAwesome as Icons
 import View.RangeInput as Slider
 
 
@@ -28,6 +28,7 @@ noteValueAndClick model =
         style duration =
             if duration == model.noteDuration then
                 LightButton
+
             else
                 Page
 
@@ -35,28 +36,30 @@ noteValueAndClick model =
         fileName duration baseName =
             if duration == model.noteDuration then
                 baseName ++ ".svg"
+
             else
                 baseName ++ "-light" ++ ".svg"
     in
-        row None
-            [ spacing 2 ]
-            [ button (Note.Eighth Note.None |> style)
+    row None
+        [ spacing 2 ]
+        [ button (Note.Eighth Note.None |> style)
+            [ padding 10
+            , onClick ToggleNoteValue
+            ]
+            (decorativeImage None [ height (px 20) ] { src = fileName (Note.Eighth Note.None) "eighthnotes" })
+        , if [ Quarter, Half ] |> List.member (model.timeSignature |> beatDuration) then
+            button (Note.Eighth Note.Triplet |> style)
                 [ padding 10
                 , onClick ToggleNoteValue
                 ]
-                (decorativeImage None [ height (px 20) ] { src = fileName (Note.Eighth Note.None) "eighthnotes" })
-            , if [ Quarter, Half ] |> List.member (model.timeSignature |> beatDuration) then
-                button (Note.Eighth Note.Triplet |> style)
-                    [ padding 10
-                    , onClick ToggleNoteValue
-                    ]
-                    (decorativeImage None [ height (px 20) ] { src = fileName (Note.Eighth Note.Triplet) "triplet" })
-              else
-                el (Note.Eighth Note.Triplet |> style)
-                    [ padding 10
-                    ]
-                    (decorativeImage Disabled [ height (px 20) ] { src = fileName (Note.Eighth Note.Triplet) "triplet" })
-            ]
+                (decorativeImage None [ height (px 20) ] { src = fileName (Note.Eighth Note.Triplet) "triplet" })
+
+          else
+            el (Note.Eighth Note.Triplet |> style)
+                [ padding 10
+                ]
+                (decorativeImage Disabled [ height (px 20) ] { src = fileName (Note.Eighth Note.Triplet) "triplet" })
+        ]
 
 
 slider : Model -> Element AppStyles variation Msg
@@ -89,12 +92,14 @@ timeSignature model =
         style ts =
             if ts == model.timeSignature then
                 LightButton
+
             else
                 Page
 
         rowLength =
             if model.device.phone && model.device.portrait then
                 5
+
             else
                 10
 
@@ -115,11 +120,11 @@ timeSignature model =
                 |> List.map (row None [ spacing 2 ])
                 |> column None [ spacing 6 ]
     in
-        column None
-            [ width fill, spacing 2, userSelectNone ]
-            [ el SmallText [] (text "Time Signature")
-            , buttons
-            ]
+    column None
+        [ width fill, spacing 2, userSelectNone ]
+        [ el SmallText [] (text "Time Signature")
+        , buttons
+        ]
 
 
 rangeView : Model -> Element AppStyles variation Msg
@@ -128,45 +133,47 @@ rangeView model =
         myLayout =
             if model.device.phone || (model.device.tablet && model.device.portrait) then
                 column
+
             else
                 row
     in
-        column None
-            [ width fill, spacing 2, userSelectNone ]
-            [ el SmallText [] (text "Range")
-            , myLayout None
+    column None
+        [ width fill, spacing 2, userSelectNone ]
+        [ el SmallText [] (text "Range")
+        , myLayout None
+            [ spacing 2 ]
+            [ row None
                 [ spacing 2 ]
+                [ button Page [ width fill, padding 10, onClick RangeMinSkipDown ] Icons.doubleAngleLeft
+                , button Page [ width fill, padding 10, onClick RangeMinStepDown ] Icons.angleLeft
+                , button Page [ width fill, padding 10, onClick RangeMinStepUp ] Icons.angleRight
+                , button Page [ width fill, padding 10, onClick RangeMinSkipUp ] Icons.doubleAngleRight
+                ]
+            , column Page
+                [ verticalCenter, center, padding 10, spacing 2, width fill ]
                 [ row None
-                    [ spacing 2 ]
-                    [ button Page [ width fill, padding 10, onClick RangeMinSkipDown ] Icons.doubleAngleLeft
-                    , button Page [ width fill, padding 10, onClick RangeMinStepDown ] Icons.angleLeft
-                    , button Page [ width fill, padding 10, onClick RangeMinStepUp ] Icons.angleRight
-                    , button Page [ width fill, padding 10, onClick RangeMinSkipUp ] Icons.doubleAngleRight
-                    ]
-                , column Page
-                    [ verticalCenter, center, padding 10, spacing 2, width fill ]
-                    [ row None
-                        [ spacing 10 ]
-                        [ text (displayPitch (Range.lowest model.range))
-                        , text "-"
-                        , text (displayPitch (Range.highest model.range))
-                        ]
-                    ]
-                , row None
-                    [ spacing 2 ]
-                    [ button Page [ width fill, padding 10, onClick RangeMaxSkipDown ] Icons.doubleAngleLeft
-                    , button Page [ width fill, padding 10, onClick RangeMaxStepDown ] Icons.angleLeft
-                    , button Page [ width fill, padding 10, onClick RangeMaxStepUp ] Icons.angleRight
-                    , button Page [ width fill, padding 10, onClick RangeMaxSkipUp ] Icons.doubleAngleRight
+                    [ spacing 10 ]
+                    [ text (displayPitch (Range.lowest model.range))
+                    , text "-"
+                    , text (displayPitch (Range.highest model.range))
                     ]
                 ]
+            , row None
+                [ spacing 2 ]
+                [ button Page [ width fill, padding 10, onClick RangeMaxSkipDown ] Icons.doubleAngleLeft
+                , button Page [ width fill, padding 10, onClick RangeMaxStepDown ] Icons.angleLeft
+                , button Page [ width fill, padding 10, onClick RangeMaxStepUp ] Icons.angleRight
+                , button Page [ width fill, padding 10, onClick RangeMaxSkipUp ] Icons.doubleAngleRight
+                ]
             ]
+        ]
 
 
 formulaPartToString : Int -> Element style variation msg
 formulaPartToString n =
-    if n < 0 then
+    if n > 0 then
         text ("↑" ++ toString (abs n))
+
     else
         text ("↓" ++ toString (abs n))
 
@@ -193,19 +200,19 @@ playAndDownload model =
                 ( Playing, _ ) ->
                     ( Icons.stop, button, [ onClick TogglePlay ] )
     in
-        row None
-            [ spacing 2, alignBottom ]
-            [ control LightButton
-                ([ padding 10
-                 , userSelectNone
-                 , height (px 60)
-                 , width (px 60)
-                 , id "play-button"
-                 ]
-                    ++ event
-                )
-                icon
-            ]
+    row None
+        [ spacing 2, alignBottom ]
+        [ control LightButton
+            ([ padding 10
+             , userSelectNone
+             , height (px 60)
+             , width (px 60)
+             , id "play-button"
+             ]
+                ++ event
+            )
+            icon
+        ]
 
 
 settings : Model -> Element AppStyles variation Msg
@@ -214,55 +221,56 @@ settings model =
         columns =
             if model.device.phone || model.device.tablet then
                 2
+
             else
                 4
     in
-        [ column None
-            [ width fill, spacing 2 ]
-            [ el SmallText [] (text "Root")
-            , button Page
-                [ padding 10
-                , alignLeft
-                , userSelectNone
-                , onClick (Open SelectRoot)
-                , width fill
-                ]
-                (pitchClassToString (SelectList.selected model.roots) |> text)
+    [ column None
+        [ width fill, spacing 2 ]
+        [ el SmallText [] (text "Root")
+        , button Page
+            [ padding 10
+            , alignLeft
+            , userSelectNone
+            , onClick (Open SelectRoot)
+            , width fill
             ]
-        , column None
-            [ width fill, spacing 2 ]
-            [ el SmallText [] (text "Scale")
-            , button Page
-                [ padding 10
-                , onClick (Open SelectScale)
-                , width fill
-                ]
-                (text (model.scales |> SelectList.selected |> Tuple.first))
-            ]
-        , column None
-            [ width fill, spacing 2 ]
-            [ el SmallText [] (text "Formula")
-            , button Page
-                [ padding 10
-                , onClick (Open SelectFormula)
-                , width fill
-                ]
-                (displayFormula (model.formulas |> SelectList.selected))
-            ]
-        , column None
-            [ width fill, spacing 2 ]
-            [ el SmallText [] (text "Starting note")
-            , button Page
-                [ padding 10
-                , width fill
-                , onClick (Open SelectStartingNote)
-                ]
-                (pitchClassToString model.startingNote |> text)
-            ]
+            (pitchClassToString (SelectList.selected model.roots) |> text)
         ]
-            |> List.Extra.greedyGroupsOf columns
-            |> List.map (row None [ spacing 2 ])
-            |> column None [ spacing 6 ]
+    , column None
+        [ width fill, spacing 2 ]
+        [ el SmallText [] (text "Scale")
+        , button Page
+            [ padding 10
+            , onClick (Open SelectScale)
+            , width fill
+            ]
+            (text (model.scales |> SelectList.selected |> Tuple.first))
+        ]
+    , column None
+        [ width fill, spacing 2 ]
+        [ el SmallText [] (text "Formula")
+        , button Page
+            [ padding 10
+            , onClick (Open SelectFormula)
+            , width fill
+            ]
+            (displayFormula (model.formulas |> SelectList.selected))
+        ]
+    , column None
+        [ width fill, spacing 2 ]
+        [ el SmallText [] (text "Starting note")
+        , button Page
+            [ padding 10
+            , width fill
+            , onClick (Open SelectStartingNote)
+            ]
+            (pitchClassToString model.startingNote |> text)
+        ]
+    ]
+        |> List.Extra.greedyGroupsOf columns
+        |> List.map (row None [ spacing 2 ])
+        |> column None [ spacing 6 ]
 
 
 modalDialog : Element AppStyles variation Msg -> Element AppStyles variation Msg
@@ -369,57 +377,58 @@ view model =
                 , paddingTop 20
                 , percent 100
                 )
+
             else
                 ( row Score [ center ] [ el Score [ id Score.elementId, center ] empty ]
                 , paddingTop 100
                 , percent 70
                 )
     in
-        Element.viewport stylesheet <|
-            column Page
-                [ spacing 40, paddingXY 10 10, pagePaddingTop ]
-                [ h1 H1 [ center ] (text "Luigi")
-                , paragraph Subtitle [ paddingBottom 40, center ] [ text "Generate lines for jazz improvisation based on scales and formulas." ]
-                , column None
-                    [ spacing 2 ]
-                    [ column None
-                        []
-                        [ row None
-                            [ center, width (percent 100) ]
-                            [ column None
-                                [ spacing 2, width settingsWidth ]
-                                [ playAndDownload model
-                                , column Settings
-                                    [ padding 20, spacing 6 ]
-                                    [ slider model
-                                    , settings model
-                                    , rangeView model
-                                    , timeSignature model
-                                    , noteValueAndClick model
-                                    ]
+    Element.viewport stylesheet <|
+        column Page
+            [ spacing 40, paddingXY 10 10, pagePaddingTop ]
+            [ h1 H1 [ center ] (text "Luigi")
+            , paragraph Subtitle [ paddingBottom 40, center ] [ text "Generate lines for jazz improvisation based on scales and formulas." ]
+            , column None
+                [ spacing 2 ]
+                [ column None
+                    []
+                    [ row None
+                        [ center, width (percent 100) ]
+                        [ column None
+                            [ spacing 2, width settingsWidth ]
+                            [ playAndDownload model
+                            , column Settings
+                                [ padding 20, spacing 6 ]
+                                [ slider model
+                                , settings model
+                                , rangeView model
+                                , timeSignature model
+                                , noteValueAndClick model
                                 ]
                             ]
                         ]
-                    , scoreLayout
                     ]
-                , column Footer
-                    [ spacing 5 ]
-                    [ row None
-                        [ center ]
-                        [ text "created with "
-                        , link "http://elm-lang.org/" <| el Link [] (text "Elm")
-                        ]
-                    , row None
-                        [ center ]
-                        [ text "sound samples from "
-                        , link "https://archive.org/details/SalamanderGrandPianoV3" <| el Link [] (text "Salamander Grand Piano")
-                        ]
-                    , row None
-                        [ center ]
-                        [ text "Inspired by "
-                        , link "https://learningmusic.ableton.com/" <| el Link [] (text "Ableton Learning Music")
-                        ]
-                    , el GitHubIcon [ center ] (link "https://github.com/battermann/Luigi" <| Icons.github)
-                    ]
-                , chooseDialog model
+                , scoreLayout
                 ]
+            , column Footer
+                [ spacing 5 ]
+                [ row None
+                    [ center ]
+                    [ text "created with "
+                    , link "http://elm-lang.org/" <| el Link [] (text "Elm")
+                    ]
+                , row None
+                    [ center ]
+                    [ text "sound samples from "
+                    , link "https://archive.org/details/SalamanderGrandPianoV3" <| el Link [] (text "Salamander Grand Piano")
+                    ]
+                , row None
+                    [ center ]
+                    [ text "Inspired by "
+                    , link "https://learningmusic.ableton.com/" <| el Link [] (text "Ableton Learning Music")
+                    ]
+                , el GitHubIcon [ center ] (link "https://github.com/battermann/Luigi" <| Icons.github)
+                ]
+            , chooseDialog model
+            ]

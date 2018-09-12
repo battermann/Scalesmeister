@@ -1,17 +1,16 @@
-module Types.Line
-    exposing
-        ( Line
-        , applyFormula
-        , fromScaleWithinRange
-        )
+module Types.Line exposing
+    ( Line
+    , applyFormula
+    , fromScaleWithinRange
+    )
 
 import List.Extra exposing ((!!))
-import Types.Scale exposing (Scale, notes)
+import Maybe.Extra
+import Types.Formula as Formula exposing (Direction(..), Formula)
 import Types.Pitch as Pitch exposing (Pitch(..))
 import Types.PitchClass exposing (PitchClass)
 import Types.Range as Range exposing (Range)
-import Types.Formula as Formula exposing (Formula, Direction(..))
-import Maybe.Extra
+import Types.Scale exposing (Scale, notes)
 
 
 type alias Line =
@@ -40,15 +39,15 @@ possibleStartingIndices direction note line =
         indices =
             line |> List.Extra.findIndices (\(Pitch n _) -> n == note)
     in
-        case direction of
-            Ascending ->
-                indices
+    case direction of
+        Ascending ->
+            indices
 
-            Static ->
-                indices
+        Static ->
+            indices
 
-            Descending ->
-                indices |> List.reverse
+        Descending ->
+            indices |> List.reverse
 
 
 fitFormulaRecursively : List Int -> List a -> List a -> Int -> List a

@@ -1,23 +1,22 @@
-module Types.Pitch
-    exposing
-        ( Pitch(..)
-        , flat
-        , semitoneOffset
-        , note
-        , all
-        , displayPitch
-        , sharp
-        , natural
-        , any
-        , choice
-        , enharmonicEquivalents
-        , transpose
-        )
+module Types.Pitch exposing
+    ( Pitch(..)
+    , all
+    , any
+    , choice
+    , displayPitch
+    , enharmonicEquivalents
+    , flat
+    , natural
+    , note
+    , semitoneOffset
+    , sharp
+    , transpose
+    )
 
-import Types.Octave as Octave exposing (Octave)
-import Types.PitchClass as PitchClass exposing (PitchClass(..), pitchClassToString, Semitones, Accidental(..))
 import List.Extra
 import Maybe.Extra
+import Types.Octave as Octave exposing (Octave)
+import Types.PitchClass as PitchClass exposing (Accidental(..), PitchClass(..), Semitones, pitchClassToString)
 
 
 type Pitch
@@ -86,13 +85,13 @@ enharmonicEquivalents semitones =
         notes =
             PitchClass.all |> List.filter (PitchClass.semitoneOffset >> (==) remainder)
     in
-        notes
-            |> List.filterMap
-                (\n ->
-                    Octave.all
-                        |> List.Extra.find (\o -> Octave.number o * 12 + PitchClass.semitoneOffset n == semitones)
-                        |> Maybe.map (Pitch n)
-                )
+    notes
+        |> List.filterMap
+            (\n ->
+                Octave.all
+                    |> List.Extra.find (\o -> Octave.number o * 12 + PitchClass.semitoneOffset n == semitones)
+                    |> Maybe.map (Pitch n)
+            )
 
 
 displayPitch : Pitch -> String

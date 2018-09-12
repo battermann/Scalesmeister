@@ -1,8 +1,8 @@
-module Types.Range exposing (Range, setLowest, setHighest, highest, lowest, contains, piano)
+module Types.Range exposing (Range, contains, highest, lowest, piano, setHighest, setLowest)
 
-import Types.Pitch as Pitch exposing (Pitch(..))
 import Types.Octave as Octave
-import Types.PitchClass exposing (PitchClass(..), Letter(..), Accidental(..))
+import Types.Pitch as Pitch exposing (Pitch(..))
+import Types.PitchClass exposing (Accidental(..), Letter(..), PitchClass(..))
 
 
 type Range
@@ -28,6 +28,7 @@ setLowest : Pitch -> Range -> Range
 setLowest pitch (Range l h) =
     if Pitch.semitoneOffset pitch >= Pitch.semitoneOffset h || not (contains pitch piano) then
         Range l h
+
     else
         Range pitch h
 
@@ -36,6 +37,7 @@ setHighest : Pitch -> Range -> Range
 setHighest pitch (Range l h) =
     if Pitch.semitoneOffset pitch <= Pitch.semitoneOffset l || not (contains pitch piano) then
         Range l h
+
     else
         Range l pitch
 

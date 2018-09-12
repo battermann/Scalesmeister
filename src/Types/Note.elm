@@ -1,15 +1,14 @@
-module Types.Note
-    exposing
-        ( Altered(..)
-        , Duration(..)
-        , toSixteenthNotes
-        , Rest(..)
-        , Note(..)
-        , addDurations
-        )
+module Types.Note exposing
+    ( Altered(..)
+    , Duration(..)
+    , Note(..)
+    , Rest(..)
+    , addDurations
+    , toSixteenthNotes
+    )
 
+import Ratio exposing (Rational, add, denominator, fromInt, numerator, over)
 import Types.Pitch exposing (Pitch)
-import Ratio exposing (Rational, fromInt, over, denominator, numerator, add)
 
 
 type Altered

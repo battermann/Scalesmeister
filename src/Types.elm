@@ -1,13 +1,13 @@
-module Types exposing (PlayingState(..), Dialog(..), Device, Model, Msg(..))
+module Types exposing (Device, Dialog(..), Model, Msg(..), PlayingState(..))
 
-import Types.Range exposing (Range)
-import Types.PitchClass exposing (PitchClass)
-import Types.Formula exposing (Formula)
-import Types.Scale exposing (ScaleDef)
 import SelectList exposing (SelectList)
-import Types.TimeSignature exposing (TimeSignature)
+import Types.Formula exposing (Formula)
 import Types.Note as Note
+import Types.PitchClass exposing (PitchClass)
+import Types.Range exposing (Range)
+import Types.Scale exposing (ScaleDef)
 import Types.Switch exposing (Switch)
+import Types.TimeSignature exposing (TimeSignature)
 
 
 type PlayingState
