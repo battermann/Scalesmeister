@@ -1,21 +1,20 @@
-module Types.Scale
-    exposing
-        ( ScaleDef
-        , intervals
-        , notes
-        , Scale(..)
-        , root
-        , minorPentatonic
-        , majorPentatonic
-        , minorSevenDiminishedFifthPentatonic
-        , minorSixthPentatonic
-        , majorMinorSecondPentatonic
-        , majorMinorSixthPentatonic
-        , ionian
-        )
+module Types.Scale exposing
+    ( Scale(..)
+    , ScaleDef
+    , intervals
+    , ionian
+    , majorMinorSecondPentatonic
+    , majorMinorSixthPentatonic
+    , majorPentatonic
+    , minorPentatonic
+    , minorSevenDiminishedFifthPentatonic
+    , minorSixthPentatonic
+    , notes
+    , root
+    )
 
+import Types.Interval exposing (Interval, diminishedFifth, majorSecond, majorSeventh, majorSixth, majorThird, minorSecond, minorSeventh, minorSixth, minorThird, perfectFifth, perfectFourth)
 import Types.PitchClass as PitchClass exposing (PitchClass(..))
-import Types.Interval exposing (Interval, minorThird, perfectFourth, perfectFifth, minorSeventh, majorSixth, majorSeventh, majorThird, majorSecond, minorSecond, diminishedFifth, minorSixth)
 
 
 type ScaleDef

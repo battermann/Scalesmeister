@@ -1,14 +1,14 @@
-module Audio exposing (loadPianoSamples, play, stop, samplesLoaded, setTempo, muteClick, unMuteClick)
+module Audio exposing (loadPianoSamples, muteClick, play, samplesLoaded, setTempo, stop, unMuteClick)
 
-import Types.Switch as Switch exposing (Switch)
-import Types.Pitch as Pitch exposing (Pitch(..), choice, flat, sharp, natural)
-import Types.PitchClass exposing (PitchClass(..), Accidental(..), Letter(..))
-import Types.Octave as Octave
-import Types.TimeSignature as TimeSignature exposing (TimeSignature(..))
-import Ports.Out
 import Ports.In
-import Types.Note as Note exposing (Duration(..), Altered(..))
+import Ports.Out
 import Ratio
+import Types.Note as Note exposing (Altered(..), Duration(..))
+import Types.Octave as Octave
+import Types.Pitch as Pitch exposing (Pitch(..), choice, flat, natural, sharp)
+import Types.PitchClass exposing (Accidental(..), Letter(..), PitchClass(..))
+import Types.Switch as Switch exposing (Switch)
+import Types.TimeSignature as TimeSignature exposing (TimeSignature(..))
 
 
 toScientificPitchNotation : Pitch -> Maybe Ports.Out.ScientificPitchNotation
@@ -32,7 +32,7 @@ toScientificPitchNotation pitch =
                             _ ->
                                 Nothing
                 in
-                    maybeAcc |> Maybe.map (\acc -> toString letter ++ acc ++ toString (Octave.number octave))
+                maybeAcc |> Maybe.map (\acc -> toString letter ++ acc ++ toString (Octave.number octave))
             )
 
 
@@ -50,8 +50,8 @@ pitchToSampleUrlMapping (Pitch (PitchClass letter accidental) octave) =
         url =
             "samples/" ++ toString letter ++ acc ++ toString (Octave.number octave) ++ ".mp3"
     in
-        toScientificPitchNotation (Pitch (PitchClass letter accidental) octave)
-            |> Maybe.map (\key -> ( key, url ))
+    toScientificPitchNotation (Pitch (PitchClass letter accidental) octave)
+        |> Maybe.map (\key -> ( key, url ))
 
 
 loadPianoSamples : Cmd msg
@@ -118,12 +118,12 @@ play clickTrackSwitch ts duration line =
                                         quarter =
                                             rem index npb // ndq
                                     in
-                                        ( index
-                                        , bar
-                                        , quarter
-                                        , ((rem index npb - ndq * quarter) |> toFloat) * (Note.toSixteenthNotes duration |> Ratio.toFloat)
-                                        , pitch
-                                        )
+                                    ( index
+                                    , bar
+                                    , quarter
+                                    , ((rem index npb - ndq * quarter) |> toFloat) * (Note.toSixteenthNotes duration |> Ratio.toFloat)
+                                    , pitch
+                                    )
                                 )
                                 ( 0, 0, 0, 0.0, firstPitch )
                     )
@@ -134,14 +134,14 @@ play clickTrackSwitch ts duration line =
                         ( [ bar |> toString, quarter |> toString, sixteenth |> toString ] |> String.join ":", pitch )
                     )
     in
-        Ports.Out.startSequence
-            { timeSignature = timeSignature ts
-            , loopEnd = (numBars |> toString) ++ "m"
-            , noteLength = noteLength duration
-            , notes = notes
-            , clicks = clicks ts duration
-            , clickMuted = clickTrackSwitch |> Switch.fold False True
-            }
+    Ports.Out.startSequence
+        { timeSignature = timeSignature ts
+        , loopEnd = (numBars |> toString) ++ "m"
+        , noteLength = noteLength duration
+        , notes = notes
+        , clicks = clicks ts duration
+        , clickMuted = clickTrackSwitch |> Switch.fold False True
+        }
 
 
 clicks : TimeSignature -> Duration -> List ( String, String )

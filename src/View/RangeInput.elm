@@ -1,9 +1,9 @@
 module View.RangeInput exposing (input)
 
+import Element exposing (Element)
 import Html
 import Html.Attributes
 import Html.Events
-import Element exposing (Element)
 
 
 input : Float -> (String -> msg) -> Element style variation msg

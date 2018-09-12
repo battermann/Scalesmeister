@@ -1,4 +1,4 @@
-module Types.Switch exposing (Switch, fold, toggle, on, off)
+module Types.Switch exposing (Switch, fold, off, on, toggle)
 
 
 type Switch

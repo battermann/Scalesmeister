@@ -1,21 +1,20 @@
-module Types.PitchClass
-    exposing
-        ( Accidental(..)
-        , PitchClass(..)
-        , pitchClassToString
-        , transpose
-        , down
-        , Semitones
-        , semitoneOffset
-        , all
-        , accidental
-        , Letter(..)
-        , noteLetterDistance
-        , addIntervalSizeToLetter
-        )
+module Types.PitchClass exposing
+    ( Accidental(..)
+    , Letter(..)
+    , PitchClass(..)
+    , Semitones
+    , accidental
+    , addIntervalSizeToLetter
+    , all
+    , down
+    , noteLetterDistance
+    , pitchClassToString
+    , semitoneOffset
+    , transpose
+    )
 
-import Types.Interval as Interval exposing (Interval, IntervalNumber(..))
 import List.Extra
+import Types.Interval as Interval exposing (Interval, IntervalNumber(..))
 
 
 type Accidental
@@ -128,10 +127,11 @@ noteLetterDistance (PitchClass letter accidental) targetLetter =
         targetOffset =
             letterSemitoneOffset targetLetter
     in
-        if rootOffset < targetOffset then
-            targetOffset - rootOffset
-        else
-            12 - rootOffset + targetOffset
+    if rootOffset < targetOffset then
+        targetOffset - rootOffset
+
+    else
+        12 - rootOffset + targetOffset
 
 
 accidentalBySemitoneOffset : Semitones -> Maybe Accidental
@@ -173,11 +173,11 @@ transpose interval (PitchClass letter accidental) =
         maybeTargetLetter =
             addIntervalSizeToLetter letter intervalNumber
     in
-        maybeTargetLetter
-            |> Maybe.map (noteLetterDistance (PitchClass letter accidental))
-            |> Maybe.map ((-) semitones)
-            |> Maybe.andThen accidentalBySemitoneOffset
-            |> Maybe.andThen (\acc -> maybeTargetLetter |> Maybe.map (\l -> PitchClass l acc))
+    maybeTargetLetter
+        |> Maybe.map (noteLetterDistance (PitchClass letter accidental))
+        |> Maybe.map ((-) semitones)
+        |> Maybe.andThen accidentalBySemitoneOffset
+        |> Maybe.andThen (\acc -> maybeTargetLetter |> Maybe.map (\l -> PitchClass l acc))
 
 
 accidentalToString : Accidental -> String

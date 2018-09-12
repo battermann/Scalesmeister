@@ -1,28 +1,27 @@
-module Types.Interval
-    exposing
-        ( IntervalNumber(..)
-        , IntervalQuality(..)
-        , Interval
-        , perfectUnison
-        , minorSecond
-        , majorSecond
-        , minorThird
-        , majorThird
-        , perfectFourth
-        , augmentedFourth
-        , diminishedFifth
-        , perfectFifth
-        , augmentedFifth
-        , minorSixth
-        , majorSixth
-        , minorSeventh
-        , majorSeventh
-        , quality
-        , number
-        , semitones
-        , complementary
-        , octave
-        )
+module Types.Interval exposing
+    ( Interval
+    , IntervalNumber(..)
+    , IntervalQuality(..)
+    , augmentedFifth
+    , augmentedFourth
+    , complementary
+    , diminishedFifth
+    , majorSecond
+    , majorSeventh
+    , majorSixth
+    , majorThird
+    , minorSecond
+    , minorSeventh
+    , minorSixth
+    , minorThird
+    , number
+    , octave
+    , perfectFifth
+    , perfectFourth
+    , perfectUnison
+    , quality
+    , semitones
+    )
 
 
 type IntervalNumber

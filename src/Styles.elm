@@ -1,10 +1,10 @@
-module Styles exposing (userSelectNone, stylesheet, AppStyles(..))
+module Styles exposing (AppStyles(..), stylesheet, userSelectNone)
 
+import Color exposing (grayscale, rgba, white)
+import Element.Attributes exposing (inlineStyle)
 import Style
 import Style.Color as Color
 import Style.Font as Font
-import Color exposing (white, grayscale, rgba)
-import Element.Attributes exposing (inlineStyle)
 
 
 type AppStyles

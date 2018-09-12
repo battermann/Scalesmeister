@@ -1,18 +1,17 @@
-port module Ports.Out
-    exposing
-        ( elementId
-        , renderScore
-        , downloadPdf
-        , loadSamples
-        , startSequence
-        , stopSequence
-        , ScientificPitchNotation
-        , SampleUrl
-        , ElementId
-        , PlaybackData
-        , setTempo
-        , setClickMute
-        )
+port module Ports.Out exposing
+    ( ElementId
+    , PlaybackData
+    , SampleUrl
+    , ScientificPitchNotation
+    , downloadPdf
+    , elementId
+    , loadSamples
+    , renderScore
+    , setClickMute
+    , setTempo
+    , startSequence
+    , stopSequence
+    )
 
 --- SCORE
 
