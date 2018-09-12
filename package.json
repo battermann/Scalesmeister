@@ -2,7 +2,7 @@
   "name": "luigi",
   "version": "0.1.0",
   "engines": {
-    "node": "9.8.x"
+    "node": "9.12.x"
   },
   "private": true,
   "scripts": {
