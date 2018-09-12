@@ -171,7 +171,7 @@ rangeView model =
 
 formulaPartToString : Int -> Element style variation msg
 formulaPartToString n =
-    if n < 0 then
+    if n > 0 then
         text ("↑" ++ toString (abs n))
 
     else
