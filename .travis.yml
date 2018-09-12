@@ -2,7 +2,7 @@ language: node_js # elm is installed from npm (see install below)
 node_js: node     # use "latest" version of Node.js
 
 env:
-  - ELM_VERSION=0.18.0 ELM_TEST=0.18.12 CREATE_ELM_APP_VERSION=1.10.4
+  - ELM_VERSION=0.18.0 ELM_TEST=0.18.12
 
 cache:
   directories: # so subsequent builds run faster
@@ -12,6 +12,7 @@ cache:
     - tests/elm-stuff/packages        # cache files that haven't changed
     - sysconfcpus
     - $HOME/.npm # https://stackoverflow.com/a/42523517/1148249
+    - node_modules
 
 before_install:
   - | # build time improvement see: https://git.io/vQcqz
