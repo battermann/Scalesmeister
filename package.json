@@ -2,7 +2,7 @@
   "name": "luigi",
   "version": "0.1.0",
   "engines": {
-    "node": "9.8.x"
+    "node": "9.12.x"
   },
   "private": true,
   "scripts": {
@@ -47,5 +47,11 @@
     "url-loader": "^0.6.2",
     "webpack": "^3.11.0",
     "webpack-dev-server": "^2.11.1"
+  },
+  "dependencies": {
+    "abcjs": "^5.1.2",
+    "startaudiocontext": "^1.2.1",
+    "svg2pdf.js": "^1.2.1",
+    "tone": "^0.12.80"
   }
 }

@@ -1,0 +1,76 @@
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg1437"
+   sodipodi:version="0.32"
+   inkscape:version="0.43"
+   width="60.220001"
+   height="42.630001"
+   version="1.0"
+   sodipodi:docbase="E:\Temp"
+   sodipodi:docname="figure_rythmique_deux_croches_lien_haut.svg">
+  <metadata
+     id="metadata1442">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs1440" />
+  <sodipodi:namedview
+     inkscape:window-height="542"
+     inkscape:window-width="811"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base"
+     inkscape:zoom="2.0103948"
+     inkscape:cx="91.988906"
+     inkscape:cy="35.593791"
+     inkscape:window-x="110"
+     inkscape:window-y="110"
+     inkscape:current-layer="svg1437" />
+  <g
+     id="g15713"
+     transform="matrix(-1,0,0,-1,539.0272,260.8595)">
+    <path
+       sodipodi:nodetypes="cssssc"
+       id="path15685"
+       d="M 483.27303,219.83179 C 479.87719,221.65176 478.06775,224.94634 479.18081,227.42475 C 480.36807,230.06839 484.44782,230.81447 488.28739,229.09012 C 492.12695,227.36576 494.27955,223.82072 493.09229,221.17709 C 491.90502,218.53345 487.82528,217.78737 483.98571,219.51172 C 483.74574,219.61949 483.49943,219.71046 483.27303,219.83179 z "
+       style="opacity:0.9;fill:#e6e6e6;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.2;stroke-miterlimit:4;stroke-dashoffset:0;stroke-opacity:1" />
+    <path
+       sodipodi:nodetypes="cc"
+       id="path15687"
+       d="M 479.64053,226.16518 L 479.64053,259.75275"
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#e6e6e6;stroke-width:1.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <path
+       sodipodi:nodetypes="cssssc"
+       id="path15691"
+       d="M 528.88143,219.47819 C 525.48559,221.29816 523.67615,224.59274 524.78921,227.07115 C 525.97647,229.71479 530.05622,230.46087 533.89579,228.73652 C 537.73535,227.01216 539.88795,223.46712 538.70069,220.82349 C 537.51342,218.17985 533.43368,217.43377 529.59411,219.15812 C 529.35414,219.26589 529.10783,219.35686 528.88143,219.47819 z "
+       style="opacity:0.9;fill:#e6e6e6;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.2;stroke-miterlimit:4;stroke-dashoffset:0;stroke-opacity:1" />
+    <path
+       sodipodi:nodetypes="cc"
+       id="path15693"
+       d="M 525.24893,225.81158 L 525.24893,259.39915"
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#e6e6e6;stroke-width:1.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <rect
+       y="256.51352"
+       x="478.81485"
+       height="4.3461943"
+       width="47.211941"
+       id="rect15695"
+       style="opacity:0.9;fill:#e6e6e6;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+  </g>
+</svg>

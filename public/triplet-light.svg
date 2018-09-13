@@ -1,0 +1,115 @@
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.2"
+   width="51.793262"
+   height="25.541714"
+   viewBox="0 0 8.3179997 4.1020001"
+   id="svg2"
+   inkscape:version="0.48.5 r10040"
+   sodipodi:docname="Figure rythmique trois doubles croches.svg">
+  <metadata
+     id="metadata132">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs130" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1018"
+     id="namedview128"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:zoom="2.8284271"
+     inkscape:cx="107.76951"
+     inkscape:cy="-9.2872189"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2" />
+  <!-- Page: 1/1 -->
+  <text
+     transform="translate(-44.8172,-2)"
+     font-size="2.1995"
+     id="text4"
+     style="font-size:2.19950008px;text-anchor:start;fill:#e6e6e6;font-family:Century Schoolbook L">
+    <tspan
+       id="tspan6" />
+  </text>
+  <path
+     transform="matrix(0.004,0,0,-0.004,0,3.55)"
+     d="m 220,138 c 56,0 109,-29 109,-91 0,-72 -56,-121 -103,-149 -36,-21 -76,-36 -117,-36 -56,0 -109,29 -109,91 0,72 56,121 103,149 36,21 76,36 117,36 z"
+     id="path70"
+     inkscape:connector-curvature="0"
+     style="fill:#e6e6e6" />
+  <rect
+     transform="translate(8.253,3.05)"
+     x="-0.064999998"
+     y="-2.8099999"
+     width="0.13"
+     height="3.1222"
+     ry="0.039999999"
+     id="rect106"
+     style="fill:#e6e6e6" />
+  <path
+     transform="matrix(0.004,0,0,-0.004,7.0018,3.55)"
+     d="m 220,138 c 56,0 109,-29 109,-91 0,-72 -56,-121 -103,-149 -36,-21 -76,-36 -117,-36 -56,0 -109,29 -109,91 0,72 56,121 103,149 36,21 76,36 117,36 z"
+     id="path108"
+     inkscape:connector-curvature="0"
+     style="fill:#e6e6e6" />
+  <rect
+     transform="translate(4.7521,3.05)"
+     x="-0.064999998"
+     y="-2.8099999"
+     width="0.13"
+     height="3.1222"
+     ry="0.039999999"
+     id="rect110"
+     style="fill:#e6e6e6" />
+  <path
+     transform="matrix(0.004,0,0,-0.004,3.5009,3.55)"
+     d="m 220,138 c 56,0 109,-29 109,-91 0,-72 -56,-121 -103,-149 -36,-21 -76,-36 -117,-36 -56,0 -109,29 -109,91 0,72 56,121 103,149 36,21 76,36 117,36 z"
+     id="path112"
+     inkscape:connector-curvature="0"
+     style="fill:#e6e6e6" />
+  <rect
+     transform="translate(1.2512,3.05)"
+     x="-0.064999998"
+     y="-2.8099999"
+     width="0.13"
+     height="3.1222"
+     ry="0.039999999"
+     id="rect114"
+     style="fill:#e6e6e6" />
+  <polygon
+     transform="translate(1.1862,0.23999998)"
+     points="0.04,0.2 0.04,-0.2 7.0918,-0.2 7.0918,0.2 "
+     id="polygon116"
+     style="fill:#e6e6e6;stroke:#e6e6e6;stroke-width:0.08;stroke-linecap:round;stroke-linejoin:round" />
+</svg>
+

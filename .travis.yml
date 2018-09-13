@@ -1,0 +1,31 @@
+language: node_js
+
+sudo: required
+
+node_js: '8'
+
+cache:
+  directories:
+    - elm-stuff/build-artifacts
+    - elm-stuff/packages
+    - tests/elm-stuff/build-artifacts
+    - tests/elm-stuff/packages
+    - sysconfcpus
+    - $HOME/.npm
+    - node_modules
+
+install:
+  - npm install create-elm-app@1.10.4 -g
+  - npm install -g elm-format
+
+script:
+  - elm-format --validate src --elm-version=0.18
+  - elm-app test
+  - elm-app make src/Main.elm --output=/dev/null --yes --warn
+  - npm install
+
+deploy:
+  provider: surge
+  project: ./build/
+  domain: luigi-app.surge.sh
+  skip_cleanup: true
