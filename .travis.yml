@@ -19,6 +19,7 @@ install:
 
 script:
   - elm-app test
+  - npm install
 
 deploy:
   provider: surge
