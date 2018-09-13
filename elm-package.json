@@ -1,5 +1,5 @@
 {
-    "version": "0.0.0",
+    "version": "0.1.0",
     "summary": "A tool to generate lines for jazz improvisation based on scales and formulas",
     "repository": "https://github.com/battermann/luigi.git",
     "license": "GNU AGPLv3",
