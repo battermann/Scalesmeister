@@ -1,10 +1,10 @@
-module IntervalTests exposing (..)
+module IntervalTests exposing (all)
 
-import Test exposing (..)
 import Expect
-import Types.PitchClass exposing (..)
+import Test exposing (..)
 import Types.Interval exposing (..)
 import Types.Octave exposing (..)
+import Types.PitchClass exposing (..)
 
 
 all : Test

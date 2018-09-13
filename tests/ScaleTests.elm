@@ -1,11 +1,11 @@
-module ScaleTests exposing (..)
+module ScaleTests exposing (all)
 
-import Test exposing (..)
 import Expect
-import Types.Scale exposing (..)
-import Types.PitchClass exposing (..)
+import Test exposing (..)
 import Types.Line exposing (..)
+import Types.PitchClass exposing (..)
 import Types.Range exposing (..)
+import Types.Scale exposing (..)
 
 
 all : Test
