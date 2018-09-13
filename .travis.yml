@@ -25,6 +25,7 @@ before_install:
     fi
 
 install: # install specific versions of elm & elm-test
+  - npm install elm@0.18.0 -g
   - npm install create-elm-app@1.10.4 -g
   # the next 3 lines are courtesy of @rtfeldman https://git.io/vbj0j
   - mv $(npm config get prefix)/bin/elm-make $(npm config get prefix)/bin/elm-make-old
