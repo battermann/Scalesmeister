@@ -56,8 +56,7 @@ noteValueAndClick model =
 
           else
             el (Note.Eighth Note.Triplet |> style)
-                [ padding 10
-                ]
+                [ padding 10 ]
                 (decorativeImage Disabled [ height (px 20) ] { src = fileName (Note.Eighth Note.Triplet) "triplet" })
         ]
 
@@ -415,7 +414,7 @@ view model =
                 [ spacing 5 ]
                 [ row None
                     [ center ]
-                    [ text "created with "
+                    [ text "Version 0.0.0 | created with "
                     , link "http://elm-lang.org/" <| el Link [] (text "Elm")
                     ]
                 , row None
