@@ -1,8 +1,7 @@
 language: node_js # elm is installed from npm (see install below)
 node_js: node     # use "latest" version of Node.js
 
-env:
-  - ELM_VERSION=0.18.0 ELM_TEST=0.18.12
+
 
 cache:
   directories: # so subsequent builds run faster
@@ -26,7 +25,6 @@ before_install:
     fi
 
 install: # install specific versions of elm & elm-test
-  - npm install -g elm@$ELM_VERSION elm-test@$ELM_TEST
   - npm install create-elm-app@1.10.4 -g
   # the next 3 lines are courtesy of @rtfeldman https://git.io/vbj0j
   - mv $(npm config get prefix)/bin/elm-make $(npm config get prefix)/bin/elm-make-old
@@ -35,11 +33,7 @@ install: # install specific versions of elm & elm-test
   - travis_retry elm package install --yes # install main project dependencies
 
 script:
-  - elm-test --verbose
-  - cd src
-  - elm-app make src/Main.elm --output=/dev/null --yes --warn
-  - cd ..
-  - travis_wait 30 npm install
+  - elm-app test
 
 deploy:
   provider: surge
