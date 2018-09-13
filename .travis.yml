@@ -1,37 +1,21 @@
-language: node_js # elm is installed from npm (see install below)
-node_js: node     # use "latest" version of Node.js
+language: node_js
 
+sudo: required
 
+node_js: '8'
 
 cache:
-  directories: # so subsequent builds run faster
+  directories:
     - elm-stuff/build-artifacts
     - elm-stuff/packages
-    - tests/elm-stuff/build-artifacts # elm-test init creates a "tests/" dir
-    - tests/elm-stuff/packages        # cache files that haven't changed
+    - tests/elm-stuff/build-artifacts
+    - tests/elm-stuff/packages
     - sysconfcpus
-    - $HOME/.npm # https://stackoverflow.com/a/42523517/1148249
+    - $HOME/.npm
     - node_modules
 
-before_install:
-  - | # build time improvement see: https://git.io/vQcqz
-    if [ ! -d sysconfcpus/bin ];
-    then
-      git clone https://github.com/obmarg/libsysconfcpus.git;
-      cd libsysconfcpus;
-      ./configure --prefix=$TRAVIS_BUILD_DIR/sysconfcpus;
-      make && make install;
-      cd ..;
-    fi
-
-install: # install specific versions of elm & elm-test
-  - npm install elm@0.18.0 -g
+install:
   - npm install create-elm-app@1.10.4 -g
-  # the next 3 lines are courtesy of @rtfeldman https://git.io/vbj0j
-  - mv $(npm config get prefix)/bin/elm-make $(npm config get prefix)/bin/elm-make-old
-  - printf "#\041/bin/bash\n\necho \"Running elm-make with sysconfcpus -n 2\"\n\n$TRAVIS_BUILD_DIR/sysconfcpus/bin/sysconfcpus -n 2 elm-make-old \"\$@\"" > $(npm config get prefix)/bin/elm-make
-  - chmod +x $(npm config get prefix)/bin/elm-make
-  - travis_retry elm package install --yes # install main project dependencies
 
 script:
   - elm-app test
