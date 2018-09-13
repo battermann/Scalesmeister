@@ -415,7 +415,7 @@ view model =
                 [ spacing 5 ]
                 [ row None
                     [ center ]
-                    [ text "v0.2.0 | created with "
+                    [ text "v0.2.1 | created with "
                     , link "http://elm-lang.org/" <| el Link [] (text "Elm")
                     ]
                 , row None
