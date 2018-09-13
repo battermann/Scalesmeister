@@ -1,14 +1,14 @@
-module LineTests exposing (..)
+module LineTests exposing (all, expected, formula, line, middleOctaveRange)
 
-import Test exposing (..)
 import Expect
-import Types.Scale exposing (..)
-import Types.PitchClass exposing (..)
+import Test exposing (..)
+import Types.Formula as Formula exposing (..)
 import Types.Line as Line exposing (..)
-import Types.Range as Range exposing (..)
 import Types.Octave as Octave exposing (..)
 import Types.Pitch as Pitch exposing (..)
-import Types.Formula as Formula exposing (..)
+import Types.PitchClass exposing (..)
+import Types.Range as Range exposing (..)
+import Types.Scale exposing (..)
 
 
 middleOctaveRange : Range
