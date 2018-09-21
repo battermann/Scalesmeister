@@ -1,10 +1,12 @@
 module Tests exposing (all)
 
 import Expect
+import Libs.Ratio
 import Test exposing (..)
 import Types.Formula
 import Types.Interval
 import Types.Line
+import Types.Note
 import Types.Octave
 import Types.Pitch
 import Types.PitchClass
