@@ -1,7 +1,11 @@
-module Tests exposing (..)
+module Tests exposing (all)
 
-import Test exposing (..)
 import Expect
+import Test exposing (..)
+import Types.Formula
+import Types.Interval
+import Types.PitchClass
+
 
 
 -- Check out http://package.elm-lang.org/packages/elm-community/elm-test/latest to learn more about testing in Elm!
