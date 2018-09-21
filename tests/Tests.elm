@@ -1,5 +1,6 @@
 module Tests exposing (all)
 
+import Audio
 import Expect
 import Libs.Ratio
 import Libs.SelectList

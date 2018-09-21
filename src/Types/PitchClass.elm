@@ -7,6 +7,7 @@ module Types.PitchClass exposing
     , addIntervalSizeToLetter
     , all
     , down
+    , letterToString
     , noteLetterDistance
     , pitchClassToString
     , semitoneOffset
