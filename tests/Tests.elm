@@ -4,6 +4,7 @@ import Expect
 import Test exposing (..)
 import Types.Formula
 import Types.Interval
+import Types.Octave
 import Types.PitchClass
 
 
