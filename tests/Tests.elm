@@ -8,6 +8,7 @@ import Types.Interval
 import Types.Line
 import Types.Note
 import Types.Octave
+import Types.Orchestration
 import Types.Pitch
 import Types.PitchClass
 import Types.Range
