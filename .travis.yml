@@ -15,11 +15,11 @@ cache:
     - node_modules
 
 install:
-  - npm install create-elm-app@1.10.4 -g
-  - npm install -g elm-format
+  - npm install create-elm-app@2.0.3
+  - npm install -g elm-format@0.8.0
 
 script:
-  - elm-format --validate src --elm-version=0.18
+  - elm-format --validate src --elm-version=0.19
   - elm-app test
   - elm-app make src/Main.elm --output=/dev/null --yes --warn
   - npm install
