@@ -13,6 +13,7 @@ import Types.PitchClass
 import Types.Range
 import Types.Scale
 import Types.Switch
+import Types.TimeSignature
 
 
 
