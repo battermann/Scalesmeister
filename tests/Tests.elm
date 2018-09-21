@@ -3,6 +3,8 @@ module Tests exposing (all)
 import Expect
 import Libs.Ratio
 import Libs.SelectList
+import Ports.In
+import Ports.Out
 import Test exposing (..)
 import Types
 import Types.Formula
