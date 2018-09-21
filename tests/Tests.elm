@@ -6,6 +6,7 @@ import Libs.Ratio
 import Libs.SelectList
 import Ports.In
 import Ports.Out
+import Score
 import Test exposing (..)
 import Types
 import Types.Formula
