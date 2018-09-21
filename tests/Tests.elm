@@ -2,7 +2,9 @@ module Tests exposing (all)
 
 import Expect
 import Libs.Ratio
+import Libs.SelectList
 import Test exposing (..)
+import Types
 import Types.Formula
 import Types.Interval
 import Types.Line
