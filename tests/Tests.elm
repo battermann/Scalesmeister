@@ -8,6 +8,7 @@ import Types.Octave
 import Types.Pitch
 import Types.PitchClass
 import Types.Range
+import Types.Scale
 import Types.Switch
 
 
