@@ -4,6 +4,7 @@ import Audio
 import Expect
 import Libs.Ratio
 import Libs.SelectList
+import Main
 import Ports.In
 import Ports.Out
 import Score
