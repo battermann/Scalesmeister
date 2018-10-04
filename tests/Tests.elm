@@ -7,6 +7,7 @@ import Libs.SelectList
 import Ports.In
 import Ports.Out
 import Score
+import State
 import Test exposing (..)
 import Types
 import Types.Formula
@@ -29,11 +30,8 @@ import Types.TimeSignature
 
 all : Test
 all =
-    describe "A Test Suite"
-        [ test "Addition" <|
+    describe "This test import all modules from the project"
+        [ test "This should compile and succeed" <|
             \_ ->
-                Expect.equal 10 (3 + 7)
-        , test "String.left" <|
-            \_ ->
-                Expect.equal "a" (String.left 1 "abcdefg")
+                Expect.equal 1 1
         ]
