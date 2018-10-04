@@ -1,10 +1,9 @@
 import { Elm } from './Main.elm';
-import {Sampler, Transport, Part, Time, Player, Loop, Event} from 'tone';
+import { Sampler, Transport, Part, Time, Player, Loop, Event } from 'tone';
 import StartAudioContext from 'startaudiocontext';
 import svg2pdf from 'svg2pdf.js';
 import jsPDF from 'jspdf-yworks';
 import abcjs from "abcjs";
-
 
 const root = document.getElementById('root');
 
@@ -19,11 +18,9 @@ var clickTrack = null;
 
 Transport.bpm.value = 160;
 
-
 var button = document.getElementById('play-button');
 
-StartAudioContext(Transport.context, button, function(){
-});
+StartAudioContext(Transport.context, button, function() {});
 
 app.ports.downloadPdf.subscribe(function() {
   const svgElement = document.getElementById('score').lastChild;
@@ -49,43 +46,42 @@ app.ports.renderScore.subscribe(function(input) {
   abcjs.renderAbc(elementId, score);
 });
 
-
-app.ports.loadSamples.subscribe(function(pitchToSampleUrlMapping){
+app.ports.loadSamples.subscribe(function(pitchToSampleUrlMapping) {
   const toObj = (array) =>
-     array.reduce((obj, item) => {
-       obj[item[0]] = item[1]
-       return obj
-     }, {});
+    array.reduce((obj, item) => {
+      obj[item[0]] = item[1]
+      return obj
+    }, {});
 
   player = new Player("./samples/click.mp3").toMaster();
 
   sampler = new Sampler(toObj(pitchToSampleUrlMapping), function() {
-      app.ports.samplesLoaded.send(null);
+    app.ports.samplesLoaded.send(null);
   }).toMaster();
 
 });
 
-app.ports.setTempo.subscribe(function(tempo){
+app.ports.setTempo.subscribe(function(tempo) {
   Transport.bpm.value = tempo;
 });
 
-app.ports.setClickMute.subscribe(function(mute){
+app.ports.setClickMute.subscribe(function(mute) {
   if (clickTrack != null) {
     clickTrack.mute = mute;
   };
 });
 
-app.ports.startSequence.subscribe(function(data){
+app.ports.startSequence.subscribe(function(data) {
 
   Transport.timeSignature = data.timeSignature;
   Transport.loop = true;
   Transport.loopEnd = data.loopEnd;
 
-  part = new Part(function(time, note){
+  part = new Part(function(time, note) {
     sampler.triggerAttackRelease(note, data.noteLength, time);
   }, data.notes);
 
-  clickTrack = new Part(function(time, note){
+  clickTrack = new Part(function(time, note) {
     player.start(time);
   }, data.clicks);
 
@@ -97,14 +93,14 @@ app.ports.startSequence.subscribe(function(data){
   Transport.start("+0.1");
 });
 
-app.ports.stopSequence.subscribe(function(){
+app.ports.stopSequence.subscribe(function() {
   Transport.stop()
-  if (part != null)  {
+  if (part != null) {
     part.removeAll();
     part = null;
   };
 
-  if (clickTrack != null)  {
+  if (clickTrack != null) {
     clickTrack.removeAll();
     clickTrack = null;
   };
