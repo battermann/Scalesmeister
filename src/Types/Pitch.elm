@@ -16,7 +16,7 @@ module Types.Pitch exposing
 import List.Extra
 import Maybe.Extra
 import Types.Octave as Octave exposing (Octave)
-import Types.PitchClass as PitchClass exposing (Accidental(..), PitchClass(..), Semitones, pitchClassToString)
+import Types.PitchClass as PitchClass exposing (Accidental(..), PitchClass(..), Semitones)
 
 
 type Pitch
@@ -96,4 +96,4 @@ enharmonicEquivalents semitones =
 
 displayPitch : Pitch -> String
 displayPitch (Pitch pc octave) =
-    pitchClassToString pc ++ (Octave.number octave |> String.fromInt)
+    PitchClass.toString pc ++ (Octave.number octave |> String.fromInt)

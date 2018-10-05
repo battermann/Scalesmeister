@@ -9,8 +9,8 @@ module Types.PitchClass exposing
     , down
     , letterToString
     , noteLetterDistance
-    , pitchClassToString
     , semitoneOffset
+    , toString
     , transpose
     )
 
@@ -224,6 +224,6 @@ letterToString letter =
             "B"
 
 
-pitchClassToString : PitchClass -> String
-pitchClassToString (PitchClass letter acc) =
+toString : PitchClass -> String
+toString (PitchClass letter acc) =
     letterToString letter ++ (acc |> accidentalToString)

@@ -1,20 +1,21 @@
 module View exposing (view)
 
-import Element exposing (Attribute, Element, alignRight, centerX, centerY, column, el, fill, height, image, padding, px, rgb255, row, spacing, text, width)
+import Element exposing (Attribute, Element, alignBottom, alignLeft, alignRight, centerX, centerY, column, el, fill, height, image, inFront, padding, paddingEach, px, rgb255, row, scrollbars, spacing, text, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing (onClick)
 import Element.Font as Font
 import Element.Input exposing (button)
 import Html
+import Html.Attributes
 import Libs.SelectList as SelectList
 import List.Extra
 import Styles
 import Types exposing (Dialog(..), Model, Msg(..), PlayingState(..))
-import Types.Formula exposing (Formula)
+import Types.Formula as Formula exposing (Formula)
 import Types.Note as Note
 import Types.Pitch exposing (displayPitch)
-import Types.PitchClass exposing (PitchClass, pitchClassToString)
+import Types.PitchClass as PitchClass exposing (PitchClass)
 import Types.Range as Range
 import Types.Scale as Scale exposing (Scale(..), ScaleDef)
 import Types.Switch as Switch
@@ -33,6 +34,11 @@ standardPadding =
     padding 10
 
 
+id : String -> Attribute msg
+id value =
+    Element.htmlAttribute <| Html.Attributes.id value
+
+
 viewControlWithLabel : List (Attribute msg) -> String -> Element msg -> Element msg
 viewControlWithLabel attributes label control =
     column
@@ -45,7 +51,7 @@ viewControlWithLabel attributes label control =
 viewNoteDurationControls : Model -> Element Msg
 viewNoteDurationControls model =
     let
-        style duration =
+        attributes duration =
             if duration == model.noteDuration then
                 standardPadding :: Styles.lightButton
 
@@ -62,19 +68,19 @@ viewNoteDurationControls model =
     row
         [ smallSpacing ]
         [ button
-            (Note.Eighth Note.None |> style)
+            (Note.Eighth Note.None |> attributes)
             { label = image [ height (px 20) ] { src = fileName (Note.Eighth Note.None) "eighthnotes", description = "" }
             , onPress = Just ToggleNoteValue
             }
         , if [ Quarter, Half ] |> List.member (model.timeSignature |> beatDuration) then
             button
-                (Note.Eighth Note.Triplet |> style)
+                (Note.Eighth Note.Triplet |> attributes)
                 { label = image [ height (px 20) ] { src = fileName (Note.Eighth Note.Triplet) "triplet", description = "" }
                 , onPress = Just ToggleNoteValue
                 }
 
           else
-            el (Note.Eighth Note.Triplet |> style) <|
+            el (Note.Eighth Note.Triplet |> attributes) <|
                 image [ Styles.opacity 0.2, height (px 20) ] { src = fileName (Note.Eighth Note.Triplet) "triplet", description = "" }
         ]
 
@@ -95,7 +101,7 @@ viewTempoSlider model =
 viewTimeSignatureControls : Model -> Element Msg
 viewTimeSignatureControls model =
     let
-        style ts =
+        attributes ts =
             if ts == model.timeSignature then
                 Styles.lightButton
 
@@ -121,7 +127,7 @@ viewTimeSignatureControls model =
             , TimeSignature Nine Eighth
             , TimeSignature Twelve Eighth
             ]
-                |> List.map (\ts -> button (style ts ++ [ width fill, standardPadding ]) { label = ts |> timeSignatureToString |> text, onPress = Just (SetTimeSignature ts) })
+                |> List.map (\ts -> button (attributes ts ++ [ width fill, standardPadding ]) { label = ts |> timeSignatureToString |> text, onPress = Just (SetTimeSignature ts) })
                 |> List.Extra.greedyGroupsOf rowLength
                 |> List.map (row [ smallSpacing ])
                 |> column [ spacing 6 ]
@@ -139,17 +145,17 @@ viewRangeControls model =
             else
                 row
 
-        buttonStyle =
+        buttonAttributes =
             Styles.page ++ [ width fill, standardPadding, Styles.userSelectNone ]
     in
     colOrRow
         [ smallSpacing ]
         [ row
             [ smallSpacing ]
-            [ button buttonStyle { label = Icons.doubleAngleLeft, onPress = Just RangeMinSkipDown }
-            , button buttonStyle { label = Icons.angleLeft, onPress = Just RangeMinStepDown }
-            , button buttonStyle { label = Icons.angleRight, onPress = Just RangeMinStepUp }
-            , button buttonStyle { label = Icons.doubleAngleRight, onPress = Just RangeMinSkipUp }
+            [ button buttonAttributes { label = Icons.doubleAngleLeft, onPress = Just RangeMinSkipDown }
+            , button buttonAttributes { label = Icons.angleLeft, onPress = Just RangeMinStepDown }
+            , button buttonAttributes { label = Icons.angleRight, onPress = Just RangeMinStepUp }
+            , button buttonAttributes { label = Icons.doubleAngleRight, onPress = Just RangeMinSkipUp }
             ]
         , column (Styles.page ++ [ centerX, centerY, standardPadding, smallSpacing, width fill, Styles.userSelectNone ])
             [ row [ spacing 10 ]
@@ -160,13 +166,85 @@ viewRangeControls model =
             ]
         , row
             [ smallSpacing ]
-            [ button buttonStyle { label = Icons.doubleAngleLeft, onPress = Just RangeMaxSkipDown }
-            , button buttonStyle { label = Icons.angleLeft, onPress = Just RangeMaxStepDown }
-            , button buttonStyle { label = Icons.angleRight, onPress = Just RangeMaxStepUp }
-            , button buttonStyle { label = Icons.doubleAngleRight, onPress = Just RangeMaxSkipUp }
+            [ button buttonAttributes { label = Icons.doubleAngleLeft, onPress = Just RangeMaxSkipDown }
+            , button buttonAttributes { label = Icons.angleLeft, onPress = Just RangeMaxStepDown }
+            , button buttonAttributes { label = Icons.angleRight, onPress = Just RangeMaxStepUp }
+            , button buttonAttributes { label = Icons.doubleAngleRight, onPress = Just RangeMaxSkipUp }
             ]
         ]
         |> viewControlWithLabel [ width fill, smallSpacing, Styles.userSelectNone ] "Range"
+
+
+viewPlayControl : Model -> Element Msg
+viewPlayControl model =
+    let
+        attributes =
+            Styles.lightButton ++ [ alignBottom, standardPadding, Styles.userSelectNone, height (px 60), width (px 60), id "play-button" ]
+    in
+    case ( model.playingState, model.samplesLoaded ) of
+        ( _, False ) ->
+            column (attributes ++ [ centerX, centerY, spacing 4 ]) [ Icons.spinner, el Styles.verySmallText (text "loading…") ]
+
+        ( Stopped, _ ) ->
+            button attributes { label = Icons.play, onPress = Just TogglePlay }
+
+        ( Playing, _ ) ->
+            button attributes { label = Icons.stop, onPress = Just TogglePlay }
+
+
+viewMainSettingsControls : Model -> Element Msg
+viewMainSettingsControls model =
+    let
+        columns =
+            if model.device.phone || model.device.tablet then
+                2
+
+            else
+                4
+
+        buttonAttributes =
+            Styles.page ++ [ standardPadding, Styles.userSelectNone, width fill ]
+    in
+    [ button
+        buttonAttributes
+        { label = PitchClass.toString (SelectList.selected model.roots) |> text, onPress = Just <| Open SelectRoot }
+        |> viewControlWithLabel [ width fill ] "Root"
+    , button
+        buttonAttributes
+        { label = text (model.scales |> SelectList.selected |> Tuple.first), onPress = Just <| Open SelectScale }
+        |> viewControlWithLabel [ width fill ] "Scale"
+    , button
+        buttonAttributes
+        { label = model.formulas |> SelectList.selected |> Formula.toString |> text, onPress = Just <| Open SelectFormula }
+        |> viewControlWithLabel [ width fill ] "Formula"
+    , button
+        buttonAttributes
+        { label = PitchClass.toString model.startingNote |> text, onPress = Just <| Open SelectStartingNote }
+        |> viewControlWithLabel [ width fill ] "Starting note"
+    ]
+        |> List.Extra.greedyGroupsOf columns
+        |> List.map (row [ smallSpacing ])
+        |> column [ spacing 6 ]
+
+
+viewModalDialog : Element Msg -> Element Msg
+viewModalDialog element =
+    el (Styles.page ++ [ centerX, padding 20 ]) element
+        |> el
+            (Styles.dialog
+                ++ [ width fill
+                   , height fill
+                   , onClick CloseDialog
+                   , paddingEach { top = 100, left = 0, bottom = 0, right = 0 }
+                   , scrollbars
+                   ]
+            )
+
+
+viewSelectNoteButton : (PitchClass -> Msg) -> PitchClass -> Element Msg
+viewSelectNoteButton event pitchClass =
+    button (Styles.darkButton ++ [ Styles.userSelectNone, standardPadding, width fill ])
+        { label = PitchClass.toString pitchClass |> text, onPress = Just <| event pitchClass }
 
 
 view : Model -> Html.Html Msg

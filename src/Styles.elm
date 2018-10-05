@@ -1,4 +1,4 @@
-module Styles exposing (lightButton, opacity, page, smallText, userSelectNone)
+module Styles exposing (darkButton, dialog, lightButton, opacity, page, smallText, userSelectNone, verySmallText)
 
 import Element exposing (Attribute)
 import Html.Attributes
@@ -9,6 +9,11 @@ lightButton =
     []
 
 
+darkButton : List (Attribute msg)
+darkButton =
+    []
+
+
 page : List (Attribute msg)
 page =
     []
@@ -16,6 +21,16 @@ page =
 
 smallText : List (Attribute msg)
 smallText =
+    []
+
+
+dialog : List (Attribute msg)
+dialog =
+    []
+
+
+verySmallText : List (Attribute msg)
+verySmallText =
     []
 
 
