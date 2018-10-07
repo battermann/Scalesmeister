@@ -1,7 +1,64 @@
-module Styles exposing (darkButton, dialog, lightButton, opacity, page, smallText, userSelectNone, verySmallText)
+module Styles exposing
+    ( darkButton
+    , dialog
+    , footer
+    , gitHubIcon
+    , h1
+    , h2
+    , lightButton
+    , link
+    , opacity
+    , page
+    , score
+    , settings
+    , smallText
+    , subTitle
+    , userSelectNone
+    , verySmallText
+    )
 
 import Element exposing (Attribute)
 import Html.Attributes
+
+
+link : List (Attribute msg)
+link =
+    []
+
+
+gitHubIcon : List (Attribute msg)
+gitHubIcon =
+    []
+
+
+footer : List (Attribute msg)
+footer =
+    []
+
+
+settings : List (Attribute msg)
+settings =
+    []
+
+
+subTitle : List (Attribute msg)
+subTitle =
+    []
+
+
+score : List (Attribute msg)
+score =
+    []
+
+
+h2 : List (Attribute msg)
+h2 =
+    []
+
+
+h1 : List (Attribute msg)
+h1 =
+    []
 
 
 lightButton : List (Attribute msg)

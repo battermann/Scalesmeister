@@ -1,6 +1,6 @@
 module View exposing (view)
 
-import Element exposing (Attribute, Element, alignBottom, alignLeft, alignRight, centerX, centerY, column, el, fill, height, image, inFront, padding, paddingEach, px, rgb255, row, scrollbars, spacing, text, width)
+import Element exposing (Attribute, Element, alignBottom, alignLeft, alignRight, centerX, centerY, column, el, fill, height, image, inFront, link, padding, paddingEach, paddingXY, paragraph, px, rgb255, row, scrollbarX, scrollbars, spacing, text, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing (onClick)
@@ -10,6 +10,7 @@ import Html
 import Html.Attributes
 import Libs.SelectList as SelectList
 import List.Extra
+import Score
 import Styles
 import Types exposing (Dialog(..), Model, Msg(..), PlayingState(..))
 import Types.Formula as Formula exposing (Formula)
@@ -241,13 +242,147 @@ viewModalDialog element =
             )
 
 
+darkButtonAttributes : List (Attribute msg)
+darkButtonAttributes =
+    Styles.darkButton ++ [ Styles.userSelectNone, standardPadding, width fill ]
+
+
 viewSelectNoteButton : (PitchClass -> Msg) -> PitchClass -> Element Msg
 viewSelectNoteButton event pitchClass =
-    button (Styles.darkButton ++ [ Styles.userSelectNone, standardPadding, width fill ])
-        { label = PitchClass.toString pitchClass |> text, onPress = Just <| event pitchClass }
+    button darkButtonAttributes { label = PitchClass.toString pitchClass |> text, onPress = Just <| event pitchClass }
+
+
+viewSelectScaleButton : ( String, ScaleDef ) -> Element Msg
+viewSelectScaleButton ( name, scale ) =
+    button darkButtonAttributes { label = text name, onPress = Just <| ScaleSelected scale }
+
+
+viewSelectFormulaButton : Formula -> Element Msg
+viewSelectFormulaButton formula =
+    button darkButtonAttributes { label = formula |> Formula.toString |> text, onPress = Just <| FormulaSelected formula }
+
+
+viewSelectScaleDialog : Model -> Element Msg
+viewSelectScaleDialog model =
+    viewModalDialog <|
+        column
+            [ smallSpacing ]
+            (el (centerX :: Styles.h2) (text "Scale")
+                :: (SelectList.toList model.scales |> List.map viewSelectScaleButton)
+            )
+
+
+viewSelectRootDialog : Model -> Element Msg
+viewSelectRootDialog model =
+    viewModalDialog <|
+        column
+            [ smallSpacing, width (px 220) ]
+            (el (centerX :: Styles.h2) (text "Root")
+                :: (SelectList.toList model.roots |> List.map (viewSelectNoteButton RootSelected) |> List.Extra.greedyGroupsOf 3 |> List.map (row [ smallSpacing ]))
+            )
+
+
+viewSelectStartingNoteDialog : Model -> Element Msg
+viewSelectStartingNoteDialog model =
+    viewModalDialog <|
+        column
+            [ smallSpacing, width (px 220) ]
+            (el (centerX :: Styles.h2) (text "Starting note")
+                :: (SelectList.selected model.scales
+                        |> (Tuple.second >> Scale (SelectList.selected model.roots) >> Scale.notes)
+                        |> List.map (viewSelectNoteButton StartingNoteSelected)
+                        |> List.Extra.greedyGroupsOf 3
+                        |> List.map (row [ smallSpacing ])
+                   )
+            )
+
+
+viewSelectFormulaDialog : Model -> Element Msg
+viewSelectFormulaDialog model =
+    viewModalDialog <|
+        column
+            [ smallSpacing ]
+            (el (centerX :: Styles.h2) (text "Formula")
+                :: (SelectList.toList model.formulas |> List.map viewSelectFormulaButton |> List.Extra.greedyGroupsOf 2 |> List.map (row [ smallSpacing ]))
+            )
+
+
+viewSelectedDialog : Model -> Element Msg
+viewSelectedDialog model =
+    case model.dialog of
+        Just SelectRoot ->
+            viewSelectRootDialog model
+
+        Just SelectScale ->
+            viewSelectScaleDialog model
+
+        Just SelectFormula ->
+            viewSelectFormulaDialog model
+
+        Just SelectStartingNote ->
+            viewSelectStartingNoteDialog model
+
+        Nothing ->
+            text ""
 
 
 view : Model -> Html.Html Msg
-view _ =
+view model =
+    let
+        ( scoreLayout, pagePaddingTop, settingsWidth ) =
+            if model.device.phone || model.device.tablet then
+                ( row (scrollbarX :: Styles.score) [ el (Styles.score ++ [ id Score.elementId, centerX, width fill ]) (text "") ]
+                , paddingEach { top = 20, bottom = 0, left = 0, right = 0 }
+                , width fill
+                )
+
+            else
+                ( row (centerX :: Styles.score) [ el (Styles.score ++ [ id Score.elementId, centerX ]) (text "") ]
+                , paddingEach { top = 100, bottom = 0, left = 0, right = 0 }
+                , width fill
+                )
+    in
     Element.layout [] <|
-        row [] [ el [] <| text "Hello World" ]
+        column (Styles.page ++ [ spacing 40, paddingXY 10 10, pagePaddingTop ])
+            [ el (centerX :: Styles.h1) (text "Luigi")
+            , paragraph
+                (Styles.subTitle ++ [ paddingEach { top = 0, bottom = 40, left = 0, right = 0 }, centerX ])
+                [ text "Generate lines for jazz improvisation based on scales and formulas." ]
+            , column
+                [ smallSpacing ]
+                [ column
+                    []
+                    [ row
+                        [ centerX, width fill ]
+                        [ column [ smallSpacing, settingsWidth ]
+                            [ viewPlayControl model
+                            , column (Styles.settings ++ [ padding 20, spacing 6 ])
+                                [ viewTempoSlider model
+                                , viewMainSettingsControls model
+                                , viewRangeControls model
+                                , viewTimeSignatureControls model
+                                , viewNoteDurationControls model
+                                ]
+                            ]
+                        ]
+                    ]
+                , scoreLayout
+                ]
+            , column
+                (spacing 5 :: Styles.footer)
+                [ row [ centerX ]
+                    [ text "v0.2.1 | created with "
+                    , link Styles.link { url = "http://elm-lang.org/", label = text "Elm" }
+                    ]
+                , row [ centerX ]
+                    [ text "sound samples from "
+                    , link Styles.link { url = "https://archive.org/details/SalamanderGrandPianoV3", label = text "Salamander Grand Piano" }
+                    ]
+                , row [ centerX ]
+                    [ text "Inspired by "
+                    , link Styles.link { url = "https://learningmusic.ableton.com/", label = text "Ableton Learning Music" }
+                    ]
+                , el (centerX :: Styles.gitHubIcon) <| link [] { url = "https://github.com/battermann/Luigi", label = Icons.github }
+                ]
+            , viewSelectedDialog model
+            ]
