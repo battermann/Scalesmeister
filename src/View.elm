@@ -1,6 +1,6 @@
 module View exposing (view)
 
-import Element as Element exposing (Attribute, Element, alignBottom, alignLeft, alignRight, centerX, centerY, column, el, fill, height, image, inFront, link, padding, paddingEach, paddingXY, paragraph, px, rgb255, row, scrollbarX, scrollbars, spacing, text, width)
+import Element as Element exposing (Attribute, Element, alignBottom, alignLeft, alignRight, centerX, centerY, column, el, fill, height, image, inFront, link, minimum, padding, paddingEach, paddingXY, paragraph, px, rgb255, row, scrollbarX, scrollbars, spacing, text, width)
 import Element.Events exposing (onClick)
 import Element.Input as Input
 import Html
@@ -238,9 +238,9 @@ viewMainSettingsControls model =
         |> column [ spacing 6, width fill ]
 
 
-viewModalDialog : Element Msg -> Element Msg
-viewModalDialog element =
-    el (Styles.page ++ [ centerX, padding 20 ]) element
+viewModalDialog : String -> Element Msg -> Element Msg
+viewModalDialog heading element =
+    el (Styles.page ++ [ centerX, padding 20 ]) (column [ spacing 20 ] [ el (centerX :: Styles.h2) (text heading), element ])
         |> el
             (Styles.dialog
                 ++ [ width fill
@@ -254,7 +254,7 @@ viewModalDialog element =
 
 darkButtonAttributes : List (Attribute msg)
 darkButtonAttributes =
-    Styles.darkButton ++ [ Styles.userSelectNone, standardPadding, width fill ]
+    Styles.darkButton ++ [ Styles.userSelectNone, standardPadding, width (fill |> minimum 100) ]
 
 
 viewSelectNoteButton : (PitchClass -> Msg) -> PitchClass -> Element Msg
@@ -274,47 +274,39 @@ viewSelectFormulaButton formula =
 
 viewSelectScaleDialog : Model -> Element Msg
 viewSelectScaleDialog model =
-    viewModalDialog <|
+    viewModalDialog "Scale" <|
         column
             [ smallSpacing ]
-            (el (centerX :: Styles.h2) (text "Scale")
-                :: (SelectList.toList model.scales |> List.map viewSelectScaleButton)
-            )
+            (SelectList.toList model.scales |> List.map viewSelectScaleButton)
 
 
 viewSelectRootDialog : Model -> Element Msg
 viewSelectRootDialog model =
-    viewModalDialog <|
+    viewModalDialog "Root" <|
         column
-            [ smallSpacing, width (px 220) ]
-            (el (centerX :: Styles.h2) (text "Root")
-                :: (SelectList.toList model.roots |> List.map (viewSelectNoteButton RootSelected) |> List.Extra.greedyGroupsOf 3 |> List.map (row [ smallSpacing ]))
-            )
+            [ smallSpacing ]
+            (SelectList.toList model.roots |> List.map (viewSelectNoteButton RootSelected) |> List.Extra.greedyGroupsOf 3 |> List.map (row [ smallSpacing, width fill ]))
 
 
 viewSelectStartingNoteDialog : Model -> Element Msg
 viewSelectStartingNoteDialog model =
-    viewModalDialog <|
+    viewModalDialog "Starting Note" <|
         column
-            [ smallSpacing, width (px 220) ]
-            (el (centerX :: Styles.h2) (text "Starting Note")
-                :: (SelectList.selected model.scales
-                        |> (Tuple.second >> Scale (SelectList.selected model.roots) >> Scale.notes)
-                        |> List.map (viewSelectNoteButton StartingNoteSelected)
-                        |> List.Extra.greedyGroupsOf 3
-                        |> List.map (row [ smallSpacing ])
-                   )
+            [ smallSpacing ]
+            (SelectList.selected model.scales
+                |> (Tuple.second >> Scale (SelectList.selected model.roots) >> Scale.notes)
+                |> List.map (viewSelectNoteButton StartingNoteSelected)
+                |> List.Extra.greedyGroupsOf 3
+                |> List.map (row [ smallSpacing, width fill ])
             )
 
 
 viewSelectFormulaDialog : Model -> Element Msg
 viewSelectFormulaDialog model =
-    viewModalDialog <|
+    viewModalDialog "Formula" <|
         column
             [ smallSpacing ]
-            (el (centerX :: Styles.h2) (text "Formula")
-                :: (SelectList.toList model.formulas |> List.map viewSelectFormulaButton |> List.Extra.greedyGroupsOf 2 |> List.map (row [ smallSpacing ]))
-            )
+            (SelectList.toList model.formulas |> List.map viewSelectFormulaButton |> List.Extra.greedyGroupsOf 2 |> List.map (row [ smallSpacing, width fill ]))
 
 
 viewSelectedDialog : Model -> Element Msg
@@ -352,7 +344,7 @@ view model =
                 , paddingXY 250 0
                 )
     in
-    Element.layout Styles.page <|
+    Element.layout (Element.inFront (viewSelectedDialog model) :: Styles.page) <|
         column [ width fill, spacing 40, paddingXY 10 10, paddingTop ]
             [ el (centerX :: Styles.h1) (text "Luigi")
             , paragraph
