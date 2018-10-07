@@ -1,11 +1,8 @@
 module View exposing (view)
 
-import Element exposing (Attribute, Element, alignBottom, alignLeft, alignRight, centerX, centerY, column, el, fill, height, image, inFront, link, padding, paddingEach, paddingXY, paragraph, px, rgb255, row, scrollbarX, scrollbars, spacing, text, width)
-import Element.Background as Background
-import Element.Border as Border
+import Element as Element exposing (Attribute, Element, alignBottom, alignLeft, alignRight, centerX, centerY, column, el, fill, height, image, inFront, link, padding, paddingEach, paddingXY, paragraph, px, rgb255, row, scrollbarX, scrollbars, spacing, text, width)
 import Element.Events exposing (onClick)
-import Element.Font as Font
-import Element.Input exposing (button)
+import Element.Input as Input
 import Html
 import Html.Attributes
 import Libs.SelectList as SelectList
@@ -14,14 +11,13 @@ import Score
 import Types exposing (Dialog(..), Model, Msg(..), PlayingState(..))
 import Types.Formula as Formula exposing (Formula)
 import Types.Note as Note
-import Types.Pitch exposing (displayPitch)
+import Types.Pitch as Pitch
 import Types.PitchClass as PitchClass exposing (PitchClass)
 import Types.Range as Range
 import Types.Scale as Scale exposing (Scale(..), ScaleDef)
 import Types.Switch as Switch
-import Types.TimeSignature exposing (BeatDuration(..), NumberOfBeats(..), TimeSignature(..), beatDuration, timeSignatureToString)
+import Types.TimeSignature as TimeSignature exposing (BeatDuration(..), NumberOfBeats(..), TimeSignature(..))
 import View.FontAwesome as Icons
-import View.RangeInput as RangeInput
 import View.Styles as Styles
 
 
@@ -68,13 +64,13 @@ viewNoteDurationControls model =
     in
     row
         [ smallSpacing ]
-        [ button
+        [ Input.button
             (Note.Eighth Note.None |> attributes)
             { label = image [ height (px 20) ] { src = fileName (Note.Eighth Note.None) "eighthnotes", description = "" }
             , onPress = Just ToggleNoteValue
             }
-        , if [ Quarter, Half ] |> List.member (model.timeSignature |> beatDuration) then
-            button
+        , if [ Quarter, Half ] |> List.member (model.timeSignature |> TimeSignature.beatDuration) then
+            Input.button
                 (Note.Eighth Note.Triplet |> attributes)
                 { label = image [ height (px 20) ] { src = fileName (Note.Eighth Note.Triplet) "triplet", description = "" }
                 , onPress = Just ToggleNoteValue
@@ -90,9 +86,24 @@ viewTempoSlider : Model -> Element Msg
 viewTempoSlider model =
     row
         [ spacing 15, width fill ]
-        [ el [ spacing 10, padding 2, height (px 40), width fill ] (RangeInput.input model.tempo UpdateTempo)
+        [ Input.slider
+            [ spacing 10
+            , padding 2
+            , width fill
+            , height (px 38)
+            , Element.behindContent <|
+                Element.el (Styles.rangeTrack ++ [ width fill, height (px 2), centerY ]) Element.none
+            ]
+            { onChange = UpdateTempo
+            , label = Input.labelHidden ""
+            , min = 60.0
+            , max = 280.0
+            , value = model.tempo
+            , thumb = Input.defaultThumb
+            , step = Just 1.0
+            }
             |> viewControlWithLabel [ width fill ] ("Tempo: " ++ String.fromFloat model.tempo ++ " bpm")
-        , button
+        , Input.button
             ([ standardPadding, width (px 40) ] ++ Switch.fold Styles.lightButton Styles.page model.clickTrack)
             { label = el [] (model.clickTrack |> Switch.fold Icons.volumeUp Icons.volumeOff), onPress = Just ToggleClick }
             |> viewControlWithLabel [] "Click"
@@ -128,7 +139,7 @@ viewTimeSignatureControls model =
             , TimeSignature Nine Eighth
             , TimeSignature Twelve Eighth
             ]
-                |> List.map (\ts -> button (attributes ts ++ [ width fill, standardPadding ]) { label = ts |> timeSignatureToString |> text, onPress = Just (SetTimeSignature ts) })
+                |> List.map (\ts -> Input.button (attributes ts ++ [ width fill, standardPadding ]) { label = ts |> TimeSignature.toString |> text, onPress = Just (SetTimeSignature ts) })
                 |> List.Extra.greedyGroupsOf rowLength
                 |> List.map (row [ smallSpacing, width fill ])
                 |> column [ spacing 6, width fill ]
@@ -153,23 +164,23 @@ viewRangeControls model =
         [ smallSpacing, width fill ]
         [ row
             [ smallSpacing, width fill ]
-            [ button buttonAttributes { label = Icons.doubleAngleLeft, onPress = Just RangeMinSkipDown }
-            , button buttonAttributes { label = Icons.angleLeft, onPress = Just RangeMinStepDown }
-            , button buttonAttributes { label = Icons.angleRight, onPress = Just RangeMinStepUp }
-            , button buttonAttributes { label = Icons.doubleAngleRight, onPress = Just RangeMinSkipUp }
+            [ Input.button buttonAttributes { label = Icons.doubleAngleLeft, onPress = Just RangeMinSkipDown }
+            , Input.button buttonAttributes { label = Icons.angleLeft, onPress = Just RangeMinStepDown }
+            , Input.button buttonAttributes { label = Icons.angleRight, onPress = Just RangeMinStepUp }
+            , Input.button buttonAttributes { label = Icons.doubleAngleRight, onPress = Just RangeMinSkipUp }
             ]
         , el (Styles.page ++ [ width fill, standardPadding, smallSpacing, Styles.userSelectNone ]) <|
             row [ spacing 10, centerX, centerY ]
-                [ text (displayPitch (Range.lowest model.range))
+                [ text (Pitch.toString (Range.lowest model.range))
                 , text "-"
-                , text (displayPitch (Range.highest model.range))
+                , text (Pitch.toString (Range.highest model.range))
                 ]
         , row
             [ smallSpacing, width fill ]
-            [ button buttonAttributes { label = Icons.doubleAngleLeft, onPress = Just RangeMaxSkipDown }
-            , button buttonAttributes { label = Icons.angleLeft, onPress = Just RangeMaxStepDown }
-            , button buttonAttributes { label = Icons.angleRight, onPress = Just RangeMaxStepUp }
-            , button buttonAttributes { label = Icons.doubleAngleRight, onPress = Just RangeMaxSkipUp }
+            [ Input.button buttonAttributes { label = Icons.doubleAngleLeft, onPress = Just RangeMaxSkipDown }
+            , Input.button buttonAttributes { label = Icons.angleLeft, onPress = Just RangeMaxStepDown }
+            , Input.button buttonAttributes { label = Icons.angleRight, onPress = Just RangeMaxStepUp }
+            , Input.button buttonAttributes { label = Icons.doubleAngleRight, onPress = Just RangeMaxSkipUp }
             ]
         ]
         |> viewControlWithLabel [ width fill, smallSpacing, Styles.userSelectNone ] "Range"
@@ -186,10 +197,10 @@ viewPlayControl model =
             column attributes [ Icons.spinner, el Styles.verySmallText (text "loading…") ]
 
         ( Stopped, _ ) ->
-            button attributes { label = Icons.play, onPress = Just TogglePlay }
+            Input.button attributes { label = Icons.play, onPress = Just TogglePlay }
 
         ( Playing, _ ) ->
-            button attributes { label = Icons.stop, onPress = Just TogglePlay }
+            Input.button attributes { label = Icons.stop, onPress = Just TogglePlay }
 
 
 viewMainSettingsControls : Model -> Element Msg
@@ -205,19 +216,19 @@ viewMainSettingsControls model =
         buttonAttributes =
             Styles.page ++ [ standardPadding, Styles.userSelectNone, width fill ]
     in
-    [ button
+    [ Input.button
         buttonAttributes
         { label = PitchClass.toString (SelectList.selected model.roots) |> text, onPress = Just <| Open SelectRoot }
         |> viewControlWithLabel [ width fill ] "Root"
-    , button
+    , Input.button
         buttonAttributes
         { label = text (model.scales |> SelectList.selected |> Tuple.first), onPress = Just <| Open SelectScale }
         |> viewControlWithLabel [ width fill ] "Scale"
-    , button
+    , Input.button
         buttonAttributes
         { label = model.formulas |> SelectList.selected |> Formula.toString |> text, onPress = Just <| Open SelectFormula }
         |> viewControlWithLabel [ width fill ] "Formula"
-    , button
+    , Input.button
         buttonAttributes
         { label = PitchClass.toString model.startingNote |> text, onPress = Just <| Open SelectStartingNote }
         |> viewControlWithLabel [ width fill ] "Starting Note"
@@ -248,17 +259,17 @@ darkButtonAttributes =
 
 viewSelectNoteButton : (PitchClass -> Msg) -> PitchClass -> Element Msg
 viewSelectNoteButton event pitchClass =
-    button darkButtonAttributes { label = PitchClass.toString pitchClass |> text, onPress = Just <| event pitchClass }
+    Input.button darkButtonAttributes { label = PitchClass.toString pitchClass |> text, onPress = Just <| event pitchClass }
 
 
 viewSelectScaleButton : ( String, ScaleDef ) -> Element Msg
 viewSelectScaleButton ( name, scale ) =
-    button darkButtonAttributes { label = text name, onPress = Just <| ScaleSelected scale }
+    Input.button darkButtonAttributes { label = text name, onPress = Just <| ScaleSelected scale }
 
 
 viewSelectFormulaButton : Formula -> Element Msg
 viewSelectFormulaButton formula =
-    button darkButtonAttributes { label = formula |> Formula.toString |> text, onPress = Just <| FormulaSelected formula }
+    Input.button darkButtonAttributes { label = formula |> Formula.toString |> text, onPress = Just <| FormulaSelected formula }
 
 
 viewSelectScaleDialog : Model -> Element Msg
@@ -322,7 +333,7 @@ viewSelectedDialog model =
             viewSelectStartingNoteDialog model
 
         Nothing ->
-            text ""
+            Element.none
 
 
 view : Model -> Html.Html Msg
@@ -330,13 +341,13 @@ view model =
     let
         ( viewScore, paddingTop, paddingSettings ) =
             if model.device.phone || model.device.tablet then
-                ( row ([ scrollbarX, width fill ] ++ Styles.score) [ el (Styles.score ++ [ id Score.elementId, centerX, width fill ]) (text "") ]
+                ( row ([ scrollbarX, width fill ] ++ Styles.score) [ el (Styles.score ++ [ id Score.elementId, centerX, width fill ]) Element.none ]
                 , paddingEach { top = 20, bottom = 0, left = 0, right = 0 }
                 , paddingXY 20 0
                 )
 
             else
-                ( row ([ width fill ] ++ Styles.score) [ el (Styles.score ++ [ id Score.elementId, centerX, width fill ]) (text "") ]
+                ( row ([ width fill ] ++ Styles.score) [ el (Styles.score ++ [ id Score.elementId, centerX, width fill ]) Element.none ]
                 , paddingEach { top = 100, bottom = 0, left = 0, right = 0 }
                 , paddingXY 250 0
                 )

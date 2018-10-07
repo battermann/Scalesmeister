@@ -315,7 +315,7 @@ update msg model =
             ( { model | clickTrack = model.clickTrack |> Switch.toggle }, model.clickTrack |> Switch.fold Audio.muteClick Audio.unMuteClick )
 
         UpdateTempo tempo ->
-            ( { model | tempo = String.toFloat tempo |> Maybe.withDefault 160.0 }, String.toFloat tempo |> Maybe.withDefault 160.0 |> round |> Audio.setTempo )
+            ( { model | tempo = tempo }, tempo |> round |> Audio.setTempo )
 
 
 subscriptions : Model -> Sub Msg

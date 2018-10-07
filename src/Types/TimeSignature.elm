@@ -11,7 +11,7 @@ module Types.TimeSignature exposing
     , numberOfBeatsToInt
     , setDuration
     , setNumberOfBeats
-    , timeSignatureToString
+    , toString
     )
 
 import Libs.Ratio as Ratio exposing (Rational(..), divideIntBy, split)
@@ -133,8 +133,8 @@ durationGte lhs rhs =
     numberOfSixteenth lhs >= numberOfSixteenth rhs
 
 
-timeSignatureToString : TimeSignature -> String
-timeSignatureToString (TimeSignature numBeats duration) =
+toString : TimeSignature -> String
+toString (TimeSignature numBeats duration) =
     (numBeats |> numberOfBeatsToInt |> String.fromInt) ++ "/" ++ (duration |> beatDurationToInt |> String.fromInt)
 
 

@@ -9,6 +9,7 @@ module View.Styles exposing
     , link
     , opacity
     , page
+    , rangeTrack
     , score
     , settings
     , smallText
@@ -21,6 +22,11 @@ import Element exposing (Attribute, rgb, rgba)
 import Element.Background as Background
 import Element.Font as Font
 import Html.Attributes
+
+
+rangeTrack : List (Attribute msg)
+rangeTrack =
+    [ Background.color veryLightGray ]
 
 
 font : Attribute msg

@@ -72,4 +72,4 @@ type Msg
     | RangeMaxSkipUp
     | CloseDialog
     | ToggleClick
-    | UpdateTempo String
+    | UpdateTempo Float

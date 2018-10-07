@@ -3,13 +3,13 @@ module Types.Pitch exposing
     , all
     , any
     , choice
-    , displayPitch
     , enharmonicEquivalents
     , flat
     , natural
     , note
     , semitoneOffset
     , sharp
+    , toString
     , transpose
     )
 
@@ -94,6 +94,6 @@ enharmonicEquivalents semitones =
             )
 
 
-displayPitch : Pitch -> String
-displayPitch (Pitch pc octave) =
+toString : Pitch -> String
+toString (Pitch pc octave) =
     PitchClass.toString pc ++ (Octave.number octave |> String.fromInt)
