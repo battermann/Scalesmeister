@@ -12,68 +12,66 @@ module View.FontAwesome exposing
     , volumeUp
     )
 
-import Element exposing (el, html)
-import Element.Attributes exposing (center, verticalCenter)
+import Element exposing (centerX, centerY, el, html)
 import Html exposing (div, i)
 import Html.Attributes exposing (class)
-import Styles exposing (AppStyles(..))
 
 
-toEl : String -> Element.Element AppStyles variation msg
+toEl : String -> Element.Element msg
 toEl iconStr =
-    el None [ center, verticalCenter ] (html (div [] [ i [ class iconStr ] [] ]))
+    el [ centerX, centerY ] (html (div [] [ i [ class iconStr ] [] ]))
 
 
-volumeUp : Element.Element AppStyles variation msg
+volumeUp : Element.Element msg
 volumeUp =
     toEl "fas fa-volume-up"
 
 
-volumeOff : Element.Element AppStyles variation msg
+volumeOff : Element.Element msg
 volumeOff =
     toEl "fas fa-volume-off"
 
 
-download : Element.Element AppStyles variation msg
+download : Element.Element msg
 download =
     toEl "fas fa-download"
 
 
-play : Element.Element AppStyles variation msg
+play : Element.Element msg
 play =
     toEl "fas fa-play"
 
 
-stop : Element.Element AppStyles variation msg
+stop : Element.Element msg
 stop =
     toEl "fas fa-pause"
 
 
-github : Element.Element AppStyles variation msg
+github : Element.Element msg
 github =
     toEl "fab fa-github"
 
 
-angleLeft : Element.Element AppStyles variation msg
+angleLeft : Element.Element msg
 angleLeft =
     toEl "fas fa-angle-left"
 
 
-angleRight : Element.Element AppStyles variation msg
+angleRight : Element.Element msg
 angleRight =
     toEl "fas fa-angle-right"
 
 
-doubleAngleRight : Element.Element AppStyles variation msg
+doubleAngleRight : Element.Element msg
 doubleAngleRight =
     toEl "fas fa-angle-double-right"
 
 
-doubleAngleLeft : Element.Element AppStyles variation msg
+doubleAngleLeft : Element.Element msg
 doubleAngleLeft =
     toEl "fas fa-angle-double-left"
 
 
-spinner : Element.Element AppStyles variation msg
+spinner : Element.Element msg
 spinner =
     toEl "fas fa-spinner fa-spin"

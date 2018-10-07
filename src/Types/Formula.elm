@@ -8,6 +8,7 @@ module Types.Formula exposing
     , formula4
     , formula5
     , invert
+    , toString
     )
 
 
@@ -65,3 +66,19 @@ formula4 =
 formula5 : Formula
 formula5 =
     [ 3, -2, -2, 3 ]
+
+
+formulaPartToString : Int -> String
+formulaPartToString n =
+    if n > 0 then
+        "↑" ++ String.fromInt (abs n)
+
+    else
+        "↓" ++ String.fromInt (abs n)
+
+
+toString : Formula -> String
+toString formula =
+    formula
+        |> List.map formulaPartToString
+        |> String.join " "

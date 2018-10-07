@@ -3,20 +3,20 @@ module Types.Pitch exposing
     , all
     , any
     , choice
-    , displayPitch
     , enharmonicEquivalents
     , flat
     , natural
     , note
     , semitoneOffset
     , sharp
+    , toString
     , transpose
     )
 
 import List.Extra
 import Maybe.Extra
 import Types.Octave as Octave exposing (Octave)
-import Types.PitchClass as PitchClass exposing (Accidental(..), PitchClass(..), Semitones, pitchClassToString)
+import Types.PitchClass as PitchClass exposing (Accidental(..), PitchClass(..), Semitones)
 
 
 type Pitch
@@ -24,19 +24,19 @@ type Pitch
 
 
 note : Pitch -> PitchClass
-note (Pitch note _) =
-    note
+note (Pitch n _) =
+    n
 
 
 all : List Pitch
 all =
     Octave.all
-        |> List.concatMap (\octave -> PitchClass.all |> List.map (\note -> Pitch note octave))
+        |> List.concatMap (\octave -> PitchClass.all |> List.map (\pc -> Pitch pc octave))
 
 
 semitoneOffset : Pitch -> Semitones
-semitoneOffset (Pitch note octave) =
-    PitchClass.semitoneOffset note + Octave.number octave * 12
+semitoneOffset (Pitch pc octave) =
+    PitchClass.semitoneOffset pc + Octave.number octave * 12
 
 
 choose : Accidental -> List Pitch -> Maybe Pitch
@@ -73,14 +73,14 @@ transpose choices pitch semitones =
 choice : List (List Pitch -> Maybe Pitch) -> List Pitch -> Maybe Pitch
 choice choices pitches =
     choices
-        |> List.foldl (\choose pitch -> pitch |> Maybe.Extra.orElse (pitches |> choose)) Nothing
+        |> List.foldl (\c pitch -> pitch |> Maybe.Extra.orElse (pitches |> c)) Nothing
 
 
 enharmonicEquivalents : Semitones -> List Pitch
 enharmonicEquivalents semitones =
     let
         remainder =
-            semitones % 12
+            modBy 12 semitones
 
         notes =
             PitchClass.all |> List.filter (PitchClass.semitoneOffset >> (==) remainder)
@@ -94,6 +94,6 @@ enharmonicEquivalents semitones =
             )
 
 
-displayPitch : Pitch -> String
-displayPitch (Pitch note octave) =
-    pitchClassToString note ++ (Octave.number octave |> toString)
+toString : Pitch -> String
+toString (Pitch pc octave) =
+    PitchClass.toString pc ++ (Octave.number octave |> String.fromInt)

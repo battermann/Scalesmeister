@@ -22,8 +22,8 @@ type ScaleDef
 
 
 intervals : ScaleDef -> List Interval
-intervals (ScaleDef intervals) =
-    intervals
+intervals (ScaleDef xs) =
+    xs
 
 
 minorPentatonic : ScaleDef
@@ -85,5 +85,5 @@ root (Scale rootNote _) =
 
 
 notes : Scale -> List PitchClass
-notes (Scale note (ScaleDef intervals)) =
-    note :: (intervals |> List.filterMap (\interval -> PitchClass.transpose interval note))
+notes (Scale note (ScaleDef xs)) =
+    note :: (xs |> List.filterMap (\interval -> PitchClass.transpose interval note))

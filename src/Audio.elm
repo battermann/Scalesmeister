@@ -1,12 +1,13 @@
 module Audio exposing (loadPianoSamples, muteClick, play, samplesLoaded, setTempo, stop, unMuteClick)
 
+import Libs.Ratio as Ratio
+import List.Extra
 import Ports.In
 import Ports.Out
-import Ratio
 import Types.Note as Note exposing (Altered(..), Duration(..))
 import Types.Octave as Octave
 import Types.Pitch as Pitch exposing (Pitch(..), choice, flat, natural, sharp)
-import Types.PitchClass exposing (Accidental(..), Letter(..), PitchClass(..))
+import Types.PitchClass as PitchClass exposing (Accidental(..), Letter(..), PitchClass(..))
 import Types.Switch as Switch exposing (Switch)
 import Types.TimeSignature as TimeSignature exposing (TimeSignature(..))
 
@@ -32,23 +33,34 @@ toScientificPitchNotation pitch =
                             _ ->
                                 Nothing
                 in
-                maybeAcc |> Maybe.map (\acc -> toString letter ++ acc ++ toString (Octave.number octave))
+                maybeAcc |> Maybe.map (\acc -> PitchClass.letterToString letter ++ acc ++ String.fromInt (Octave.number octave))
             )
+
+
+accidentalToString : Accidental -> String
+accidentalToString accidental =
+    case accidental of
+        DoubleFlat ->
+            "DoubleFlat"
+
+        Flat ->
+            "Flat"
+
+        Natural ->
+            ""
+
+        Sharp ->
+            "Sharp"
+
+        DoubleSharp ->
+            "DoubleSharp"
 
 
 pitchToSampleUrlMapping : Pitch -> Maybe ( Ports.Out.ScientificPitchNotation, Ports.Out.SampleUrl )
 pitchToSampleUrlMapping (Pitch (PitchClass letter accidental) octave) =
     let
-        acc =
-            case accidental of
-                Natural ->
-                    ""
-
-                _ ->
-                    toString accidental
-
         url =
-            "samples/" ++ toString letter ++ acc ++ toString (Octave.number octave) ++ ".mp3"
+            "samples/" ++ PitchClass.letterToString letter ++ accidentalToString accidental ++ String.fromInt (Octave.number octave) ++ ".mp3"
     in
     toScientificPitchNotation (Pitch (PitchClass letter accidental) octave)
         |> Maybe.map (\key -> ( key, url ))
@@ -100,43 +112,43 @@ play clickTrackSwitch ts duration line =
         notes : List ( String, String )
         notes =
             notesPerBar
-                |> Maybe.andThen (\npb -> line |> List.head |> Maybe.map ((,) npb))
-                |> Maybe.andThen (\( a, b ) -> numDurationsPerQuarter |> Maybe.map ((,,) a b))
+                |> Maybe.andThen (\npb -> line |> List.head |> Maybe.map (\b -> ( npb, b )))
+                |> Maybe.andThen (\( a, b ) -> numDurationsPerQuarter |> Maybe.map (\c -> ( a, b, c )))
                 |> Maybe.map
                     (\( npb, firstPitch, ndq ) ->
                         line
                             |> List.drop 1
-                            |> List.scanl
-                                (\pitch ( i, _, _, _, _ ) ->
+                            |> List.Extra.scanl
+                                (\pitch { index } ->
                                     let
-                                        index =
-                                            i + 1
+                                        i =
+                                            index + 1
 
                                         bar =
-                                            index // npb
+                                            i // npb
 
                                         quarter =
-                                            rem index npb // ndq
+                                            remainderBy npb i // ndq
                                     in
-                                    ( index
-                                    , bar
-                                    , quarter
-                                    , ((rem index npb - ndq * quarter) |> toFloat) * (Note.toSixteenthNotes duration |> Ratio.toFloat)
-                                    , pitch
-                                    )
+                                    { index = i
+                                    , bar = bar
+                                    , quarter = quarter
+                                    , sixteenth = ((remainderBy npb i - ndq * quarter) |> toFloat) * (Note.toSixteenthNotes duration |> Ratio.toFloat)
+                                    , pitch = pitch
+                                    }
                                 )
-                                ( 0, 0, 0, 0.0, firstPitch )
+                                { index = 0, bar = 0, quarter = 0, sixteenth = 0.0, pitch = firstPitch }
                     )
                 |> Maybe.withDefault []
-                |> List.filterMap (\( _, bar, quarter, sixteenth, pitch ) -> pitch |> toScientificPitchNotation |> Maybe.map (\p -> ( bar, quarter, sixteenth, p )))
+                |> List.filterMap (\{ bar, quarter, sixteenth, pitch } -> pitch |> toScientificPitchNotation |> Maybe.map (\p -> { bar = bar, quarter = quarter, sixteenth = sixteenth, pitch = p }))
                 |> List.map
-                    (\( bar, quarter, sixteenth, pitch ) ->
-                        ( [ bar |> toString, quarter |> toString, sixteenth |> toString ] |> String.join ":", pitch )
+                    (\{ bar, quarter, sixteenth, pitch } ->
+                        ( [ bar |> String.fromInt, quarter |> String.fromInt, sixteenth |> String.fromFloat ] |> String.join ":", pitch )
                     )
     in
     Ports.Out.startSequence
         { timeSignature = timeSignature ts
-        , loopEnd = (numBars |> toString) ++ "m"
+        , loopEnd = (numBars |> String.fromInt) ++ "m"
         , noteLength = noteLength duration
         , notes = notes
         , clicks = clicks ts duration
@@ -171,7 +183,7 @@ clicks (TimeSignature numBeats beatDuration) duration =
 
 timeSignature : TimeSignature -> ( String, String )
 timeSignature (TimeSignature numBeats beatDuration) =
-    ( numBeats |> TimeSignature.numberOfBeatsToInt |> toString, beatDuration |> TimeSignature.beatDurationToInt |> toString )
+    ( numBeats |> TimeSignature.numberOfBeatsToInt |> String.fromInt, beatDuration |> TimeSignature.beatDurationToInt |> String.fromInt )
 
 
 noteLength : Duration -> String

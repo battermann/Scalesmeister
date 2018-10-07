@@ -7,9 +7,10 @@ module Types.PitchClass exposing
     , addIntervalSizeToLetter
     , all
     , down
+    , letterToString
     , noteLetterDistance
-    , pitchClassToString
     , semitoneOffset
+    , toString
     , transpose
     )
 
@@ -40,8 +41,8 @@ type PitchClass
 
 
 accidental : PitchClass -> Accidental
-accidental (PitchClass _ accidental) =
-    accidental
+accidental (PitchClass _ acc) =
+    acc
 
 
 type alias Semitones =
@@ -60,8 +61,8 @@ all =
 
 
 semitoneOffset : PitchClass -> Semitones
-semitoneOffset (PitchClass letter accidental) =
-    letterSemitoneOffset letter + accidentalSemitoneOffset accidental
+semitoneOffset (PitchClass letter acc) =
+    letterSemitoneOffset letter + accidentalSemitoneOffset acc
 
 
 letterSemitoneOffset : Letter -> Semitones
@@ -90,8 +91,8 @@ letterSemitoneOffset letter =
 
 
 accidentalSemitoneOffset : Accidental -> Semitones
-accidentalSemitoneOffset accidental =
-    case accidental of
+accidentalSemitoneOffset acc =
+    case acc of
         DoubleFlat ->
             -2
 
@@ -119,10 +120,10 @@ addIntervalSizeToLetter letter intervalSize =
 
 
 noteLetterDistance : PitchClass -> Letter -> Semitones
-noteLetterDistance (PitchClass letter accidental) targetLetter =
+noteLetterDistance (PitchClass letter acc) targetLetter =
     let
         rootOffset =
-            letterSemitoneOffset letter + accidentalSemitoneOffset accidental
+            letterSemitoneOffset letter + accidentalSemitoneOffset acc
 
         targetOffset =
             letterSemitoneOffset targetLetter
@@ -136,24 +137,23 @@ noteLetterDistance (PitchClass letter accidental) targetLetter =
 
 accidentalBySemitoneOffset : Semitones -> Maybe Accidental
 accidentalBySemitoneOffset semitones =
-    case semitones of
-        (-2) ->
-            Just DoubleFlat
+    if semitones == -2 then
+        Just DoubleFlat
 
-        (-1) ->
-            Just Flat
+    else if semitones == -1 then
+        Just Flat
 
-        0 ->
-            Just Natural
+    else if semitones == 0 then
+        Just Natural
 
-        1 ->
-            Just Sharp
+    else if semitones == 1 then
+        Just Sharp
 
-        2 ->
-            Just DoubleSharp
+    else if semitones == 2 then
+        Just DoubleSharp
 
-        _ ->
-            Nothing
+    else
+        Nothing
 
 
 down : (Interval -> PitchClass -> Maybe PitchClass) -> (Interval -> PitchClass -> Maybe PitchClass)
@@ -162,7 +162,7 @@ down f =
 
 
 transpose : Interval -> PitchClass -> Maybe PitchClass
-transpose interval (PitchClass letter accidental) =
+transpose interval (PitchClass letter acc) =
     let
         intervalNumber =
             Interval.number interval
@@ -174,15 +174,15 @@ transpose interval (PitchClass letter accidental) =
             addIntervalSizeToLetter letter intervalNumber
     in
     maybeTargetLetter
-        |> Maybe.map (noteLetterDistance (PitchClass letter accidental))
+        |> Maybe.map (noteLetterDistance (PitchClass letter acc))
         |> Maybe.map ((-) semitones)
         |> Maybe.andThen accidentalBySemitoneOffset
-        |> Maybe.andThen (\acc -> maybeTargetLetter |> Maybe.map (\l -> PitchClass l acc))
+        |> Maybe.andThen (\a -> maybeTargetLetter |> Maybe.map (\l -> PitchClass l a))
 
 
 accidentalToString : Accidental -> String
-accidentalToString accidental =
-    case accidental of
+accidentalToString acc =
+    case acc of
         DoubleFlat ->
             "𝄫"
 
@@ -199,6 +199,31 @@ accidentalToString accidental =
             "𝄪"
 
 
-pitchClassToString : PitchClass -> String
-pitchClassToString (PitchClass letter accidental) =
-    toString letter ++ (accidental |> accidentalToString)
+letterToString : Letter -> String
+letterToString letter =
+    case letter of
+        C ->
+            "C"
+
+        D ->
+            "D"
+
+        E ->
+            "E"
+
+        F ->
+            "F"
+
+        G ->
+            "G"
+
+        A ->
+            "A"
+
+        B ->
+            "B"
+
+
+toString : PitchClass -> String
+toString (PitchClass letter acc) =
+    letterToString letter ++ (acc |> accidentalToString)

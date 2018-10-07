@@ -32,13 +32,13 @@ octave n =
 
 
 up : Octave -> Maybe Octave
-up (Octave number) =
-    octave (number + 1)
+up (Octave n) =
+    octave (n + 1)
 
 
 down : Octave -> Maybe Octave
-down (Octave number) =
-    octave (number - 1)
+down (Octave n) =
+    octave (n - 1)
 
 
 number : Octave -> Int
@@ -47,8 +47,8 @@ number (Octave n) =
 
 
 add : Int -> Octave -> Maybe Octave
-add n (Octave number) =
-    octave (n + number)
+add n (Octave num) =
+    octave (n + num)
 
 
 all : List Octave

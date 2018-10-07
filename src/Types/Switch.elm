@@ -17,13 +17,13 @@ off =
 
 
 fold : a -> a -> Switch -> a
-fold on off switch =
+fold switchOn switchOff switch =
     case switch of
         On ->
-            on
+            switchOn
 
         Off ->
-            off
+            switchOff
 
 
 toggle : Switch -> Switch

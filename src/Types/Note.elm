@@ -7,7 +7,7 @@ module Types.Note exposing
     , toSixteenthNotes
     )
 
-import Ratio exposing (Rational, add, denominator, fromInt, numerator, over)
+import Libs.Ratio exposing (Rational, add, denominator, fromInt, numerator, over)
 import Types.Pitch exposing (Pitch)
 
 
