@@ -1,4 +1,4 @@
-import "@fortawesome/fontawesome-free/css/all.css"
+import '@fortawesome/fontawesome-free/css/all.css'
 import { Elm } from './Main.elm'
 import { Sampler, Transport, Part, Player } from 'tone'
 import StartAudioContext from 'startaudiocontext'
@@ -44,9 +44,11 @@ app.ports.downloadPdf.subscribe(function () {
 })
 
 app.ports.renderScore.subscribe(function (input) {
-  const elementId = input[0]
-  const score = input[1]
-  abcjs.renderAbc(elementId, score)
+  window.requestAnimationFrame(function () {
+    const elementId = input[0]
+    const score = input[1]
+    abcjs.renderAbc(elementId, score)
+  })
 })
 
 app.ports.loadSamples.subscribe(function (pitchToSampleUrlMapping) {

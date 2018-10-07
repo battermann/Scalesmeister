@@ -11,7 +11,6 @@ import Html.Attributes
 import Libs.SelectList as SelectList
 import List.Extra
 import Score
-import Styles
 import Types exposing (Dialog(..), Model, Msg(..), PlayingState(..))
 import Types.Formula as Formula exposing (Formula)
 import Types.Note as Note
@@ -23,6 +22,7 @@ import Types.Switch as Switch
 import Types.TimeSignature exposing (BeatDuration(..), NumberOfBeats(..), TimeSignature(..), beatDuration, timeSignatureToString)
 import View.FontAwesome as Icons
 import View.RangeInput as RangeInput
+import View.Styles as Styles
 
 
 smallSpacing : Attribute msg
@@ -89,13 +89,13 @@ viewNoteDurationControls model =
 viewTempoSlider : Model -> Element Msg
 viewTempoSlider model =
     row
-        [ spacing 15 ]
-        [ el [ spacing 10, padding 2, height (px 40) ] (RangeInput.input model.tempo UpdateTempo)
+        [ spacing 15, width fill ]
+        [ el [ spacing 10, padding 2, height (px 40), width fill ] (RangeInput.input model.tempo UpdateTempo)
             |> viewControlWithLabel [ width fill ] ("Tempo: " ++ String.fromFloat model.tempo ++ " bpm")
         , button
-            (standardPadding :: Switch.fold Styles.lightButton Styles.page model.clickTrack)
+            ([ standardPadding, width (px 40) ] ++ Switch.fold Styles.lightButton Styles.page model.clickTrack)
             { label = el [] (model.clickTrack |> Switch.fold Icons.volumeUp Icons.volumeOff), onPress = Just ToggleClick }
-            |> viewControlWithLabel [ width (px 40) ] "Click"
+            |> viewControlWithLabel [] "Click"
         ]
 
 
@@ -130,8 +130,8 @@ viewTimeSignatureControls model =
             ]
                 |> List.map (\ts -> button (attributes ts ++ [ width fill, standardPadding ]) { label = ts |> timeSignatureToString |> text, onPress = Just (SetTimeSignature ts) })
                 |> List.Extra.greedyGroupsOf rowLength
-                |> List.map (row [ smallSpacing ])
-                |> column [ spacing 6 ]
+                |> List.map (row [ smallSpacing, width fill ])
+                |> column [ spacing 6, width fill ]
     in
     buttons |> viewControlWithLabel [ width fill, Styles.userSelectNone ] "Time Signature"
 
@@ -150,23 +150,22 @@ viewRangeControls model =
             Styles.page ++ [ width fill, standardPadding, Styles.userSelectNone ]
     in
     colOrRow
-        [ smallSpacing ]
+        [ smallSpacing, width fill ]
         [ row
-            [ smallSpacing ]
+            [ smallSpacing, width fill ]
             [ button buttonAttributes { label = Icons.doubleAngleLeft, onPress = Just RangeMinSkipDown }
             , button buttonAttributes { label = Icons.angleLeft, onPress = Just RangeMinStepDown }
             , button buttonAttributes { label = Icons.angleRight, onPress = Just RangeMinStepUp }
             , button buttonAttributes { label = Icons.doubleAngleRight, onPress = Just RangeMinSkipUp }
             ]
-        , column (Styles.page ++ [ centerX, centerY, standardPadding, smallSpacing, width fill, Styles.userSelectNone ])
-            [ row [ spacing 10 ]
+        , el (Styles.page ++ [ width fill, standardPadding, smallSpacing, Styles.userSelectNone ]) <|
+            row [ spacing 10, centerX, centerY ]
                 [ text (displayPitch (Range.lowest model.range))
                 , text "-"
                 , text (displayPitch (Range.highest model.range))
                 ]
-            ]
         , row
-            [ smallSpacing ]
+            [ smallSpacing, width fill ]
             [ button buttonAttributes { label = Icons.doubleAngleLeft, onPress = Just RangeMaxSkipDown }
             , button buttonAttributes { label = Icons.angleLeft, onPress = Just RangeMaxStepDown }
             , button buttonAttributes { label = Icons.angleRight, onPress = Just RangeMaxStepUp }
@@ -184,7 +183,7 @@ viewPlayControl model =
     in
     case ( model.playingState, model.samplesLoaded ) of
         ( _, False ) ->
-            column (attributes ++ [ centerX, centerY, spacing 4 ]) [ Icons.spinner, el Styles.verySmallText (text "loading…") ]
+            column attributes [ Icons.spinner, el Styles.verySmallText (text "loading…") ]
 
         ( Stopped, _ ) ->
             button attributes { label = Icons.play, onPress = Just TogglePlay }
@@ -221,11 +220,11 @@ viewMainSettingsControls model =
     , button
         buttonAttributes
         { label = PitchClass.toString model.startingNote |> text, onPress = Just <| Open SelectStartingNote }
-        |> viewControlWithLabel [ width fill ] "Starting note"
+        |> viewControlWithLabel [ width fill ] "Starting Note"
     ]
         |> List.Extra.greedyGroupsOf columns
-        |> List.map (row [ smallSpacing ])
-        |> column [ spacing 6 ]
+        |> List.map (row [ smallSpacing, width fill ])
+        |> column [ spacing 6, width fill ]
 
 
 viewModalDialog : Element Msg -> Element Msg
@@ -287,7 +286,7 @@ viewSelectStartingNoteDialog model =
     viewModalDialog <|
         column
             [ smallSpacing, width (px 220) ]
-            (el (centerX :: Styles.h2) (text "Starting note")
+            (el (centerX :: Styles.h2) (text "Starting Note")
                 :: (SelectList.selected model.scales
                         |> (Tuple.second >> Scale (SelectList.selected model.roots) >> Scale.notes)
                         |> List.map (viewSelectNoteButton StartingNoteSelected)
@@ -329,47 +328,44 @@ viewSelectedDialog model =
 view : Model -> Html.Html Msg
 view model =
     let
-        ( scoreLayout, pagePaddingTop, settingsWidth ) =
+        ( viewScore, paddingTop, paddingSettings ) =
             if model.device.phone || model.device.tablet then
-                ( row (scrollbarX :: Styles.score) [ el (Styles.score ++ [ id Score.elementId, centerX, width fill ]) (text "") ]
+                ( row ([ scrollbarX, width fill ] ++ Styles.score) [ el (Styles.score ++ [ id Score.elementId, centerX, width fill ]) (text "") ]
                 , paddingEach { top = 20, bottom = 0, left = 0, right = 0 }
-                , width fill
+                , paddingXY 20 0
                 )
 
             else
-                ( row (centerX :: Styles.score) [ el (Styles.score ++ [ id Score.elementId, centerX ]) (text "") ]
+                ( row ([ width fill ] ++ Styles.score) [ el (Styles.score ++ [ id Score.elementId, centerX, width fill ]) (text "") ]
                 , paddingEach { top = 100, bottom = 0, left = 0, right = 0 }
-                , width fill
+                , paddingXY 250 0
                 )
     in
-    Element.layout [] <|
-        column (Styles.page ++ [ spacing 40, paddingXY 10 10, pagePaddingTop ])
+    Element.layout Styles.page <|
+        column [ width fill, spacing 40, paddingXY 10 10, paddingTop ]
             [ el (centerX :: Styles.h1) (text "Luigi")
             , paragraph
                 (Styles.subTitle ++ [ paddingEach { top = 0, bottom = 40, left = 0, right = 0 }, centerX ])
                 [ text "Generate lines for jazz improvisation based on scales and formulas." ]
             , column
-                [ smallSpacing ]
-                [ column
-                    []
-                    [ row
-                        [ centerX, width fill ]
-                        [ column [ smallSpacing, settingsWidth ]
-                            [ viewPlayControl model
-                            , column (Styles.settings ++ [ padding 20, spacing 6 ])
-                                [ viewTempoSlider model
-                                , viewMainSettingsControls model
-                                , viewRangeControls model
-                                , viewTimeSignatureControls model
-                                , viewNoteDurationControls model
-                                ]
+                [ smallSpacing, width fill ]
+                [ row
+                    [ centerX, width fill, paddingSettings ]
+                    [ column [ smallSpacing, width fill ]
+                        [ viewPlayControl model
+                        , column (Styles.settings ++ [ padding 20, spacing 6, width fill ])
+                            [ viewTempoSlider model
+                            , viewMainSettingsControls model
+                            , viewRangeControls model
+                            , viewTimeSignatureControls model
+                            , viewNoteDurationControls model
                             ]
                         ]
                     ]
-                , scoreLayout
+                , viewScore
                 ]
             , column
-                (spacing 5 :: Styles.footer)
+                ([ spacing 5, width fill ] ++ Styles.footer)
                 [ row [ centerX ]
                     [ text "v0.2.1 | created with "
                     , link Styles.link { url = "http://elm-lang.org/", label = text "Elm" }

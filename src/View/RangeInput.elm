@@ -17,5 +17,8 @@ input value updateValue =
             , Html.Events.onInput updateValue
             , Html.Attributes.style "width" "100%"
             , Html.Attributes.style "pointer-events" "auto"
+            , Html.Attributes.style "-webkit-appearance" "slider-horizontal"
+            , Html.Attributes.style "opacity" "1"
+            , Html.Attributes.style "step" "1"
             ]
             []
