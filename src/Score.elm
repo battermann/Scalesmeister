@@ -6,7 +6,7 @@ import Types.Note as Note exposing (Altered(..), Duration(..), Note(..), Rest(..
 import Types.Octave as Octave
 import Types.Orchestration exposing (Bar(..), Beamed, Clef(..), Orchestration(..))
 import Types.Pitch exposing (Pitch(..))
-import Types.PitchClass exposing (Accidental(..), PitchClass(..))
+import Types.PitchClass as PitchClass exposing (Accidental(..), PitchClass(..))
 import Types.TimeSignature exposing (TimeSignature(..), beatDurationToInt, numberOfBeatsToInt)
 import Util exposing (Either(..))
 
@@ -76,10 +76,10 @@ toAbcScoreNote (Pitch (PitchClass letter accidental) octave) =
                     "^"
     in
     if Octave.number octave < 5 then
-        acc ++ (letter |> toString) ++ (List.repeat (4 - Octave.number octave) ',' |> String.fromList)
+        acc ++ (letter |> PitchClass.letterToString) ++ (List.repeat (4 - Octave.number octave) ',' |> String.fromList)
 
     else
-        acc ++ (letter |> toString |> String.toLower) ++ (List.repeat (Octave.number octave - 5) '\'' |> String.fromList)
+        acc ++ (letter |> PitchClass.letterToString |> String.toLower) ++ (List.repeat (Octave.number octave - 5) '\'' |> String.fromList)
 
 
 clefToAbcNotation : Clef -> String
@@ -94,11 +94,11 @@ clefToAbcNotation c =
 
 headerToString : Header -> String
 headerToString (Header (ReferenceNumber x) (Title title) (Meter beatsPerBar beatUnit)) =
-    [ "X: " ++ toString x
+    [ "X: " ++ String.fromInt x
 
     --, "%%stretchlast 1"
     , "T: " ++ title
-    , "M: " ++ toString beatsPerBar ++ "/" ++ toString beatUnit
+    , "M: " ++ String.fromInt beatsPerBar ++ "/" ++ String.fromInt beatUnit
     , "L: 1/16"
     , "K: C"
     ]
@@ -185,7 +185,7 @@ beamedToAbcNotation list =
             list |> List.map noteOrRestToAbcNotation >> String.join ""
     in
     if list |> List.all isTriplet then
-        "(3:2:" ++ (list |> List.length |> toString) ++ abc
+        "(3:2:" ++ (list |> List.length |> String.fromInt) ++ abc
 
     else
         abc
@@ -201,5 +201,5 @@ barToAbcNotation (Bar clef beamed) =
 
 
 orchestrationToAbcNotation : Orchestration -> String
-orchestrationToAbcNotation (Orchestration timeSignature bars) =
-    (mkHeader "" timeSignature |> headerToString) ++ "\n" ++ (bars |> List.Extra.greedyGroupsOf 3 |> List.map (List.map barToAbcNotation >> String.join "") |> String.join "\n")
+orchestrationToAbcNotation (Orchestration ts bars) =
+    (mkHeader "" ts |> headerToString) ++ "\n" ++ (bars |> List.Extra.greedyGroupsOf 3 |> List.map (List.map barToAbcNotation >> String.join "") |> String.join "\n")

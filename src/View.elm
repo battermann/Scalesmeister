@@ -1,38 +1,60 @@
 module View exposing (view)
 
-import Element exposing (Element, button, column, decorativeImage, el, empty, h1, h2, link, modal, paragraph, row, text)
-import Element.Attributes exposing (alignBottom, alignLeft, center, fill, height, id, padding, paddingBottom, paddingTop, paddingXY, percent, px, scrollbars, spacing, verticalCenter, width, xScrollbar)
+import Element as Element exposing (Attribute, Element, alignBottom, alignLeft, alignRight, centerX, centerY, column, el, fill, height, image, inFront, link, minimum, padding, paddingEach, paddingXY, paragraph, px, rgb255, row, scrollbarX, scrollbars, spacing, text, width)
 import Element.Events exposing (onClick)
-import Html exposing (Html)
+import Element.Input as Input
+import Html
+import Html.Attributes
+import Libs.SelectList as SelectList
 import List.Extra
 import Score
-import SelectList
-import Styles exposing (AppStyles(..), stylesheet, userSelectNone)
 import Types exposing (Dialog(..), Model, Msg(..), PlayingState(..))
-import Types.Formula exposing (Formula)
+import Types.Formula as Formula exposing (Formula)
 import Types.Note as Note
-import Types.Pitch exposing (displayPitch)
-import Types.PitchClass exposing (PitchClass, pitchClassToString)
+import Types.Pitch as Pitch
+import Types.PitchClass as PitchClass exposing (PitchClass)
 import Types.Range as Range
 import Types.Scale as Scale exposing (Scale(..), ScaleDef)
 import Types.Switch as Switch
-import Types.TimeSignature exposing (BeatDuration(..), NumberOfBeats(..), TimeSignature(..), beatDuration, timeSignatureToString)
+import Types.TimeSignature as TimeSignature exposing (BeatDuration(..), NumberOfBeats(..), TimeSignature(..))
 import View.FontAwesome as Icons
-import View.RangeInput as Slider
+import View.Styles as Styles
 
 
-noteValueAndClick : Model -> Element AppStyles variation Msg
-noteValueAndClick model =
+smallSpacing : Attribute msg
+smallSpacing =
+    spacing 2
+
+
+standardPadding : Attribute msg
+standardPadding =
+    padding 10
+
+
+id : String -> Attribute msg
+id value =
+    Element.htmlAttribute <| Html.Attributes.id value
+
+
+viewControlWithLabel : List (Attribute msg) -> String -> Element msg -> Element msg
+viewControlWithLabel attributes label control =
+    column
+        (smallSpacing :: attributes)
+        [ el Styles.smallText (text label)
+        , control
+        ]
+
+
+viewNoteDurationControls : Model -> Element Msg
+viewNoteDurationControls model =
     let
-        style : Note.Duration -> AppStyles
-        style duration =
+        attributes duration =
             if duration == model.noteDuration then
-                LightButton
+                standardPadding :: Styles.lightButton
 
             else
-                Page
+                standardPadding :: Styles.page
 
-        fileName : Note.Duration -> String -> String
         fileName duration baseName =
             if duration == model.noteDuration then
                 baseName ++ ".svg"
@@ -40,61 +62,63 @@ noteValueAndClick model =
             else
                 baseName ++ "-light" ++ ".svg"
     in
-    row None
-        [ spacing 2 ]
-        [ button (Note.Eighth Note.None |> style)
-            [ padding 10
-            , onClick ToggleNoteValue
-            ]
-            (decorativeImage None [ height (px 20) ] { src = fileName (Note.Eighth Note.None) "eighthnotes" })
-        , if [ Quarter, Half ] |> List.member (model.timeSignature |> beatDuration) then
-            button (Note.Eighth Note.Triplet |> style)
-                [ padding 10
-                , onClick ToggleNoteValue
-                ]
-                (decorativeImage None [ height (px 20) ] { src = fileName (Note.Eighth Note.Triplet) "triplet" })
+    row
+        [ smallSpacing ]
+        [ Input.button
+            (Note.Eighth Note.None |> attributes)
+            { label = image [ height (px 20) ] { src = fileName (Note.Eighth Note.None) "eighthnotes", description = "" }
+            , onPress = Just ToggleNoteValue
+            }
+        , if [ Quarter, Half ] |> List.member (model.timeSignature |> TimeSignature.beatDuration) then
+            Input.button
+                (Note.Eighth Note.Triplet |> attributes)
+                { label = image [ height (px 20) ] { src = fileName (Note.Eighth Note.Triplet) "triplet", description = "" }
+                , onPress = Just ToggleNoteValue
+                }
 
           else
-            el (Note.Eighth Note.Triplet |> style)
-                [ padding 10
-                ]
-                (decorativeImage Disabled [ height (px 20) ] { src = fileName (Note.Eighth Note.Triplet) "triplet" })
+            el (Note.Eighth Note.Triplet |> attributes) <|
+                image [ Styles.opacity 0.2, height (px 20) ] { src = fileName (Note.Eighth Note.Triplet) "triplet", description = "" }
         ]
 
 
-slider : Model -> Element AppStyles variation Msg
-slider model =
-    row None
-        [ spacing 15 ]
-        [ column None
-            [ width fill, spacing 2 ]
-            [ el SmallText [] ("Tempo: " ++ toString model.tempo ++ " bpm" |> text)
-            , row None
-                [ spacing 10, padding 2, height (px 40) ]
-                [ Slider.input model.tempo UpdateTempo ]
+viewTempoSlider : Model -> Element Msg
+viewTempoSlider model =
+    row
+        [ spacing 15, width fill ]
+        [ Input.slider
+            [ spacing 10
+            , padding 2
+            , width fill
+            , height (px 38)
+            , Element.behindContent <|
+                Element.el (Styles.rangeTrack ++ [ width fill, height (px 2), centerY ]) Element.none
             ]
-        , column None
-            [ spacing 2, width (px 40) ]
-            [ el SmallText [] (text "Click")
-            , button (model.clickTrack |> Switch.fold LightButton Page)
-                [ padding 10
-                , onClick ToggleClick
-                ]
-                (el None [] (model.clickTrack |> Switch.fold Icons.volumeUp Icons.volumeOff))
-            ]
+            { onChange = UpdateTempo
+            , label = Input.labelHidden ""
+            , min = 60.0
+            , max = 280.0
+            , value = model.tempo
+            , thumb = Input.defaultThumb
+            , step = Just 1.0
+            }
+            |> viewControlWithLabel [ width fill ] ("Tempo: " ++ String.fromFloat model.tempo ++ " bpm")
+        , Input.button
+            ([ standardPadding, width (px 40) ] ++ Switch.fold Styles.lightButton Styles.page model.clickTrack)
+            { label = el [] (model.clickTrack |> Switch.fold Icons.volumeUp Icons.volumeOff), onPress = Just ToggleClick }
+            |> viewControlWithLabel [] "Click"
         ]
 
 
-timeSignature : Model -> Element AppStyles variation Msg
-timeSignature model =
+viewTimeSignatureControls : Model -> Element Msg
+viewTimeSignatureControls model =
     let
-        style : TimeSignature -> AppStyles
-        style ts =
+        attributes ts =
             if ts == model.timeSignature then
-                LightButton
+                Styles.lightButton
 
             else
-                Page
+                Styles.page
 
         rowLength =
             if model.device.phone && model.device.portrait then
@@ -115,108 +139,72 @@ timeSignature model =
             , TimeSignature Nine Eighth
             , TimeSignature Twelve Eighth
             ]
-                |> List.map (\ts -> button (style ts) [ width fill, padding 10, onClick (SetTimeSignature ts) ] (ts |> timeSignatureToString |> text))
+                |> List.map (\ts -> Input.button (attributes ts ++ [ width fill, standardPadding ]) { label = ts |> TimeSignature.toString |> text, onPress = Just (SetTimeSignature ts) })
                 |> List.Extra.greedyGroupsOf rowLength
-                |> List.map (row None [ spacing 2 ])
-                |> column None [ spacing 6 ]
+                |> List.map (row [ smallSpacing, width fill ])
+                |> column [ spacing 6, width fill ]
     in
-    column None
-        [ width fill, spacing 2, userSelectNone ]
-        [ el SmallText [] (text "Time Signature")
-        , buttons
-        ]
+    buttons |> viewControlWithLabel [ width fill, Styles.userSelectNone ] "Time Signature"
 
 
-rangeView : Model -> Element AppStyles variation Msg
-rangeView model =
+viewRangeControls : Model -> Element Msg
+viewRangeControls model =
     let
-        myLayout =
+        colOrRow =
             if model.device.phone || (model.device.tablet && model.device.portrait) then
                 column
 
             else
                 row
+
+        buttonAttributes =
+            Styles.page ++ [ width fill, standardPadding, Styles.userSelectNone ]
     in
-    column None
-        [ width fill, spacing 2, userSelectNone ]
-        [ el SmallText [] (text "Range")
-        , myLayout None
-            [ spacing 2 ]
-            [ row None
-                [ spacing 2 ]
-                [ button Page [ width fill, padding 10, onClick RangeMinSkipDown ] Icons.doubleAngleLeft
-                , button Page [ width fill, padding 10, onClick RangeMinStepDown ] Icons.angleLeft
-                , button Page [ width fill, padding 10, onClick RangeMinStepUp ] Icons.angleRight
-                , button Page [ width fill, padding 10, onClick RangeMinSkipUp ] Icons.doubleAngleRight
+    colOrRow
+        [ smallSpacing, width fill ]
+        [ row
+            [ smallSpacing, width fill ]
+            [ Input.button buttonAttributes { label = Icons.doubleAngleLeft, onPress = Just RangeMinSkipDown }
+            , Input.button buttonAttributes { label = Icons.angleLeft, onPress = Just RangeMinStepDown }
+            , Input.button buttonAttributes { label = Icons.angleRight, onPress = Just RangeMinStepUp }
+            , Input.button buttonAttributes { label = Icons.doubleAngleRight, onPress = Just RangeMinSkipUp }
+            ]
+        , el (Styles.page ++ [ width fill, standardPadding, smallSpacing, Styles.userSelectNone ]) <|
+            row [ spacing 10, centerX, centerY ]
+                [ text (Pitch.toString (Range.lowest model.range))
+                , text "-"
+                , text (Pitch.toString (Range.highest model.range))
                 ]
-            , column Page
-                [ verticalCenter, center, padding 10, spacing 2, width fill ]
-                [ row None
-                    [ spacing 10 ]
-                    [ text (displayPitch (Range.lowest model.range))
-                    , text "-"
-                    , text (displayPitch (Range.highest model.range))
-                    ]
-                ]
-            , row None
-                [ spacing 2 ]
-                [ button Page [ width fill, padding 10, onClick RangeMaxSkipDown ] Icons.doubleAngleLeft
-                , button Page [ width fill, padding 10, onClick RangeMaxStepDown ] Icons.angleLeft
-                , button Page [ width fill, padding 10, onClick RangeMaxStepUp ] Icons.angleRight
-                , button Page [ width fill, padding 10, onClick RangeMaxSkipUp ] Icons.doubleAngleRight
-                ]
+        , row
+            [ smallSpacing, width fill ]
+            [ Input.button buttonAttributes { label = Icons.doubleAngleLeft, onPress = Just RangeMaxSkipDown }
+            , Input.button buttonAttributes { label = Icons.angleLeft, onPress = Just RangeMaxStepDown }
+            , Input.button buttonAttributes { label = Icons.angleRight, onPress = Just RangeMaxStepUp }
+            , Input.button buttonAttributes { label = Icons.doubleAngleRight, onPress = Just RangeMaxSkipUp }
             ]
         ]
+        |> viewControlWithLabel [ width fill, smallSpacing, Styles.userSelectNone ] "Range"
 
 
-formulaPartToString : Int -> Element style variation msg
-formulaPartToString n =
-    if n > 0 then
-        text ("↑" ++ toString (abs n))
-
-    else
-        text ("↓" ++ toString (abs n))
-
-
-displayFormula : Formula -> Element AppStyles variation msg
-displayFormula formula =
-    formula
-        |> List.map formulaPartToString
-        |> List.intersperse (text "  ")
-        |> row None []
-
-
-playAndDownload : Model -> Element AppStyles variation Msg
-playAndDownload model =
+viewPlayControl : Model -> Element Msg
+viewPlayControl model =
     let
-        ( icon, control, event ) =
-            case ( model.playingState, model.samplesLoaded ) of
-                ( _, False ) ->
-                    ( column None [ center, verticalCenter, spacing 4 ] [ Icons.spinner, el VerySmallText [] (text "loading…") ], el, [] )
-
-                ( Stopped, _ ) ->
-                    ( Icons.play, button, [ onClick TogglePlay ] )
-
-                ( Playing, _ ) ->
-                    ( Icons.stop, button, [ onClick TogglePlay ] )
+        attributes =
+            Styles.lightButton ++ [ alignBottom, standardPadding, Styles.userSelectNone, height (px 60), width (px 60), id "play-button" ]
     in
-    row None
-        [ spacing 2, alignBottom ]
-        [ control LightButton
-            ([ padding 10
-             , userSelectNone
-             , height (px 60)
-             , width (px 60)
-             , id "play-button"
-             ]
-                ++ event
-            )
-            icon
-        ]
+    case ( model.playingState, model.samplesLoaded ) of
+        ( _, False ) ->
+            column attributes [ Icons.spinner, el Styles.verySmallText (text "loading…") ]
+
+        ( Stopped, _ ) ->
+            Input.button attributes { label = Icons.play, onPress = Just TogglePlay }
+
+        ( Playing, _ ) ->
+            Input.button attributes { label = Icons.stop, onPress = Just TogglePlay }
 
 
-settings : Model -> Element AppStyles variation Msg
-settings model =
+viewMainSettingsControls : Model -> Element Msg
+viewMainSettingsControls model =
     let
         columns =
             if model.device.phone || model.device.tablet then
@@ -224,211 +212,176 @@ settings model =
 
             else
                 4
+
+        buttonAttributes =
+            Styles.page ++ [ standardPadding, Styles.userSelectNone, width fill ]
     in
-    [ column None
-        [ width fill, spacing 2 ]
-        [ el SmallText [] (text "Root")
-        , button Page
-            [ padding 10
-            , alignLeft
-            , userSelectNone
-            , onClick (Open SelectRoot)
-            , width fill
-            ]
-            (pitchClassToString (SelectList.selected model.roots) |> text)
-        ]
-    , column None
-        [ width fill, spacing 2 ]
-        [ el SmallText [] (text "Scale")
-        , button Page
-            [ padding 10
-            , onClick (Open SelectScale)
-            , width fill
-            ]
-            (text (model.scales |> SelectList.selected |> Tuple.first))
-        ]
-    , column None
-        [ width fill, spacing 2 ]
-        [ el SmallText [] (text "Formula")
-        , button Page
-            [ padding 10
-            , onClick (Open SelectFormula)
-            , width fill
-            ]
-            (displayFormula (model.formulas |> SelectList.selected))
-        ]
-    , column None
-        [ width fill, spacing 2 ]
-        [ el SmallText [] (text "Starting note")
-        , button Page
-            [ padding 10
-            , width fill
-            , onClick (Open SelectStartingNote)
-            ]
-            (pitchClassToString model.startingNote |> text)
-        ]
+    [ Input.button
+        buttonAttributes
+        { label = PitchClass.toString (SelectList.selected model.roots) |> text, onPress = Just <| Open SelectRoot }
+        |> viewControlWithLabel [ width fill ] "Root"
+    , Input.button
+        buttonAttributes
+        { label = text (model.scales |> SelectList.selected |> Tuple.first), onPress = Just <| Open SelectScale }
+        |> viewControlWithLabel [ width fill ] "Scale"
+    , Input.button
+        buttonAttributes
+        { label = model.formulas |> SelectList.selected |> Formula.toString |> text, onPress = Just <| Open SelectFormula }
+        |> viewControlWithLabel [ width fill ] "Formula"
+    , Input.button
+        buttonAttributes
+        { label = PitchClass.toString model.startingNote |> text, onPress = Just <| Open SelectStartingNote }
+        |> viewControlWithLabel [ width fill ] "Starting Note"
     ]
         |> List.Extra.greedyGroupsOf columns
-        |> List.map (row None [ spacing 2 ])
-        |> column None [ spacing 6 ]
+        |> List.map (row [ smallSpacing, width fill ])
+        |> column [ spacing 6, width fill ]
 
 
-modalDialog : Element AppStyles variation Msg -> Element AppStyles variation Msg
-modalDialog element =
-    modal Dialog
-        [ width fill
-        , height fill
-        , onClick CloseDialog
-        , paddingTop 100
-        , scrollbars
-        ]
-        (el Page
-            [ center
-            , padding 20
-            ]
-            element
-        )
-
-
-selectNoteButton : (PitchClass -> Msg) -> PitchClass -> Element AppStyles variation Msg
-selectNoteButton event note =
-    button DarkButton [ userSelectNone, onClick (event note), padding 10, width fill ] (pitchClassToString note |> text)
-
-
-selectScaleButton : ( String, ScaleDef ) -> Element AppStyles variation Msg
-selectScaleButton ( name, scale ) =
-    button DarkButton [ padding 10, userSelectNone, onClick (ScaleSelected scale) ] (text name)
-
-
-selectFormulaButton : Formula -> Element AppStyles variation Msg
-selectFormulaButton formula =
-    button DarkButton [ padding 10, userSelectNone, onClick (FormulaSelected formula), width fill ] (displayFormula formula)
-
-
-selectScaleDialog : Model -> Element AppStyles variation Msg
-selectScaleDialog model =
-    modalDialog
-        (column None
-            [ spacing 2 ]
-            (h2 H2 [ center ] (text "Scale")
-                :: (SelectList.toList model.scales |> List.map selectScaleButton)
+viewModalDialog : String -> Element Msg -> Element Msg
+viewModalDialog heading element =
+    el (Styles.page ++ [ centerX, padding 20 ]) (column [ spacing 20 ] [ el (centerX :: Styles.h2) (text heading), element ])
+        |> el
+            (Styles.dialog
+                ++ [ width fill
+                   , height fill
+                   , onClick CloseDialog
+                   , paddingEach { top = 100, left = 0, bottom = 0, right = 0 }
+                   , scrollbars
+                   ]
             )
-        )
 
 
-selectRootDialog : Model -> Element AppStyles variation Msg
-selectRootDialog model =
-    modalDialog
-        (column None
-            [ spacing 2, width (px 220) ]
-            (h2 H2 [ center ] (text "Root")
-                :: (SelectList.toList model.roots |> List.map (selectNoteButton RootSelected) |> List.Extra.greedyGroupsOf 3 |> List.map (row None [ spacing 2 ]))
+darkButtonAttributes : List (Attribute msg)
+darkButtonAttributes =
+    Styles.darkButton ++ [ Styles.userSelectNone, standardPadding, width (fill |> minimum 100) ]
+
+
+viewSelectNoteButton : (PitchClass -> Msg) -> PitchClass -> Element Msg
+viewSelectNoteButton event pitchClass =
+    Input.button darkButtonAttributes { label = PitchClass.toString pitchClass |> text, onPress = Just <| event pitchClass }
+
+
+viewSelectScaleButton : ( String, ScaleDef ) -> Element Msg
+viewSelectScaleButton ( name, scale ) =
+    Input.button darkButtonAttributes { label = text name, onPress = Just <| ScaleSelected scale }
+
+
+viewSelectFormulaButton : Formula -> Element Msg
+viewSelectFormulaButton formula =
+    Input.button darkButtonAttributes { label = formula |> Formula.toString |> text, onPress = Just <| FormulaSelected formula }
+
+
+viewSelectScaleDialog : Model -> Element Msg
+viewSelectScaleDialog model =
+    viewModalDialog "Scale" <|
+        column
+            [ smallSpacing ]
+            (SelectList.toList model.scales |> List.map viewSelectScaleButton)
+
+
+viewSelectRootDialog : Model -> Element Msg
+viewSelectRootDialog model =
+    viewModalDialog "Root" <|
+        column
+            [ smallSpacing ]
+            (SelectList.toList model.roots |> List.map (viewSelectNoteButton RootSelected) |> List.Extra.greedyGroupsOf 3 |> List.map (row [ smallSpacing, width fill ]))
+
+
+viewSelectStartingNoteDialog : Model -> Element Msg
+viewSelectStartingNoteDialog model =
+    viewModalDialog "Starting Note" <|
+        column
+            [ smallSpacing ]
+            (SelectList.selected model.scales
+                |> (Tuple.second >> Scale (SelectList.selected model.roots) >> Scale.notes)
+                |> List.map (viewSelectNoteButton StartingNoteSelected)
+                |> List.Extra.greedyGroupsOf 3
+                |> List.map (row [ smallSpacing, width fill ])
             )
-        )
 
 
-selectStartingNoteDialog : Model -> Element AppStyles variation Msg
-selectStartingNoteDialog model =
-    modalDialog
-        (column None
-            [ spacing 2, width (px 220) ]
-            (h2 H2 [ center ] (text "Starting note")
-                :: (SelectList.selected model.scales |> (Tuple.second >> Scale (SelectList.selected model.roots) >> Scale.notes) |> List.map (selectNoteButton StartingNoteSelected) |> List.Extra.greedyGroupsOf 3 |> List.map (row None [ spacing 2 ]))
-            )
-        )
+viewSelectFormulaDialog : Model -> Element Msg
+viewSelectFormulaDialog model =
+    viewModalDialog "Formula" <|
+        column
+            [ smallSpacing ]
+            (SelectList.toList model.formulas |> List.map viewSelectFormulaButton |> List.Extra.greedyGroupsOf 2 |> List.map (row [ smallSpacing, width fill ]))
 
 
-selectFormulaDialog : Model -> Element AppStyles variation Msg
-selectFormulaDialog model =
-    modalDialog
-        (column None
-            [ spacing 2 ]
-            (h2 H2 [ center ] (text "Formula")
-                :: (SelectList.toList model.formulas |> List.map selectFormulaButton |> List.Extra.greedyGroupsOf 2 |> List.map (row None [ spacing 2 ]))
-            )
-        )
-
-
-chooseDialog : Model -> Element AppStyles variation Msg
-chooseDialog model =
+viewSelectedDialog : Model -> Element Msg
+viewSelectedDialog model =
     case model.dialog of
         Just SelectRoot ->
-            selectRootDialog model
+            viewSelectRootDialog model
 
         Just SelectScale ->
-            selectScaleDialog model
+            viewSelectScaleDialog model
 
         Just SelectFormula ->
-            selectFormulaDialog model
+            viewSelectFormulaDialog model
 
         Just SelectStartingNote ->
-            selectStartingNoteDialog model
+            viewSelectStartingNoteDialog model
 
         Nothing ->
-            empty
+            Element.none
 
 
-view : Model -> Html Msg
+view : Model -> Html.Html Msg
 view model =
     let
-        ( scoreLayout, pagePaddingTop, settingsWidth ) =
+        ( viewScore, paddingTop, paddingLeftRight ) =
             if model.device.phone || model.device.tablet then
-                ( row Score [ xScrollbar ] [ el Score [ id Score.elementId, center, width (percent 100) ] empty ]
-                , paddingTop 20
-                , percent 100
+                ( row ([ scrollbars, width fill ] ++ Styles.score) [ el (Styles.score ++ [ id Score.elementId, centerX, width (px 800) ]) Element.none ]
+                , paddingEach { top = 20, bottom = 0, left = 0, right = 0 }
+                , paddingXY 20 0
                 )
 
             else
-                ( row Score [ center ] [ el Score [ id Score.elementId, center ] empty ]
-                , paddingTop 100
-                , percent 70
+                ( row ([ width fill ] ++ Styles.score) [ el (Styles.score ++ [ id Score.elementId, centerX ]) Element.none ]
+                , paddingEach { top = 100, bottom = 0, left = 0, right = 0 }
+                , paddingXY 250 0
                 )
     in
-    Element.viewport stylesheet <|
-        column Page
-            [ spacing 40, paddingXY 10 10, pagePaddingTop ]
-            [ h1 H1 [ center ] (text "Luigi")
-            , paragraph Subtitle [ paddingBottom 40, center ] [ text "Generate lines for jazz improvisation based on scales and formulas." ]
-            , column None
-                [ spacing 2 ]
-                [ column None
-                    []
-                    [ row None
-                        [ center, width (percent 100) ]
-                        [ column None
-                            [ spacing 2, width settingsWidth ]
-                            [ playAndDownload model
-                            , column Settings
-                                [ padding 20, spacing 6 ]
-                                [ slider model
-                                , settings model
-                                , rangeView model
-                                , timeSignature model
-                                , noteValueAndClick model
-                                ]
+    Element.layout (Element.inFront (viewSelectedDialog model) :: Styles.page) <|
+        column [ width fill, spacing 40, paddingXY 10 10, paddingTop ]
+            [ el (centerX :: Styles.h1) (text "Luigi")
+            , paragraph
+                (Styles.subTitle ++ [ paddingEach { top = 0, bottom = 40, left = 0, right = 0 }, centerX ])
+                [ text "Generate lines for jazz improvisation based on scales and formulas." ]
+            , column
+                [ smallSpacing, width fill ]
+                [ row
+                    [ centerX, width fill, paddingLeftRight ]
+                    [ column [ smallSpacing, width fill ]
+                        [ viewPlayControl model
+                        , column (Styles.settings ++ [ padding 20, spacing 6, width fill ])
+                            [ viewTempoSlider model
+                            , viewMainSettingsControls model
+                            , viewRangeControls model
+                            , viewTimeSignatureControls model
+                            , viewNoteDurationControls model
                             ]
                         ]
                     ]
-                , scoreLayout
+                , viewScore
                 ]
-            , column Footer
-                [ spacing 5 ]
-                [ row None
-                    [ center ]
+            , column
+                ([ spacing 5, width fill ] ++ Styles.footer)
+                [ row [ centerX ]
                     [ text "v0.2.1 | created with "
-                    , link "http://elm-lang.org/" <| el Link [] (text "Elm")
+                    , link Styles.link { url = "http://elm-lang.org/", label = text "Elm" }
                     ]
-                , row None
-                    [ center ]
+                , row [ centerX ]
                     [ text "sound samples from "
-                    , link "https://archive.org/details/SalamanderGrandPianoV3" <| el Link [] (text "Salamander Grand Piano")
+                    , link Styles.link { url = "https://archive.org/details/SalamanderGrandPianoV3", label = text "Salamander Grand Piano" }
                     ]
-                , row None
-                    [ center ]
+                , row [ centerX ]
                     [ text "Inspired by "
-                    , link "https://learningmusic.ableton.com/" <| el Link [] (text "Ableton Learning Music")
+                    , link Styles.link { url = "https://learningmusic.ableton.com/", label = text "Ableton Learning Music" }
                     ]
-                , el GitHubIcon [ center ] (link "https://github.com/battermann/Luigi" <| Icons.github)
+                , el (centerX :: Styles.gitHubIcon) <| link [] { url = "https://github.com/battermann/Luigi", label = Icons.github }
                 ]
-            , chooseDialog model
+            , viewSelectedDialog model
             ]

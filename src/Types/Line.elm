@@ -4,7 +4,7 @@ module Types.Line exposing
     , fromScaleWithinRange
     )
 
-import List.Extra exposing ((!!))
+import List.Extra
 import Maybe.Extra
 import Types.Formula as Formula exposing (Direction(..), Formula)
 import Types.Pitch as Pitch exposing (Pitch(..))
@@ -26,18 +26,18 @@ fromScaleWithinRange range scale =
 fitFormula : Int -> List Int -> List a -> Maybe (List a)
 fitFormula startingIndex formula line =
     formula
-        |> List.scanl (+) startingIndex
+        |> List.Extra.scanl (+) startingIndex
         |> List.tail
         |> Maybe.withDefault []
-        |> List.map ((!!) line)
+        |> List.map (\i -> List.Extra.getAt i line)
         |> Maybe.Extra.combine
 
 
 possibleStartingIndices : Direction -> PitchClass -> Line -> List Int
-possibleStartingIndices direction note line =
+possibleStartingIndices direction pitchClass line =
     let
         indices =
-            line |> List.Extra.findIndices (\(Pitch n _) -> n == note)
+            line |> List.Extra.findIndices (\(Pitch n _) -> n == pitchClass)
     in
     case direction of
         Ascending ->
@@ -75,7 +75,7 @@ applyFormulaFromFirstViableIndex formula line startingIndices =
                     applyFormulaFromFirstViableIndex formula line tail
 
                 resultingLine ->
-                    ((line !! head) |> Maybe.Extra.toList) ++ resultingLine
+                    ((line |> List.Extra.getAt head) |> Maybe.Extra.toList) ++ resultingLine
 
 
 applyFormula : PitchClass -> Formula -> Line -> Line

@@ -117,7 +117,7 @@ orchestrate timeSignature duration line =
                      else
                         Just clef
                     )
-                |> (,) clef
+                |> (\b -> ( clef, b ))
     in
     durationsPerBar timeSignature duration
         |> Maybe.map

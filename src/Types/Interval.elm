@@ -110,8 +110,8 @@ complementaryIntervalQuality intervalQuality =
 
 
 complementary : Interval -> Interval
-complementary (Interval quality number semitones) =
-    Interval (complementaryIntervalQuality quality) (complementaryIntervalNumber number) (12 - semitones)
+complementary (Interval q n s) =
+    Interval (complementaryIntervalQuality q) (complementaryIntervalNumber n) (12 - s)
 
 
 perfectUnison : Interval

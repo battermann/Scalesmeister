@@ -1,6 +1,6 @@
 module Types exposing (Device, Dialog(..), Model, Msg(..), PlayingState(..))
 
-import SelectList exposing (SelectList)
+import Libs.SelectList exposing (SelectList)
 import Types.Formula exposing (Formula)
 import Types.Note as Note
 import Types.PitchClass exposing (PitchClass)
@@ -72,4 +72,4 @@ type Msg
     | RangeMaxSkipUp
     | CloseDialog
     | ToggleClick
-    | UpdateTempo String
+    | UpdateTempo Float

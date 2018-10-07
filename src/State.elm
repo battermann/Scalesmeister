@@ -1,8 +1,10 @@
 module State exposing (init, subscriptions, update)
 
 import Audio
+import Browser.Dom exposing (Viewport)
+import Browser.Events
+import Libs.SelectList as SelectList exposing (SelectList)
 import Score exposing (render)
-import SelectList exposing (SelectList)
 import Task
 import Types exposing (Device, Model, Msg(..), PlayingState(..))
 import Types.Formula as Formula exposing (Formula)
@@ -16,7 +18,6 @@ import Types.Range as Range exposing (Range, highest, lowest)
 import Types.Scale exposing (Scale(..), ScaleDef, ionian, majorMinorSecondPentatonic, majorMinorSixthPentatonic, majorPentatonic, minorPentatonic, minorSevenDiminishedFifthPentatonic, minorSixthPentatonic)
 import Types.Switch as Switch
 import Types.TimeSignature as TimeSignature exposing (BeatDuration(..), NumberOfBeats(..), TimeSignature(..), beatDuration, durationGte)
-import Window
 
 
 scales : SelectList ( String, ScaleDef )
@@ -88,7 +89,7 @@ line model =
 
 initialSizeCmd : Cmd Msg
 initialSizeCmd =
-    Task.perform (classifyDevice >> WindowResize) Window.size
+    Task.perform (classifyDevice >> WindowResize) Browser.Dom.getViewport
 
 
 init : ( Model, Cmd Msg )
@@ -114,7 +115,7 @@ init =
             , playingState = Stopped
             , dialog = Nothing
             , samplesLoaded = False
-            , device = classifyDevice { width = 0, height = 0 }
+            , device = classifyDeviceFrom 0 0
             , timeSignature = timeSignature
             , noteDuration = noteDuration
             , clickTrack = Switch.off
@@ -129,8 +130,13 @@ init =
             ( model, Cmd.batch [ initialSizeCmd, Audio.loadPianoSamples ] )
 
 
-classifyDevice : Window.Size -> Device
-classifyDevice { width, height } =
+classifyDevice : Viewport -> Device
+classifyDevice { viewport } =
+    classifyDeviceFrom (viewport.width |> round) (viewport.height |> round)
+
+
+classifyDeviceFrom : Int -> Int -> Device
+classifyDeviceFrom width height =
     { width = width
     , height = height
     , phone = width <= 600
@@ -309,12 +315,12 @@ update msg model =
             ( { model | clickTrack = model.clickTrack |> Switch.toggle }, model.clickTrack |> Switch.fold Audio.muteClick Audio.unMuteClick )
 
         UpdateTempo tempo ->
-            ( { model | tempo = String.toFloat tempo |> Result.withDefault 160.0 }, String.toFloat tempo |> Result.withDefault 160.0 |> round |> Audio.setTempo )
+            ( { model | tempo = tempo }, tempo |> round |> Audio.setTempo )
 
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
         [ Audio.samplesLoaded SamplesLoaded
-        , Window.resizes (classifyDevice >> WindowResize)
+        , Browser.Events.onResize (\w h -> classifyDeviceFrom w h |> WindowResize)
         ]
