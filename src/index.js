@@ -5,6 +5,7 @@ import StartAudioContext from 'startaudiocontext'
 import svg2pdf from 'svg2pdf.js'
 import jsPDF from 'jspdf-yworks'
 import abcjs from 'abcjs'
+import registerServiceWorker from './registerServiceWorker'
 
 const root = document.getElementById('root')
 
@@ -108,3 +109,5 @@ app.ports.stopSequence.subscribe(function () {
     clickTrack = null
   };
 })
+
+registerServiceWorker()
