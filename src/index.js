@@ -1,3 +1,4 @@
+import "@fortawesome/fontawesome-free/css/all.css"
 import { Elm } from './Main.elm'
 import { Sampler, Transport, Part, Player } from 'tone'
 import StartAudioContext from 'startaudiocontext'
