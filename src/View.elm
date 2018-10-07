@@ -339,15 +339,15 @@ viewSelectedDialog model =
 view : Model -> Html.Html Msg
 view model =
     let
-        ( viewScore, paddingTop, paddingSettings ) =
+        ( viewScore, paddingTop, paddingLeftRight ) =
             if model.device.phone || model.device.tablet then
-                ( row ([ scrollbarX, width fill ] ++ Styles.score) [ el (Styles.score ++ [ id Score.elementId, centerX, width fill ]) Element.none ]
+                ( row ([ scrollbars, width fill ] ++ Styles.score) [ el (Styles.score ++ [ id Score.elementId, centerX, width (px 800) ]) Element.none ]
                 , paddingEach { top = 20, bottom = 0, left = 0, right = 0 }
                 , paddingXY 20 0
                 )
 
             else
-                ( row ([ width fill ] ++ Styles.score) [ el (Styles.score ++ [ id Score.elementId, centerX, width fill ]) Element.none ]
+                ( row ([ width fill ] ++ Styles.score) [ el (Styles.score ++ [ id Score.elementId, centerX ]) Element.none ]
                 , paddingEach { top = 100, bottom = 0, left = 0, right = 0 }
                 , paddingXY 250 0
                 )
@@ -361,7 +361,7 @@ view model =
             , column
                 [ smallSpacing, width fill ]
                 [ row
-                    [ centerX, width fill, paddingSettings ]
+                    [ centerX, width fill, paddingLeftRight ]
                     [ column [ smallSpacing, width fill ]
                         [ viewPlayControl model
                         , column (Styles.settings ++ [ padding 20, spacing 6, width fill ])
