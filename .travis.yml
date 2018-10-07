@@ -24,6 +24,7 @@ script:
   - elm-format --validate src --elm-version=0.19
   - elm-test
   - npm install
+  - standard
   - elm-app build
 
 deploy:
