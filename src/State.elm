@@ -27,7 +27,11 @@ scales =
     SelectList.fromLists []
         ( "Major Pentatonic", ScaleClass.majorPentatonic )
         [ ( "Minor Pentatonic", ScaleClass.minorPentatonic )
-        , ( "Diatonic Major", ScaleClass.ionian )
+        , ( "Minor 6 Pentatonic", ScaleClass.minor6Pentatonic )
+        , ( "Major ♭6 Pentatonic", ScaleClass.majorFlat6Pentatonic )
+        , ( "Minor 7 ♭5 Pentatonic", ScaleClass.minorFlat5Pentatonic )
+        , ( "Major ♭2 Pentatonic", ScaleClass.majorFlat2Pentatonic )
+        , ( "Diatonic Major", ScaleClass.major )
         ]
 
 
@@ -73,6 +77,7 @@ formulas =
 mkLine : Range -> ScaleClass -> Formula -> PitchClass -> PitchClass -> Line
 mkLine range scaleClass formula root startingNote =
     Line.fromScaleWithinRange range (Scale.scale root scaleClass)
+        |> List.map (Debug.log "note")
         |> Line.applyFormula startingNote formula
 
 

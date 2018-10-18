@@ -7,7 +7,7 @@ import Html
 import Html.Attributes
 import Libs.SelectList as SelectList
 import List.Extra
-import MusicTheory.PitchClass exposing (PitchClass)
+import MusicTheory.PitchClass as PitchClass exposing (PitchClass)
 import MusicTheory.PitchClass.Spelling as Spelling
 import MusicTheory.Scale as Scale
 import MusicTheory.ScaleClass exposing (ScaleClass)
@@ -220,7 +220,7 @@ viewMainSettingsControls model =
     in
     [ Input.button
         buttonAttributes
-        { label = (Spelling.simple >> Spelling.toString) (SelectList.selected model.roots) |> text, onPress = Just <| Open SelectRoot }
+        { label = PitchClass.toString (SelectList.selected model.roots) |> text, onPress = Just <| Open SelectRoot }
         |> viewControlWithLabel [ width fill ] "Root"
     , Input.button
         buttonAttributes
@@ -232,7 +232,7 @@ viewMainSettingsControls model =
         |> viewControlWithLabel [ width fill ] "Formula"
     , Input.button
         buttonAttributes
-        { label = (Spelling.simple >> Spelling.toString) model.startingNote |> text, onPress = Just <| Open SelectStartingNote }
+        { label = PitchClass.toString model.startingNote |> text, onPress = Just <| Open SelectStartingNote }
         |> viewControlWithLabel [ width fill ] "Starting Note"
     ]
         |> List.Extra.greedyGroupsOf columns
@@ -261,7 +261,7 @@ darkButtonAttributes =
 
 viewSelectNoteButton : (PitchClass -> Msg) -> PitchClass -> Element Msg
 viewSelectNoteButton event pitchClass =
-    Input.button darkButtonAttributes { label = (Spelling.simple >> Spelling.toString) pitchClass |> text, onPress = Just <| event pitchClass }
+    Input.button darkButtonAttributes { label = PitchClass.toString pitchClass |> text, onPress = Just <| event pitchClass }
 
 
 viewSelectScaleButton : ( String, ScaleClass ) -> Element Msg

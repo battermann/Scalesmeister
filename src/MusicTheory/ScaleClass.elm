@@ -36,9 +36,13 @@ module MusicTheory.ScaleClass exposing
     , lydianMinor
     , lydianSharp9
     , major
+    , majorFlat2Pentatonic
+    , majorFlat6Pentatonic
     , majorPentatonic
     , melodicMinor
     , minor
+    , minor6Pentatonic
+    , minorFlat5Pentatonic
     , minorPentatonic
     , mixolydian
     , mixolydianFlat13
@@ -725,4 +729,44 @@ neapolitanMinor =
         , fourth = Interval.majorSecond
         , fifth = Interval.minorSecond
         , sixth = Interval.majorSecond
+        }
+
+
+minor6Pentatonic : ScaleClass
+minor6Pentatonic =
+    Internal.Pentatonic
+        { first = Interval.minorThird
+        , second = Interval.majorSecond
+        , third = Interval.majorSecond
+        , fourth = Interval.majorSecond
+        }
+
+
+majorFlat6Pentatonic : ScaleClass
+majorFlat6Pentatonic =
+    Internal.Pentatonic
+        { first = Interval.majorSecond
+        , second = Interval.majorSecond
+        , third = Interval.minorThird
+        , fourth = Interval.minorSecond
+        }
+
+
+minorFlat5Pentatonic : ScaleClass
+minorFlat5Pentatonic =
+    Internal.Pentatonic
+        { first = Interval.minorThird
+        , second = Interval.majorSecond
+        , third = Interval.minorSecond
+        , fourth = Interval.majorThird
+        }
+
+
+majorFlat2Pentatonic : ScaleClass
+majorFlat2Pentatonic =
+    Internal.Pentatonic
+        { first = Interval.minorSecond
+        , second = Interval.augmentedSecond
+        , third = Interval.minorThird
+        , fourth = Interval.majorSecond
         }
