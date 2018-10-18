@@ -4,6 +4,10 @@ import Audio
 import Browser.Dom exposing (Viewport)
 import Browser.Events
 import Libs.SelectList as SelectList exposing (SelectList)
+import MusicTheory.Letter exposing (Letter(..))
+import MusicTheory.PitchClass as PitchClass exposing (PitchClass)
+import MusicTheory.Scale as Scale
+import MusicTheory.ScaleClass as ScaleClass exposing (ScaleClass)
 import Score exposing (render)
 import Task
 import Types exposing (Device, Model, Msg(..), PlayingState(..))
@@ -13,23 +17,17 @@ import Types.Note as Note
 import Types.Octave as Octave
 import Types.Orchestration as Orchestration
 import Types.Pitch as Pitch exposing (Pitch(..), flat, natural, sharp)
-import Types.PitchClass exposing (Accidental(..), Letter(..), PitchClass(..))
 import Types.Range as Range exposing (Range, highest, lowest)
-import Types.Scale exposing (Scale(..), ScaleDef, ionian, majorMinorSecondPentatonic, majorMinorSixthPentatonic, majorPentatonic, minorPentatonic, minorSevenDiminishedFifthPentatonic, minorSixthPentatonic)
 import Types.Switch as Switch
 import Types.TimeSignature as TimeSignature exposing (BeatDuration(..), NumberOfBeats(..), TimeSignature(..), beatDuration, durationGte)
 
 
-scales : SelectList ( String, ScaleDef )
+scales : SelectList ( String, ScaleClass )
 scales =
     SelectList.fromLists []
-        ( "Major Pentatonic", majorPentatonic )
-        [ ( "Minor Pentatonic", minorPentatonic )
-        , ( "Minor 6 Pentatonic", minorSixthPentatonic )
-        , ( "Major ♭6 Pentatonic", majorMinorSixthPentatonic )
-        , ( "Minor 7 ♭5 Pentatonic", minorSevenDiminishedFifthPentatonic )
-        , ( "Major ♭2 Pentatonic", majorMinorSecondPentatonic )
-        , ( "Diatonic Major", ionian )
+        ( "Major Pentatonic", ScaleClass.majorPentatonic )
+        [ ( "Minor Pentatonic", ScaleClass.minorPentatonic )
+        , ( "Diatonic Major", ScaleClass.ionian )
         ]
 
 
@@ -37,18 +35,18 @@ roots : SelectList PitchClass
 roots =
     SelectList.fromLists
         []
-        (PitchClass C Natural)
-        [ PitchClass D Flat
-        , PitchClass D Natural
-        , PitchClass E Flat
-        , PitchClass E Natural
-        , PitchClass F Natural
-        , PitchClass G Flat
-        , PitchClass G Natural
-        , PitchClass A Flat
-        , PitchClass A Natural
-        , PitchClass B Flat
-        , PitchClass B Natural
+        (PitchClass.pitchClass C PitchClass.natural)
+        [ PitchClass.pitchClass D PitchClass.flat
+        , PitchClass.pitchClass D PitchClass.natural
+        , PitchClass.pitchClass E PitchClass.flat
+        , PitchClass.pitchClass E PitchClass.natural
+        , PitchClass.pitchClass F PitchClass.natural
+        , PitchClass.pitchClass G PitchClass.flat
+        , PitchClass.pitchClass G PitchClass.natural
+        , PitchClass.pitchClass A PitchClass.flat
+        , PitchClass.pitchClass A PitchClass.natural
+        , PitchClass.pitchClass B PitchClass.flat
+        , PitchClass.pitchClass B PitchClass.natural
         ]
 
 
@@ -72,9 +70,9 @@ formulas =
         ]
 
 
-mkLine : Range -> ScaleDef -> Formula -> PitchClass -> PitchClass -> Line
-mkLine range scale formula root startingNote =
-    Line.fromScaleWithinRange range (Scale root scale)
+mkLine : Range -> ScaleClass -> Formula -> PitchClass -> PitchClass -> Line
+mkLine range scaleClass formula root startingNote =
+    Line.fromScaleWithinRange range (Scale.scale root scaleClass)
         |> Line.applyFormula startingNote formula
 
 
@@ -97,8 +95,8 @@ init =
     let
         range =
             Range.piano
-                |> Range.setLowest (Pitch (PitchClass C Natural) Octave.three)
-                |> Range.setHighest (Pitch (PitchClass B Natural) Octave.six)
+                |> Range.setLowest (Pitch (PitchClass.pitchClass C PitchClass.natural) Octave.three)
+                |> Range.setHighest (Pitch (PitchClass.pitchClass B PitchClass.natural) Octave.six)
 
         timeSignature =
             TimeSignature Four TimeSignature.Quarter

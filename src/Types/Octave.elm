@@ -22,21 +22,17 @@ type Octave
     = Octave Int
 
 
-octave : Int -> Maybe Octave
+octave : Int -> Octave
 octave n =
-    if n >= 0 && n <= 8 then
-        Octave n |> Just
-
-    else
-        Nothing
+    Octave n
 
 
-up : Octave -> Maybe Octave
+up : Octave -> Octave
 up (Octave n) =
     octave (n + 1)
 
 
-down : Octave -> Maybe Octave
+down : Octave -> Octave
 down (Octave n) =
     octave (n - 1)
 
@@ -46,7 +42,7 @@ number (Octave n) =
     n
 
 
-add : Int -> Octave -> Maybe Octave
+add : Int -> Octave -> Octave
 add n (Octave num) =
     octave (n + num)
 

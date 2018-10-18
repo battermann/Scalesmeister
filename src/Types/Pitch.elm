@@ -1,30 +1,33 @@
 module Types.Pitch exposing
     ( Pitch(..)
     , all
-    , any
     , choice
     , enharmonicEquivalents
     , flat
     , natural
-    , note
-    , semitoneOffset
+    , pitchClass
+    , semitones
     , sharp
+    , simpleSpelling
     , toString
     , transpose
     )
 
 import List.Extra
 import Maybe.Extra
+import MusicTheory.Internals.PitchClass as Internal
+import MusicTheory.Letter as Letter exposing (Letter(..))
+import MusicTheory.PitchClass as PitchClass exposing (PitchClass)
+import MusicTheory.PitchClass.Spelling as Spelling exposing (Accidental(..))
 import Types.Octave as Octave exposing (Octave)
-import Types.PitchClass as PitchClass exposing (Accidental(..), PitchClass(..), Semitones)
 
 
 type Pitch
     = Pitch PitchClass Octave
 
 
-note : Pitch -> PitchClass
-note (Pitch n _) =
+pitchClass : Pitch -> PitchClass
+pitchClass (Pitch n _) =
     n
 
 
@@ -34,24 +37,62 @@ all =
         |> List.concatMap (\octave -> PitchClass.all |> List.map (\pc -> Pitch pc octave))
 
 
-semitoneOffset : Pitch -> Semitones
-semitoneOffset (Pitch pc octave) =
-    PitchClass.semitoneOffset pc + Octave.number octave * 12
+semitones : Pitch -> Int
+semitones (Pitch pc octave) =
+    PitchClass.semitones pc + Octave.number octave * 12
+
+
+simpleSpelling : Pitch -> ( Letter, Accidental, Octave )
+simpleSpelling (Pitch pc octave) =
+    let
+        spelling =
+            Spelling.simple pc
+
+        accSemitones =
+            case spelling.accidental of
+                Flat ->
+                    -1
+
+                Natural ->
+                    0
+
+                Sharp ->
+                    1
+
+        semitonesSimplified =
+            Letter.semitones spelling.letter + accSemitones + (Octave.number octave * 12)
+
+        semitonesOriginal =
+            semitones (Pitch pc octave)
+
+        octaveSimplified =
+            if semitonesSimplified < semitonesOriginal then
+                Octave.up octave
+
+            else if semitonesSimplified > semitonesOriginal then
+                Octave.down octave
+
+            else
+                octave
+    in
+    ( spelling.letter, spelling.accidental, octaveSimplified )
 
 
 choose : Accidental -> List Pitch -> Maybe Pitch
 choose acc pitches =
-    pitches |> List.Extra.find (\(Pitch (PitchClass _ accidental) _) -> accidental == acc)
+    let
+        offset =
+            case acc of
+                Flat ->
+                    -1
 
+                Natural ->
+                    0
 
-natural : List Pitch -> Maybe Pitch
-natural =
-    choose Natural
-
-
-sharp : List Pitch -> Maybe Pitch
-sharp =
-    choose Sharp
+                Sharp ->
+                    1
+    in
+    pitches |> List.Extra.find (\(Pitch pc _) -> Internal.offset pc == offset)
 
 
 flat : List Pitch -> Maybe Pitch
@@ -59,15 +100,14 @@ flat =
     choose Flat
 
 
-any : List Pitch -> Maybe Pitch
-any =
-    List.head
+sharp : List Pitch -> Maybe Pitch
+sharp =
+    choose Sharp
 
 
-transpose : List (List Pitch -> Maybe Pitch) -> Pitch -> Semitones -> Maybe Pitch
-transpose choices pitch semitones =
-    enharmonicEquivalents (semitoneOffset pitch + semitones)
-        |> choice choices
+natural : List Pitch -> Maybe Pitch
+natural =
+    choose Natural
 
 
 choice : List (List Pitch -> Maybe Pitch) -> List Pitch -> Maybe Pitch
@@ -76,24 +116,30 @@ choice choices pitches =
         |> List.foldl (\c pitch -> pitch |> Maybe.Extra.orElse (pitches |> c)) Nothing
 
 
-enharmonicEquivalents : Semitones -> List Pitch
-enharmonicEquivalents semitones =
+transpose : List (List Pitch -> Maybe Pitch) -> Pitch -> Int -> Maybe Pitch
+transpose choices pitch theSemitones =
+    enharmonicEquivalents (semitones pitch + theSemitones)
+        |> choice choices
+
+
+enharmonicEquivalents : Int -> List Pitch
+enharmonicEquivalents theSemitones =
     let
         remainder =
-            modBy 12 semitones
+            modBy 12 theSemitones
 
         notes =
-            PitchClass.all |> List.filter (PitchClass.semitoneOffset >> (==) remainder)
+            PitchClass.all |> List.filter (PitchClass.semitones >> (==) remainder)
     in
     notes
         |> List.filterMap
             (\n ->
                 Octave.all
-                    |> List.Extra.find (\o -> Octave.number o * 12 + PitchClass.semitoneOffset n == semitones)
+                    |> List.Extra.find (\o -> Octave.number o * 12 + PitchClass.semitones n == theSemitones)
                     |> Maybe.map (Pitch n)
             )
 
 
 toString : Pitch -> String
 toString (Pitch pc octave) =
-    PitchClass.toString pc ++ (Octave.number octave |> String.fromInt)
+    (Spelling.simple pc |> Spelling.toString) ++ (Octave.number octave |> String.fromInt)

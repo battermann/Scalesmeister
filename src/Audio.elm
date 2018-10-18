@@ -2,47 +2,40 @@ module Audio exposing (loadPianoSamples, muteClick, play, samplesLoaded, setTemp
 
 import Libs.Ratio as Ratio
 import List.Extra
+import MusicTheory.Letter as Letter exposing (Letter(..))
+import MusicTheory.PitchClass as PitchClass
+import MusicTheory.PitchClass.Spelling as Spelling exposing (Accidental(..))
 import Ports.In
 import Ports.Out
 import Types.Note as Note exposing (Altered(..), Duration(..))
 import Types.Octave as Octave
 import Types.Pitch as Pitch exposing (Pitch(..), choice, flat, natural, sharp)
-import Types.PitchClass as PitchClass exposing (Accidental(..), Letter(..), PitchClass(..))
 import Types.Switch as Switch exposing (Switch)
 import Types.TimeSignature as TimeSignature exposing (TimeSignature(..))
 
 
-toScientificPitchNotation : Pitch -> Maybe Ports.Out.ScientificPitchNotation
+toScientificPitchNotation : Pitch -> Ports.Out.ScientificPitchNotation
 toScientificPitchNotation pitch =
-    Pitch.enharmonicEquivalents (pitch |> Pitch.semitoneOffset)
-        |> choice [ natural, sharp, flat ]
-        |> Maybe.andThen
-            (\(Pitch (PitchClass letter accidental) octave) ->
-                let
-                    maybeAcc =
-                        case accidental of
-                            Flat ->
-                                Just "b"
+    let
+        accToString acc =
+            case acc of
+                Flat ->
+                    "b"
 
-                            Natural ->
-                                Just ""
+                Natural ->
+                    ""
 
-                            Sharp ->
-                                Just "#"
-
-                            _ ->
-                                Nothing
-                in
-                maybeAcc |> Maybe.map (\acc -> PitchClass.letterToString letter ++ acc ++ String.fromInt (Octave.number octave))
-            )
+                Sharp ->
+                    "#"
+    in
+    case pitch |> Pitch.simpleSpelling of
+        ( letter, accidental, octave ) ->
+            Letter.toString letter ++ accToString accidental ++ String.fromInt (Octave.number octave)
 
 
 accidentalToString : Accidental -> String
 accidentalToString accidental =
     case accidental of
-        DoubleFlat ->
-            "DoubleFlat"
-
         Flat ->
             "Flat"
 
@@ -52,29 +45,27 @@ accidentalToString accidental =
         Sharp ->
             "Sharp"
 
-        DoubleSharp ->
-            "DoubleSharp"
 
-
-pitchToSampleUrlMapping : Pitch -> Maybe ( Ports.Out.ScientificPitchNotation, Ports.Out.SampleUrl )
-pitchToSampleUrlMapping (Pitch (PitchClass letter accidental) octave) =
-    let
-        url =
-            "samples/" ++ PitchClass.letterToString letter ++ accidentalToString accidental ++ String.fromInt (Octave.number octave) ++ ".mp3"
-    in
-    toScientificPitchNotation (Pitch (PitchClass letter accidental) octave)
-        |> Maybe.map (\key -> ( key, url ))
+pitchToSampleUrlMapping : Pitch -> ( Ports.Out.ScientificPitchNotation, Ports.Out.SampleUrl )
+pitchToSampleUrlMapping pitch =
+    case Pitch.simpleSpelling pitch of
+        ( letter, accidental, octave ) ->
+            let
+                url =
+                    "samples/" ++ Letter.toString letter ++ accidentalToString accidental ++ String.fromInt (Octave.number octave) ++ ".mp3"
+            in
+            ( toScientificPitchNotation pitch, url )
 
 
 loadPianoSamples : Cmd msg
 loadPianoSamples =
-    [ PitchClass C Natural
-    , PitchClass D Sharp
-    , PitchClass F Sharp
-    , PitchClass A Natural
+    [ PitchClass.pitchClass C PitchClass.natural
+    , PitchClass.pitchClass D PitchClass.sharp
+    , PitchClass.pitchClass F PitchClass.sharp
+    , PitchClass.pitchClass A PitchClass.natural
     ]
         |> List.concatMap
-            (\note ->
+            (\pc ->
                 [ Octave.one
                 , Octave.two
                 , Octave.three
@@ -83,10 +74,10 @@ loadPianoSamples =
                 , Octave.six
                 , Octave.seven
                 ]
-                    |> List.map (Pitch note)
+                    |> List.map (Pitch pc)
             )
-        |> (++) [ Pitch (PitchClass A Natural) Octave.zero, Pitch (PitchClass C Natural) Octave.eight ]
-        |> List.filterMap pitchToSampleUrlMapping
+        |> (++) [ Pitch (PitchClass.pitchClass A PitchClass.natural) Octave.zero, Pitch (PitchClass.pitchClass C PitchClass.natural) Octave.eight ]
+        |> List.map pitchToSampleUrlMapping
         |> Ports.Out.loadSamples
 
 
@@ -140,7 +131,7 @@ play clickTrackSwitch ts duration line =
                                 { index = 0, bar = 0, quarter = 0, sixteenth = 0.0, pitch = firstPitch }
                     )
                 |> Maybe.withDefault []
-                |> List.filterMap (\{ bar, quarter, sixteenth, pitch } -> pitch |> toScientificPitchNotation |> Maybe.map (\p -> { bar = bar, quarter = quarter, sixteenth = sixteenth, pitch = p }))
+                |> List.map (\{ bar, quarter, sixteenth, pitch } -> pitch |> toScientificPitchNotation |> (\p -> { bar = bar, quarter = quarter, sixteenth = sixteenth, pitch = p }))
                 |> List.map
                     (\{ bar, quarter, sixteenth, pitch } ->
                         ( [ bar |> String.fromInt, quarter |> String.fromInt, sixteenth |> String.fromFloat ] |> String.join ":", pitch )

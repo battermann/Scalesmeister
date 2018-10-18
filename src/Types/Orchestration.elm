@@ -34,7 +34,7 @@ type Orchestration
 averagePitchOfLine : Line -> Float
 averagePitchOfLine line =
     (line
-        |> List.map Pitch.semitoneOffset
+        |> List.map Pitch.semitones
         |> List.sum
         |> toFloat
     )

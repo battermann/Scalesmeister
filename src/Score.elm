@@ -1,12 +1,13 @@
 module Score exposing (downloadAsPdf, elementId, render)
 
 import List.Extra
+import MusicTheory.Letter as Letter
+import MusicTheory.PitchClass.Spelling exposing (Accidental(..))
 import Ports.Out
 import Types.Note as Note exposing (Altered(..), Duration(..), Note(..), Rest(..))
 import Types.Octave as Octave
 import Types.Orchestration exposing (Bar(..), Beamed, Clef(..), Orchestration(..))
-import Types.Pitch exposing (Pitch(..))
-import Types.PitchClass as PitchClass exposing (Accidental(..), PitchClass(..))
+import Types.Pitch as Pitch exposing (Pitch(..))
 import Types.TimeSignature exposing (TimeSignature(..), beatDurationToInt, numberOfBeatsToInt)
 import Util exposing (Either(..))
 
@@ -56,30 +57,26 @@ mkHeader title ts =
 
 
 toAbcScoreNote : Pitch -> String
-toAbcScoreNote (Pitch (PitchClass letter accidental) octave) =
-    let
-        acc =
-            case accidental of
-                DoubleFlat ->
-                    "__"
+toAbcScoreNote pitch =
+    case pitch |> Pitch.simpleSpelling of
+        ( letter, accidental, octave ) ->
+            let
+                acc =
+                    case accidental of
+                        Flat ->
+                            "_"
 
-                Flat ->
-                    "_"
+                        Natural ->
+                            ""
 
-                Natural ->
-                    ""
+                        Sharp ->
+                            "^"
+            in
+            if Octave.number octave < 5 then
+                acc ++ (letter |> Letter.toString) ++ (List.repeat (4 - Octave.number octave) ',' |> String.fromList)
 
-                Sharp ->
-                    "^"
-
-                DoubleSharp ->
-                    "^"
-    in
-    if Octave.number octave < 5 then
-        acc ++ (letter |> PitchClass.letterToString) ++ (List.repeat (4 - Octave.number octave) ',' |> String.fromList)
-
-    else
-        acc ++ (letter |> PitchClass.letterToString |> String.toLower) ++ (List.repeat (Octave.number octave - 5) '\'' |> String.fromList)
+            else
+                acc ++ (letter |> Letter.toString |> String.toLower) ++ (List.repeat (Octave.number octave - 5) '\'' |> String.fromList)
 
 
 clefToAbcNotation : Clef -> String

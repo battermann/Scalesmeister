@@ -6,11 +6,12 @@ module Types.Line exposing
 
 import List.Extra
 import Maybe.Extra
+import MusicTheory.PitchClass exposing (PitchClass)
+import MusicTheory.Scale exposing (Scale, toList)
+import Set
 import Types.Formula as Formula exposing (Direction(..), Formula)
 import Types.Pitch as Pitch exposing (Pitch(..))
-import Types.PitchClass exposing (PitchClass)
 import Types.Range as Range exposing (Range)
-import Types.Scale exposing (Scale, notes)
 
 
 type alias Line =
@@ -20,7 +21,7 @@ type alias Line =
 fromScaleWithinRange : Range -> Scale -> Line
 fromScaleWithinRange range scale =
     Pitch.all
-        |> List.filter (\pitch -> (range |> Range.contains pitch) && (scale |> notes |> List.member (Pitch.note pitch)))
+        |> List.filter (\pitch -> (range |> Range.contains pitch) && (scale |> toList |> List.member (Pitch.pitchClass pitch)))
 
 
 fitFormula : Int -> List Int -> List a -> Maybe (List a)
@@ -80,5 +81,5 @@ applyFormulaFromFirstViableIndex formula line startingIndices =
 
 applyFormula : PitchClass -> Formula -> Line -> Line
 applyFormula startingNote formula line =
-    possibleStartingIndices (Formula.direction formula) startingNote (line |> List.sortBy Pitch.semitoneOffset)
+    possibleStartingIndices (Formula.direction formula) startingNote (line |> List.sortBy Pitch.semitones)
         |> applyFormulaFromFirstViableIndex formula line
