@@ -74,9 +74,9 @@ loadPianoSamples =
                 , Octave.six
                 , Octave.seven
                 ]
-                    |> List.map (Pitch pc)
+                    |> List.map (Pitch.pitch pc)
             )
-        |> (++) [ Pitch (PitchClass.pitchClass A PitchClass.natural) Octave.zero, Pitch (PitchClass.pitchClass C PitchClass.natural) Octave.eight ]
+        |> (++) [ Pitch.pitch (PitchClass.pitchClass A PitchClass.natural) Octave.zero, Pitch.pitch (PitchClass.pitchClass C PitchClass.natural) Octave.eight ]
         |> List.map pitchToSampleUrlMapping
         |> Ports.Out.loadSamples
 

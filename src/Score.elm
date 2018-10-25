@@ -8,7 +8,7 @@ import Types.Note as Note exposing (Altered(..), Duration(..), Note(..), Rest(..
 import Types.Octave as Octave
 import Types.Orchestration exposing (Bar(..), Beamed, Clef(..), Orchestration(..))
 import Types.Pitch as Pitch exposing (Pitch(..))
-import Types.TimeSignature exposing (TimeSignature(..), beatDurationToInt, numberOfBeatsToInt)
+import Types.TimeSignature as TimeSignature exposing (TimeSignature(..))
 import Util exposing (Either(..))
 
 
@@ -109,7 +109,7 @@ render orchestration =
 
 timeSignature : TimeSignature -> Meter
 timeSignature (TimeSignature numBeats beatDuration) =
-    Meter (numBeats |> numberOfBeatsToInt) (beatDuration |> beatDurationToInt)
+    Meter (numBeats |> TimeSignature.numberOfBeatsToInt) (beatDuration |> TimeSignature.beatDurationToInt)
 
 
 downloadAsPdf : Cmd msg

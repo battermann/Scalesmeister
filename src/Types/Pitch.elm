@@ -1,21 +1,25 @@
 module Types.Pitch exposing
-    ( Pitch(..)
+    ( Pitch
     , all
     , choice
     , enharmonicEquivalents
     , flat
     , natural
+    , pitch
     , pitchClass
     , semitones
     , sharp
     , simpleSpelling
     , toString
-    , transpose
+    , transposeDown
+    , transposeOld
+    , transposeUp
     )
 
 import List.Extra
 import Maybe.Extra
 import MusicTheory.Internals.PitchClass as Internal
+import MusicTheory.Interval as Interval exposing (Interval)
 import MusicTheory.Letter as Letter exposing (Letter(..))
 import MusicTheory.PitchClass as PitchClass exposing (PitchClass)
 import MusicTheory.PitchClass.Spelling as Spelling exposing (Accidental(..))
@@ -24,6 +28,11 @@ import Types.Octave as Octave exposing (Octave)
 
 type Pitch
     = Pitch PitchClass Octave
+
+
+pitch : PitchClass -> Octave -> Pitch
+pitch pc octave =
+    Pitch pc octave
 
 
 pitchClass : Pitch -> PitchClass
@@ -44,6 +53,7 @@ semitones (Pitch pc octave) =
 
 simpleSpelling : Pitch -> ( Letter, Accidental, Octave )
 simpleSpelling (Pitch pc octave) =
+    -- todo: fixme
     let
         spelling =
             Spelling.simple pc
@@ -67,15 +77,15 @@ simpleSpelling (Pitch pc octave) =
 
         octaveSimplified =
             if semitonesSimplified < semitonesOriginal then
-                Octave.up octave
+                Octave.up octave |> Maybe.withDefault Octave.one
 
             else if semitonesSimplified > semitonesOriginal then
-                Octave.down octave
+                Octave.down octave |> Maybe.withDefault Octave.one
 
             else
                 octave
     in
-    ( spelling.letter, spelling.accidental, octaveSimplified )
+    ( spelling.letter, spelling.accidental, octave )
 
 
 choose : Accidental -> List Pitch -> Maybe Pitch
@@ -113,12 +123,12 @@ natural =
 choice : List (List Pitch -> Maybe Pitch) -> List Pitch -> Maybe Pitch
 choice choices pitches =
     choices
-        |> List.foldl (\c pitch -> pitch |> Maybe.Extra.orElse (pitches |> c)) Nothing
+        |> List.foldl (\c p -> p |> Maybe.Extra.orElse (pitches |> c)) Nothing
 
 
-transpose : List (List Pitch -> Maybe Pitch) -> Pitch -> Int -> Maybe Pitch
-transpose choices pitch theSemitones =
-    enharmonicEquivalents (semitones pitch + theSemitones)
+transposeOld : List (List Pitch -> Maybe Pitch) -> Pitch -> Int -> Maybe Pitch
+transposeOld choices p theSemitones =
+    enharmonicEquivalents (semitones p + theSemitones)
         |> choice choices
 
 
@@ -142,4 +152,48 @@ enharmonicEquivalents theSemitones =
 
 toString : Pitch -> String
 toString (Pitch pc octave) =
+    -- todo: fixme
     (Spelling.simple pc |> Spelling.toString) ++ (Octave.number octave |> String.fromInt)
+
+
+transposeUp : Interval -> Pitch -> Maybe Pitch
+transposeUp interval (Pitch pc octave) =
+    let
+        targetPitchClass =
+            PitchClass.transposeUp interval pc
+                |> max3Accidentals
+
+        targetSemitones =
+            semitones (Pitch pc octave) + Interval.semitones interval
+    in
+    Octave.all |> List.map (Pitch targetPitchClass) |> List.Extra.find (semitones >> (==) targetSemitones)
+
+
+transposeDown : Interval -> Pitch -> Maybe Pitch
+transposeDown interval (Pitch pc octave) =
+    let
+        targetPitchClass =
+            PitchClass.transposeDown interval pc
+                |> max3Accidentals
+
+        targetSemitones =
+            semitones (Pitch pc octave) + Interval.semitones interval
+    in
+    Octave.all |> List.map (Pitch targetPitchClass) |> List.Extra.find (semitones >> (==) targetSemitones)
+
+
+
+-- ENHARMONIC
+-- todo: move to pitch class
+
+
+max3Accidentals : PitchClass -> PitchClass
+max3Accidentals pc =
+    if Internal.offset pc < -3 then
+        PitchClass.simple pc
+
+    else if Internal.offset pc > 3 then
+        PitchClass.simple pc
+
+    else
+        pc

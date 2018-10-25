@@ -45,4 +45,4 @@ setHighest pitch (Range l h) =
 
 piano : Range
 piano =
-    Range (Pitch (PitchClass.pitchClass A natural) Octave.zero) (Pitch (PitchClass.pitchClass C natural) Octave.eight)
+    Range (Pitch.pitch (PitchClass.pitchClass A natural) Octave.zero) (Pitch.pitch (PitchClass.pitchClass C natural) Octave.eight)

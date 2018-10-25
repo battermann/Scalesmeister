@@ -38,7 +38,7 @@ possibleStartingIndices : Direction -> PitchClass -> Line -> List Int
 possibleStartingIndices direction pitchClass line =
     let
         indices =
-            line |> List.Extra.findIndices (\(Pitch n _) -> n == pitchClass)
+            line |> List.Extra.findIndices (\p -> Pitch.pitchClass p == pitchClass)
     in
     case direction of
         Ascending ->
