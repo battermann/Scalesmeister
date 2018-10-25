@@ -7,6 +7,7 @@ import Html
 import Html.Attributes
 import Libs.SelectList as SelectList
 import List.Extra
+import MusicTheory.Pitch as Pitch
 import MusicTheory.PitchClass as PitchClass exposing (PitchClass)
 import MusicTheory.PitchClass.Spelling as Spelling
 import MusicTheory.Scale as Scale
@@ -15,7 +16,6 @@ import Score
 import Types exposing (Dialog(..), Model, Msg(..), PlayingState(..))
 import Types.Formula as Formula exposing (Formula)
 import Types.Note as Note
-import Types.Pitch as Pitch
 import Types.Range as Range
 import Types.Switch as Switch
 import Types.TimeSignature as TimeSignature exposing (BeatDuration(..), NumberOfBeats(..), TimeSignature(..))

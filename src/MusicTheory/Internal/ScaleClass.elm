@@ -1,4 +1,4 @@
-module MusicTheory.Internals.ScaleClass exposing
+module MusicTheory.Internal.ScaleClass exposing
     ( HeptatonicIntervals
     , HexatonicIntervals
     , OctatonicIntervals

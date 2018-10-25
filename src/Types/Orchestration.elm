@@ -7,9 +7,9 @@ module Types.Orchestration exposing
     )
 
 import List.Extra
+import MusicTheory.Pitch as Pitch
 import Types.Line exposing (Line)
 import Types.Note exposing (Duration(..), Note(..), Rest(..), addDurations)
-import Types.Pitch as Pitch
 import Types.TimeSignature exposing (NumberOfBeats(..), TimeSignature(..), durationsPerBar, grouping)
 import Util exposing (Either(..))
 

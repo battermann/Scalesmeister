@@ -1,45 +1,28 @@
 module MusicTheory.PitchClass exposing
     ( PitchClass
     , all
-    , areEnharmonicEqual
-    , asNaturalOrElseFlat, asNaturalOrElseSharp, doubleFlat, doubleSharp, enharmonicEquivalents, flat, natural, pitchClass, semitones, sharp, simple, toString, transposeDown, transposeUp, tripleFlat, tripleSharp
+    , areEnharmonicEquivalents
+    , doubleFlat
+    , doubleSharp
+    , flat
+    , natural
+    , pitchClass
+    , semitones
+    , sharp
+    , toString
+    , transposeDown
+    , transposeUp
+    , tripleFlat
+    , tripleSharp
     )
 
 {-| A pitch class is a set of all pitches that are a whole number of octaves apart. A pitch class is represented as a letter together with an accidental.
-
-The internals of `PitchClass` are opaque. By using accessor functions the caller can get specific enharmonic equivalent pitch classes depending on their needs.
-
-
-# Definition
-
-@docs PitchClass
-
-
-# Constructors
-
-@docs pitchClass fromTuple
-
-
-# Accessors
-
-@docs all
-
-
-# Transform
-
-@docs transposeUp transposeDown transposeBySemitones semitones
-
-
-# Comparison
-
-@docs areEnharmonicEqual
-
 -}
 
-import MusicTheory.Internals.PitchClass as Internal
-import MusicTheory.Internals.PitchClass.Enharmonic as EnharmonicInternal exposing (NaturalOrSingleAccidental(..))
-import MusicTheory.Interval as Interval exposing (Interval, IntervalNumber(..), IntervalQuality(..))
-import MusicTheory.Letter as Letter exposing (Letter(..))
+import MusicTheory.Internal.PitchClass as Internal
+import MusicTheory.Interval as Interval exposing (Interval)
+import MusicTheory.Letter as Letter exposing (Letter)
+import MusicTheory.PitchClass.Enharmonic as Enharmonic
 
 
 
@@ -64,47 +47,47 @@ type alias PitchClass =
 
 tripleFlat : Offset
 tripleFlat =
-    Internal.Offset -3
+    Internal.tripleFlat
 
 
 doubleFlat : Offset
 doubleFlat =
-    Internal.Offset -2
+    Internal.doubleFlat
 
 
 flat : Offset
 flat =
-    Internal.Offset -1
+    Internal.flat
 
 
 natural : Offset
 natural =
-    Internal.Offset 0
+    Internal.natural
 
 
 sharp : Offset
 sharp =
-    Internal.Offset 1
+    Internal.sharp
 
 
 doubleSharp : Offset
 doubleSharp =
-    Internal.Offset 2
+    Internal.doubleSharp
 
 
 tripleSharp : Offset
 tripleSharp =
-    Internal.Offset 3
+    Internal.tripleSharp
 
 
 {-| Create a pitch class from a letter and an accidental.
 
-    pitchClass C Sharp -- creates the pitch class C♯
+    pitchClass C sharp -- creates the pitch class C♯
 
 -}
 pitchClass : Letter -> Offset -> PitchClass
-pitchClass letter offset =
-    Internal.PitchClass letter offset
+pitchClass =
+    Internal.pitchClass
 
 
 
@@ -115,8 +98,7 @@ pitchClass letter offset =
 -}
 all : List PitchClass
 all =
-    Letter.letters
-        |> List.concatMap (\l -> [ tripleFlat, doubleFlat, flat, natural, sharp, doubleSharp, tripleSharp ] |> List.map (pitchClass l))
+    Internal.all
 
 
 
@@ -125,17 +107,17 @@ all =
 
 {-| Number of semitones between C natural and a given pitch class.
 
-    semitones (pitchClass E Natural) == 4
+    semitones (pitchClass E natural) == 4
 
 -}
 semitones : PitchClass -> Int
-semitones pc =
-    exactSemitones pc |> modBy 12
+semitones =
+    Internal.semitones
 
 
 toString : PitchClass -> String
 toString pc =
-    internalToString (simple pc)
+    Internal.toString (Enharmonic.simple pc)
 
 
 
@@ -143,35 +125,20 @@ toString pc =
 
 
 {-| Moves a pitch class up by a given interval while taking the correct number off staff positions between root and target pitch class into account.
-
-    (pitchClass C Sharp |> transposeUp Interval.majorSecond |> exact) == Just (D, Sharp)
-
-    The result might not be representable in terms of the correct letter and a valid accidental. In this case a suitable enharmonic representation can be retrieved by applying `asNaturalOrLoweredOnce` or `asNaturalOrRaisedOnce`.
-
-    (pitchClass C TripleFlat |> transposeUp Interval.minorSecond |> exact) == Nothing
-
-    (pitchClass C TripleFlat |> transposeUp Interval.minorSecond |> asNaturalOrLoweredOnce) == (B, Flat)
-
 -}
 transposeUp : Interval -> PitchClass -> PitchClass
-transposeUp interval pc =
-    let
-        ( targetLetter, letterToLetterDistance ) =
-            targetLetterWithSemitoneDistance (Letter.index (Internal.letter pc)) (Interval.intervalNumberIndex (Interval.number interval)) ( Internal.letter pc, 0 )
-    in
-    Internal.PitchClass targetLetter (Internal.Offset (Interval.semitones interval - letterToLetterDistance + Internal.offset pc))
+transposeUp =
+    Internal.transposeUp
 
 
 {-| Moves a pitch class down by a given interval while taking the correct number off staff positions between root and target pitch class into account.
 
-    (pitchClass B Natural |> transposeDown Interval.minorSecond) == pitchClass A Sharp
+    (pitchClass B natural |> transposeDown Interval.minorSecond) == pitchClass A sharp
 
 -}
 transposeDown : Interval -> PitchClass -> PitchClass
-transposeDown interval pc =
-    interval
-        |> Interval.complementary
-        |> (\i -> transposeUp i pc)
+transposeDown =
+    Internal.transposeDown
 
 
 
@@ -180,83 +147,6 @@ transposeDown interval pc =
 
 {-| Returns true if two pitch classes are enharmonic equivalent.
 -}
-areEnharmonicEqual : PitchClass -> PitchClass -> Bool
-areEnharmonicEqual lhs rhs =
+areEnharmonicEquivalents : PitchClass -> PitchClass -> Bool
+areEnharmonicEquivalents lhs rhs =
     semitones lhs == semitones rhs
-
-
-
--- ENHARMONIC
-
-
-enharmonicEquivalents : PitchClass -> List PitchClass
-enharmonicEquivalents pc =
-    all |> List.filter (semitones >> (==) (semitones pc))
-
-
-simple : PitchClass -> PitchClass
-simple pc =
-    if Internal.offset pc == 0 then
-        pc
-
-    else if Internal.offset pc < 0 then
-        asNaturalOrElseFlat pc
-
-    else
-        asNaturalOrElseSharp pc
-
-
-asNaturalOrElseFlat : PitchClass -> PitchClass
-asNaturalOrElseFlat pc =
-    case pc |> semitones |> EnharmonicInternal.semitonesToNaturalOrAccidental of
-        Nat letter ->
-            pitchClass letter natural
-
-        SharpFlat _ letter ->
-            pitchClass letter flat
-
-
-asNaturalOrElseSharp : PitchClass -> PitchClass
-asNaturalOrElseSharp pc =
-    case pc |> semitones |> EnharmonicInternal.semitonesToNaturalOrAccidental of
-        Nat letter ->
-            pitchClass letter natural
-
-        SharpFlat letter _ ->
-            pitchClass letter sharp
-
-
-
--- INTERNALS
-
-
-internalToString : PitchClass -> String
-internalToString pc =
-    case pc of
-        Internal.PitchClass letter (Internal.Offset offset) ->
-            if offset == 0 then
-                Letter.toString letter
-
-            else if offset < 0 then
-                Letter.toString letter ++ (List.repeat (abs offset) "♭" |> String.join "")
-
-            else
-                Letter.toString letter ++ (List.repeat (abs offset) "♯" |> String.join "")
-
-
-exactSemitones : PitchClass -> Int
-exactSemitones (Internal.PitchClass letter (Internal.Offset offset)) =
-    Letter.semitones letter + offset
-
-
-targetLetterWithSemitoneDistance : Int -> Int -> ( Letter, Int ) -> ( Letter, Int )
-targetLetterWithSemitoneDistance currentIndex steps ( currentLetter, totalSemitones ) =
-    if steps <= 0 then
-        ( currentLetter, totalSemitones )
-
-    else
-        let
-            ( currentTargetLetter, stepSemitones ) =
-                Letter.indexToLetterAndSteps (currentIndex + 1)
-        in
-        targetLetterWithSemitoneDistance (currentIndex + 1) (steps - 1) ( currentTargetLetter, totalSemitones + stepSemitones )

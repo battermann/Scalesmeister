@@ -4,7 +4,11 @@ import Audio
 import Browser.Dom exposing (Viewport)
 import Browser.Events
 import Libs.SelectList as SelectList exposing (SelectList)
+import MusicTheory.Interval as Interval
 import MusicTheory.Letter exposing (Letter(..))
+import MusicTheory.Octave as Octave
+import MusicTheory.Pitch as Pitch exposing (Pitch)
+import MusicTheory.Pitch.Enharmonic as Enharmonic
 import MusicTheory.PitchClass as PitchClass exposing (PitchClass)
 import MusicTheory.Scale as Scale
 import MusicTheory.ScaleClass as ScaleClass exposing (ScaleClass)
@@ -14,9 +18,7 @@ import Types exposing (Device, Model, Msg(..), PlayingState(..))
 import Types.Formula as Formula exposing (Formula)
 import Types.Line as Line exposing (Line)
 import Types.Note as Note
-import Types.Octave as Octave
 import Types.Orchestration as Orchestration
-import Types.Pitch as Pitch exposing (Pitch(..), flat, natural, sharp)
 import Types.Range as Range exposing (Range)
 import Types.Switch as Switch
 import Types.TimeSignature as TimeSignature exposing (BeatDuration(..), NumberOfBeats(..), TimeSignature(..))
@@ -77,7 +79,6 @@ formulas =
 mkLine : Range -> ScaleClass -> Formula -> PitchClass -> PitchClass -> Line
 mkLine range scaleClass formula root startingNote =
     Line.fromScaleWithinRange range (Scale.scale root scaleClass)
-        |> List.map (Debug.log "note")
         |> Line.applyFormula startingNote formula
 
 
@@ -100,8 +101,8 @@ init =
     let
         range =
             Range.piano
-                |> Range.setLowest (Pitch.pitch (PitchClass.pitchClass C PitchClass.natural) Octave.three)
-                |> Range.setHighest (Pitch.pitch (PitchClass.pitchClass B PitchClass.natural) Octave.six)
+                |> Range.setLowest (Pitch.pitch C PitchClass.natural Octave.three)
+                |> Range.setHighest (Pitch.pitch B PitchClass.natural Octave.six)
 
         timeSignature =
             TimeSignature Four TimeSignature.Quarter
@@ -239,7 +240,9 @@ update msg model =
         RangeMinStepDown ->
             let
                 min =
-                    Pitch.transposeOld [ natural, flat ] (Range.lowest model.range) -1
+                    Pitch.transposeDown Interval.minorSecond (Range.lowest model.range)
+                        |> Result.toMaybe
+                        |> Maybe.andThen (Enharmonic.asNaturalOrElseFlat >> Result.toMaybe)
                         |> Maybe.withDefault (Range.lowest model.range)
             in
             { model | range = Range.setLowest min model.range }
@@ -248,7 +251,9 @@ update msg model =
         RangeMinStepUp ->
             let
                 min =
-                    Pitch.transposeOld [ natural, sharp ] (Range.lowest model.range) 1
+                    Pitch.transposeUp Interval.minorSecond (Range.lowest model.range)
+                        |> Result.toMaybe
+                        |> Maybe.andThen (Enharmonic.asNaturalOrElseSharp >> Result.toMaybe)
                         |> Maybe.withDefault (Range.lowest model.range)
             in
             { model | range = Range.setLowest min model.range }
@@ -257,8 +262,8 @@ update msg model =
         RangeMinSkipDown ->
             let
                 min =
-                    Pitch.transposeOld [ natural, flat ] (Range.lowest model.range) -12
-                        |> Maybe.withDefault (Range.lowest model.range)
+                    Pitch.transposeDown Interval.perfectOctave (Range.lowest model.range)
+                        |> Result.withDefault (Range.lowest model.range)
             in
             { model | range = Range.setLowest min model.range }
                 |> renderNew model.playingState
@@ -266,8 +271,8 @@ update msg model =
         RangeMinSkipUp ->
             let
                 min =
-                    Pitch.transposeOld [ natural, sharp ] (Range.lowest model.range) 12
-                        |> Maybe.withDefault (Range.lowest model.range)
+                    Pitch.transposeUp Interval.perfectOctave (Range.lowest model.range)
+                        |> Result.withDefault (Range.lowest model.range)
             in
             { model | range = Range.setLowest min model.range }
                 |> renderNew model.playingState
@@ -275,7 +280,9 @@ update msg model =
         RangeMaxStepDown ->
             let
                 max =
-                    Pitch.transposeOld [ natural, flat ] (Range.highest model.range) -1
+                    Pitch.transposeDown Interval.minorSecond (Range.highest model.range)
+                        |> Result.toMaybe
+                        |> Maybe.andThen (Enharmonic.asNaturalOrElseFlat >> Result.toMaybe)
                         |> Maybe.withDefault (Range.highest model.range)
             in
             { model | range = Range.setHighest max model.range }
@@ -284,7 +291,9 @@ update msg model =
         RangeMaxStepUp ->
             let
                 max =
-                    Pitch.transposeOld [ natural, sharp ] (Range.highest model.range) 1
+                    Pitch.transposeUp Interval.minorSecond (Range.highest model.range)
+                        |> Result.toMaybe
+                        |> Maybe.andThen (Enharmonic.asNaturalOrElseSharp >> Result.toMaybe)
                         |> Maybe.withDefault (Range.highest model.range)
             in
             { model | range = Range.setHighest max model.range }
@@ -293,8 +302,8 @@ update msg model =
         RangeMaxSkipDown ->
             let
                 max =
-                    Pitch.transposeOld [ natural, flat ] (Range.highest model.range) -12
-                        |> Maybe.withDefault (Range.highest model.range)
+                    Pitch.transposeDown Interval.perfectOctave (Range.highest model.range)
+                        |> Result.withDefault (Range.highest model.range)
             in
             { model | range = Range.setHighest max model.range }
                 |> renderNew model.playingState
@@ -302,8 +311,8 @@ update msg model =
         RangeMaxSkipUp ->
             let
                 max =
-                    Pitch.transposeOld [ natural, sharp ] (Range.highest model.range) 12
-                        |> Maybe.withDefault (Range.highest model.range)
+                    Pitch.transposeUp Interval.perfectOctave (Range.highest model.range)
+                        |> Result.withDefault (Range.highest model.range)
             in
             { model | range = Range.setHighest max model.range }
                 |> renderNew model.playingState
