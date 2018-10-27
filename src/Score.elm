@@ -8,7 +8,7 @@ import MusicTheory.Pitch.Spelling as Spelling
 import MusicTheory.PitchClass.Spelling exposing (Accidental(..))
 import Ports.Out
 import Types.Note as Note exposing (Altered(..), Duration(..), Note(..), Rest(..))
-import Types.Orchestration exposing (Bar(..), Beamed, Clef(..), Orchestration(..))
+import Types.Orchestration exposing (Bar(..), Beamed, Clef(..), DisplayNote(..), Orchestration(..))
 import Types.TimeSignature as TimeSignature exposing (TimeSignature(..))
 import Util exposing (Either(..))
 
@@ -57,21 +57,25 @@ mkHeader title ts =
 -}
 
 
-toAbcScoreNote : Pitch -> String
-toAbcScoreNote pitch =
+toAbcScoreNote : Bool -> Pitch -> String
+toAbcScoreNote showAccidental pitch =
     case pitch |> Spelling.simple of
         Ok { letter, accidental, octave } ->
             let
                 acc =
-                    case accidental of
-                        Flat ->
-                            "_"
+                    if showAccidental then
+                        case accidental of
+                            Flat ->
+                                "_"
 
-                        Natural ->
-                            ""
+                            Natural ->
+                                "="
 
-                        Sharp ->
-                            "^"
+                            Sharp ->
+                                "^"
+
+                    else
+                        ""
             in
             if Octave.number octave < 5 then
                 acc ++ (letter |> Letter.toString) ++ (List.repeat (4 - Octave.number octave) ',' |> String.fromList)
@@ -146,27 +150,27 @@ addAbcDuration duration note =
             note ++ "1"
 
 
-noteOrRestToAbcNotation : Either Note Rest -> String
+noteOrRestToAbcNotation : Either DisplayNote Rest -> String
 noteOrRestToAbcNotation noteOrRest =
     case noteOrRest of
-        Left (Note pitch duration) ->
-            toAbcScoreNote pitch |> addAbcDuration duration
+        Left (DisplayNote showAccidental (Note pitch duration)) ->
+            toAbcScoreNote showAccidental pitch |> addAbcDuration duration
 
         Right (Rest duration) ->
             "z" |> addAbcDuration duration
 
 
-getDuration : Either Note Rest -> Duration
+getDuration : Either DisplayNote Rest -> Duration
 getDuration noteOrRest =
     case noteOrRest of
-        Left (Note _ duration) ->
+        Left (DisplayNote _ (Note _ duration)) ->
             duration
 
         Right (Rest duration) ->
             duration
 
 
-isTriplet : Either Note Rest -> Bool
+isTriplet : Either DisplayNote Rest -> Bool
 isTriplet noteOrRest =
     case getDuration noteOrRest of
         Note.Quarter Note.Triplet ->
