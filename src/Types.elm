@@ -55,7 +55,7 @@ type Msg
     | DownloadPdf
     | RootSelected PitchClass
     | StartingNoteSelected PitchClass
-    | ScaleSelected ScaleClass
+    | ScaleSelected String
     | FormulaSelected Formula
     | Open Dialog
     | SamplesLoaded

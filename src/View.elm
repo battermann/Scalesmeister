@@ -2,6 +2,7 @@ module View exposing (view)
 
 import Element as Element exposing (Attribute, Element, alignBottom, alignLeft, alignRight, centerX, centerY, column, el, fill, height, image, inFront, link, minimum, padding, paddingEach, paddingXY, paragraph, px, rgb255, row, scrollbarX, scrollbars, spacing, text, width)
 import Element.Events exposing (onClick)
+import Element.Font as Font
 import Element.Input as Input
 import Html
 import Html.Attributes
@@ -267,7 +268,7 @@ viewSelectNoteButton event pitchClass =
 
 viewSelectScaleButton : ( String, ScaleClass ) -> Element Msg
 viewSelectScaleButton ( name, scale ) =
-    Input.button darkButtonAttributes { label = text name, onPress = Just <| ScaleSelected scale }
+    Input.button darkButtonAttributes { label = text name, onPress = Just <| ScaleSelected name }
 
 
 viewSelectFormulaButton : Formula -> Element Msg
@@ -280,7 +281,7 @@ viewSelectScaleDialog model =
     viewModalDialog "Scale" <|
         column
             [ smallSpacing ]
-            (SelectList.toList model.scales |> List.map viewSelectScaleButton)
+            (SelectList.toList model.scales |> List.sortBy Tuple.first |> List.map viewSelectScaleButton |> List.Extra.greedyGroupsOf 2 |> List.map (row [ smallSpacing, width fill ]))
 
 
 viewSelectRootDialog : Model -> Element Msg
@@ -351,7 +352,7 @@ viewPage model =
         [ el (centerX :: Styles.h1) (text "Luigi")
         , paragraph
             (Styles.subTitle ++ [ paddingEach { top = 0, bottom = 40, left = 0, right = 0 }, centerX ])
-            [ text "Generate lines for jazz improvisation based on scales and formulas." ]
+            [ row [] [ text "Generate lines for jazz improvisation based on ", el [ Font.bold ] (text "scales"), text " and ", el [ Font.bold ] (text "formulas"), text "." ] ]
         , column
             [ smallSpacing, width fill ]
             [ row
@@ -385,7 +386,6 @@ viewPage model =
                 ]
             , el (centerX :: Styles.gitHubIcon) <| link [] { url = "https://github.com/battermann/Luigi", label = Icons.github }
             ]
-        , viewSelectedDialog model
         ]
 
 

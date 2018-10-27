@@ -190,7 +190,7 @@ dorianFlat9 =
         { first = Interval.minorSecond
         , second = Interval.majorSecond
         , third = Interval.majorSecond
-        , fourth = Interval.minorSecond
+        , fourth = Interval.majorSecond
         , fifth = Interval.majorSecond
         , sixth = Interval.minorSecond
         }
@@ -291,7 +291,7 @@ ionianSharp5 =
         { first = Interval.majorSecond
         , second = Interval.majorSecond
         , third = Interval.minorSecond
-        , fourth = Interval.minorThird
+        , fourth = Interval.augmentedSecond
         , fifth = Interval.minorSecond
         , sixth = Interval.majorSecond
         }
@@ -302,7 +302,7 @@ dorianSharp11 =
     ScaleClass.Heptatonic
         { first = Interval.majorSecond
         , second = Interval.minorSecond
-        , third = Interval.minorThird
+        , third = Interval.augmentedSecond
         , fourth = Interval.minorSecond
         , fifth = Interval.majorSecond
         , sixth = Interval.minorSecond
@@ -460,7 +460,7 @@ augmented =
         , second = Interval.minorSecond
         , third = Interval.minorThird
         , fourth = Interval.minorSecond
-        , fifth = Interval.minorThird
+        , fifth = Interval.augmentedSecond
         }
 
 
@@ -492,9 +492,9 @@ sixToneSymmetrical : ScaleClass
 sixToneSymmetrical =
     ScaleClass.Hexatonic
         { first = Interval.minorSecond
-        , second = Interval.minorThird
+        , second = Interval.augmentedSecond
         , third = Interval.minorSecond
-        , fourth = Interval.minorThird
+        , fourth = Interval.augmentedSecond
         , fifth = Interval.minorSecond
         }
 
@@ -555,7 +555,7 @@ byzantine =
         , third = Interval.minorSecond
         , fourth = Interval.majorSecond
         , fifth = Interval.minorSecond
-        , sixth = Interval.minorThird
+        , sixth = Interval.augmentedSecond
         }
 
 
@@ -663,11 +663,11 @@ purviTheta : ScaleClass
 purviTheta =
     ScaleClass.Heptatonic
         { first = Interval.minorSecond
-        , second = Interval.minorThird
+        , second = Interval.augmentedSecond
         , third = Interval.majorSecond
         , fourth = Interval.minorSecond
         , fifth = Interval.minorSecond
-        , sixth = Interval.minorThird
+        , sixth = Interval.augmentedSecond
         }
 
 
@@ -679,7 +679,7 @@ todiTheta =
         , third = Interval.minorThird
         , fourth = Interval.minorSecond
         , fifth = Interval.minorSecond
-        , sixth = Interval.minorThird
+        , sixth = Interval.augmentedSecond
         }
 
 
@@ -732,7 +732,7 @@ doubleHarmonicMinor =
         , third = Interval.minorThird
         , fourth = Interval.minorSecond
         , fifth = Interval.minorSecond
-        , sixth = Interval.minorThird
+        , sixth = Interval.augmentedSecond
         }
 
 
