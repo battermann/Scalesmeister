@@ -245,7 +245,8 @@ viewModalDialog heading element =
     el (Styles.page ++ [ centerX, padding 20 ]) (column [ spacing 20 ] [ el (centerX :: Styles.h2) (text heading), element ])
         |> el
             (Styles.dialog
-                ++ [ width fill
+                ++ [ Element.htmlAttribute (Html.Attributes.style "z-index" "20")
+                   , width fill
                    , height fill
                    , onClick CloseDialog
                    , paddingEach { top = 100, left = 0, bottom = 0, right = 0 }
@@ -330,8 +331,8 @@ viewSelectedDialog model =
             Element.none
 
 
-view : Model -> Html.Html Msg
-view model =
+viewPage : Model -> Element Msg
+viewPage model =
     let
         ( viewScore, paddingTop, paddingLeftRight ) =
             if model.device.phone || model.device.tablet then
@@ -346,44 +347,55 @@ view model =
                 , paddingXY 250 0
                 )
     in
-    Element.layout (Element.inFront (viewSelectedDialog model) :: Styles.page) <|
-        column [ width fill, spacing 40, paddingXY 10 10, paddingTop ]
-            [ el (centerX :: Styles.h1) (text "Luigi")
-            , paragraph
-                (Styles.subTitle ++ [ paddingEach { top = 0, bottom = 40, left = 0, right = 0 }, centerX ])
-                [ text "Generate lines for jazz improvisation based on scales and formulas." ]
-            , column
-                [ smallSpacing, width fill ]
-                [ row
-                    [ centerX, width fill, paddingLeftRight ]
-                    [ column [ smallSpacing, width fill ]
-                        [ viewPlayControl model
-                        , column (Styles.settings ++ [ padding 20, spacing 6, width fill ])
-                            [ viewTempoSlider model
-                            , viewMainSettingsControls model
-                            , viewRangeControls model
-                            , viewTimeSignatureControls model
-                            , viewNoteDurationControls model
-                            ]
+    column [ width fill, spacing 40, paddingXY 10 10, paddingTop ]
+        [ el (centerX :: Styles.h1) (text "Luigi")
+        , paragraph
+            (Styles.subTitle ++ [ paddingEach { top = 0, bottom = 40, left = 0, right = 0 }, centerX ])
+            [ text "Generate lines for jazz improvisation based on scales and formulas." ]
+        , column
+            [ smallSpacing, width fill ]
+            [ row
+                [ centerX, width fill, paddingLeftRight ]
+                [ column [ smallSpacing, width fill ]
+                    [ viewPlayControl model
+                    , column (Styles.settings ++ [ padding 20, spacing 6, width fill ])
+                        [ viewTempoSlider model
+                        , viewMainSettingsControls model
+                        , viewRangeControls model
+                        , viewTimeSignatureControls model
+                        , viewNoteDurationControls model
                         ]
                     ]
-                , viewScore
                 ]
-            , column
-                ([ spacing 5, width fill ] ++ Styles.footer)
-                [ row [ centerX ]
-                    [ text "v0.2.2 | created with "
-                    , link Styles.link { url = "http://elm-lang.org/", label = text "Elm" }
-                    ]
-                , row [ centerX ]
-                    [ text "sound samples from "
-                    , link Styles.link { url = "https://archive.org/details/SalamanderGrandPianoV3", label = text "Salamander Grand Piano" }
-                    ]
-                , row [ centerX ]
-                    [ text "Inspired by "
-                    , link Styles.link { url = "https://learningmusic.ableton.com/", label = text "Ableton Learning Music" }
-                    ]
-                , el (centerX :: Styles.gitHubIcon) <| link [] { url = "https://github.com/battermann/Luigi", label = Icons.github }
+            , viewScore
+            ]
+        , column
+            ([ spacing 5, width fill ] ++ Styles.footer)
+            [ row [ centerX ]
+                [ text "v0.2.2 | created with "
+                , link Styles.link { url = "http://elm-lang.org/", label = text "Elm" }
                 ]
-            , viewSelectedDialog model
+            , row [ centerX ]
+                [ text "sound samples from "
+                , link Styles.link { url = "https://archive.org/details/SalamanderGrandPianoV3", label = text "Salamander Grand Piano" }
+                ]
+            , row [ centerX ]
+                [ text "Inspired by "
+                , link Styles.link { url = "https://learningmusic.ableton.com/", label = text "Ableton Learning Music" }
+                ]
+            , el (centerX :: Styles.gitHubIcon) <| link [] { url = "https://github.com/battermann/Luigi", label = Icons.github }
+            ]
+        , viewSelectedDialog model
+        ]
+
+
+view : Model -> Html.Html Msg
+view model =
+    Element.layout Styles.page <|
+        column
+            [ width fill
+            , height fill
+            , inFront <| viewSelectedDialog model
+            ]
+            [ row [ width fill ] [ viewPage model ]
             ]
