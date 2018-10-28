@@ -281,7 +281,7 @@ viewSelectScaleDialog model =
     viewModalDialog "Scale" <|
         column
             [ smallSpacing ]
-            (SelectList.toList model.scales |> List.sortBy Tuple.first |> List.map viewSelectScaleButton |> List.Extra.greedyGroupsOf 2 |> List.map (row [ smallSpacing, width fill ]))
+            (SelectList.toList model.scales |> List.sortBy Tuple.first |> List.map viewSelectScaleButton)
 
 
 viewSelectRootDialog : Model -> Element Msg
