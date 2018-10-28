@@ -397,5 +397,4 @@ view model =
             , height fill
             , inFront <| viewSelectedDialog model
             ]
-            [ row [ width fill ] [ viewPage model ]
-            ]
+            [ viewPage model ]
