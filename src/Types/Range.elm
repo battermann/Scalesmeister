@@ -1,8 +1,9 @@
 module Types.Range exposing (Range, contains, highest, lowest, piano, setHighest, setLowest)
 
-import Types.Octave as Octave
-import Types.Pitch as Pitch exposing (Pitch(..))
-import Types.PitchClass exposing (Accidental(..), Letter(..), PitchClass(..))
+import MusicTheory.Letter exposing (Letter(..))
+import MusicTheory.Octave as Octave
+import MusicTheory.Pitch as Pitch exposing (Pitch)
+import MusicTheory.PitchClass as PitchClass exposing (natural)
 
 
 type Range
@@ -21,12 +22,12 @@ lowest (Range l _) =
 
 contains : Pitch -> Range -> Bool
 contains pitch (Range l h) =
-    Pitch.semitoneOffset l <= Pitch.semitoneOffset pitch && Pitch.semitoneOffset h >= Pitch.semitoneOffset pitch
+    Pitch.semitones l <= Pitch.semitones pitch && Pitch.semitones h >= Pitch.semitones pitch
 
 
 setLowest : Pitch -> Range -> Range
 setLowest pitch (Range l h) =
-    if Pitch.semitoneOffset pitch >= Pitch.semitoneOffset h || not (contains pitch piano) then
+    if Pitch.semitones pitch >= Pitch.semitones h || not (contains pitch piano) then
         Range l h
 
     else
@@ -35,7 +36,7 @@ setLowest pitch (Range l h) =
 
 setHighest : Pitch -> Range -> Range
 setHighest pitch (Range l h) =
-    if Pitch.semitoneOffset pitch <= Pitch.semitoneOffset l || not (contains pitch piano) then
+    if Pitch.semitones pitch <= Pitch.semitones l || not (contains pitch piano) then
         Range l h
 
     else
@@ -44,4 +45,4 @@ setHighest pitch (Range l h) =
 
 piano : Range
 piano =
-    Range (Pitch (PitchClass A Natural) Octave.zero) (Pitch (PitchClass C Natural) Octave.eight)
+    Range (Pitch.pitch A natural Octave.zero) (Pitch.pitch C natural Octave.eight)

@@ -11,7 +11,8 @@
             "elm/html": "1.0.0",
             "elm-community/list-extra": "8.0.0",
             "elm-community/maybe-extra": "5.0.0",
-            "mdgriffith/elm-ui": "1.1.0"
+            "mdgriffith/elm-ui": "1.1.0",
+            "turboMaCk/any-dict": "1.0.1"
         },
         "indirect": {
             "elm/json": "1.0.0",

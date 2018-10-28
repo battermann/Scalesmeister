@@ -6,21 +6,30 @@ module Types.Line exposing
 
 import List.Extra
 import Maybe.Extra
+import MusicTheory.Letter as Letter
+import MusicTheory.Octave as Octave
+import MusicTheory.Pitch as Pitch exposing (Pitch)
+import MusicTheory.PitchClass as PitchClass exposing (PitchClass)
+import MusicTheory.Scale exposing (Scale, toList)
+import Set
 import Types.Formula as Formula exposing (Direction(..), Formula)
-import Types.Pitch as Pitch exposing (Pitch(..))
-import Types.PitchClass exposing (PitchClass)
 import Types.Range as Range exposing (Range)
-import Types.Scale exposing (Scale, notes)
 
 
 type alias Line =
     List Pitch
 
 
+allPitches : List Pitch
+allPitches =
+    Octave.all
+        |> List.concatMap (\o -> PitchClass.all |> List.map (Pitch.fromPitchClass o))
+
+
 fromScaleWithinRange : Range -> Scale -> Line
 fromScaleWithinRange range scale =
-    Pitch.all
-        |> List.filter (\pitch -> (range |> Range.contains pitch) && (scale |> notes |> List.member (Pitch.note pitch)))
+    allPitches
+        |> List.filter (\pitch -> (range |> Range.contains pitch) && (scale |> toList |> List.member (Pitch.pitchClass pitch)))
 
 
 fitFormula : Int -> List Int -> List a -> Maybe (List a)
@@ -37,7 +46,7 @@ possibleStartingIndices : Direction -> PitchClass -> Line -> List Int
 possibleStartingIndices direction pitchClass line =
     let
         indices =
-            line |> List.Extra.findIndices (\(Pitch n _) -> n == pitchClass)
+            line |> List.Extra.findIndices (\p -> Pitch.pitchClass p == pitchClass)
     in
     case direction of
         Ascending ->
@@ -80,5 +89,5 @@ applyFormulaFromFirstViableIndex formula line startingIndices =
 
 applyFormula : PitchClass -> Formula -> Line -> Line
 applyFormula startingNote formula line =
-    possibleStartingIndices (Formula.direction formula) startingNote (line |> List.sortBy Pitch.semitoneOffset)
+    possibleStartingIndices (Formula.direction formula) startingNote (line |> List.sortBy Pitch.semitones)
         |> applyFormulaFromFirstViableIndex formula line

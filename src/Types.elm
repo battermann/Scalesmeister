@@ -1,11 +1,11 @@
 module Types exposing (Device, Dialog(..), Model, Msg(..), PlayingState(..))
 
 import Libs.SelectList exposing (SelectList)
+import MusicTheory.PitchClass exposing (PitchClass)
+import MusicTheory.ScaleClass exposing (ScaleClass)
 import Types.Formula exposing (Formula)
 import Types.Note as Note
-import Types.PitchClass exposing (PitchClass)
 import Types.Range exposing (Range)
-import Types.Scale exposing (ScaleDef)
 import Types.Switch exposing (Switch)
 import Types.TimeSignature exposing (TimeSignature)
 
@@ -35,7 +35,7 @@ type alias Device =
 
 type alias Model =
     { range : Range
-    , scales : SelectList ( String, ScaleDef )
+    , scales : SelectList ( String, ScaleClass )
     , formulas : SelectList Formula
     , roots : SelectList PitchClass
     , startingNote : PitchClass
@@ -55,7 +55,7 @@ type Msg
     | DownloadPdf
     | RootSelected PitchClass
     | StartingNoteSelected PitchClass
-    | ScaleSelected ScaleDef
+    | ScaleSelected String
     | FormulaSelected Formula
     | Open Dialog
     | SamplesLoaded
