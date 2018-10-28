@@ -2,19 +2,22 @@ module View exposing (view)
 
 import Element as Element exposing (Attribute, Element, alignBottom, alignLeft, alignRight, centerX, centerY, column, el, fill, height, image, inFront, link, minimum, padding, paddingEach, paddingXY, paragraph, px, rgb255, row, scrollbarX, scrollbars, spacing, text, width)
 import Element.Events exposing (onClick)
+import Element.Font as Font
 import Element.Input as Input
 import Html
 import Html.Attributes
 import Libs.SelectList as SelectList
 import List.Extra
+import MusicTheory.Pitch as Pitch
+import MusicTheory.PitchClass as PitchClass exposing (PitchClass)
+import MusicTheory.PitchClass.Spelling as Spelling
+import MusicTheory.Scale as Scale
+import MusicTheory.ScaleClass exposing (ScaleClass)
 import Score
 import Types exposing (Dialog(..), Model, Msg(..), PlayingState(..))
 import Types.Formula as Formula exposing (Formula)
 import Types.Note as Note
-import Types.Pitch as Pitch
-import Types.PitchClass as PitchClass exposing (PitchClass)
 import Types.Range as Range
-import Types.Scale as Scale exposing (Scale(..), ScaleDef)
 import Types.Switch as Switch
 import Types.TimeSignature as TimeSignature exposing (BeatDuration(..), NumberOfBeats(..), TimeSignature(..))
 import View.FontAwesome as Icons
@@ -263,9 +266,9 @@ viewSelectNoteButton event pitchClass =
     Input.button darkButtonAttributes { label = PitchClass.toString pitchClass |> text, onPress = Just <| event pitchClass }
 
 
-viewSelectScaleButton : ( String, ScaleDef ) -> Element Msg
+viewSelectScaleButton : ( String, ScaleClass ) -> Element Msg
 viewSelectScaleButton ( name, scale ) =
-    Input.button darkButtonAttributes { label = text name, onPress = Just <| ScaleSelected scale }
+    Input.button darkButtonAttributes { label = text name, onPress = Just <| ScaleSelected name }
 
 
 viewSelectFormulaButton : Formula -> Element Msg
@@ -278,7 +281,7 @@ viewSelectScaleDialog model =
     viewModalDialog "Scale" <|
         column
             [ smallSpacing ]
-            (SelectList.toList model.scales |> List.map viewSelectScaleButton)
+            (SelectList.toList model.scales |> List.sortBy Tuple.first |> List.map viewSelectScaleButton)
 
 
 viewSelectRootDialog : Model -> Element Msg
@@ -295,7 +298,7 @@ viewSelectStartingNoteDialog model =
         column
             [ smallSpacing ]
             (SelectList.selected model.scales
-                |> (Tuple.second >> Scale (SelectList.selected model.roots) >> Scale.notes)
+                |> (Tuple.second >> Scale.scale (SelectList.selected model.roots) >> Scale.toList)
                 |> List.map (viewSelectNoteButton StartingNoteSelected)
                 |> List.Extra.greedyGroupsOf 3
                 |> List.map (row [ smallSpacing, width fill ])
@@ -349,7 +352,7 @@ viewPage model =
         [ el (centerX :: Styles.h1) (text "Luigi")
         , paragraph
             (Styles.subTitle ++ [ paddingEach { top = 0, bottom = 40, left = 0, right = 0 }, centerX ])
-            [ text "Generate lines for jazz improvisation based on scales and formulas." ]
+            [ row [] [ text "Generate lines for jazz improvisation based on ", el [ Font.bold ] (text "scales"), text " and ", el [ Font.bold ] (text "formulas"), text "." ] ]
         , column
             [ smallSpacing, width fill ]
             [ row
@@ -383,7 +386,6 @@ viewPage model =
                 ]
             , el (centerX :: Styles.gitHubIcon) <| link [] { url = "https://github.com/battermann/Luigi", label = Icons.github }
             ]
-        , viewSelectedDialog model
         ]
 
 

@@ -1,13 +1,15 @@
 module Score exposing (downloadAsPdf, elementId, render)
 
 import List.Extra
+import MusicTheory.Letter as Letter
+import MusicTheory.Octave as Octave
+import MusicTheory.Pitch as Pitch exposing (Pitch)
+import MusicTheory.Pitch.Spelling as Spelling
+import MusicTheory.PitchClass.Spelling exposing (Accidental(..))
 import Ports.Out
 import Types.Note as Note exposing (Altered(..), Duration(..), Note(..), Rest(..))
-import Types.Octave as Octave
-import Types.Orchestration exposing (Bar(..), Beamed, Clef(..), Orchestration(..))
-import Types.Pitch exposing (Pitch(..))
-import Types.PitchClass as PitchClass exposing (Accidental(..), PitchClass(..))
-import Types.TimeSignature exposing (TimeSignature(..), beatDurationToInt, numberOfBeatsToInt)
+import Types.Orchestration exposing (Bar(..), Beamed, Clef(..), DisplayNote(..), Orchestration(..))
+import Types.TimeSignature as TimeSignature exposing (TimeSignature(..))
 import Util exposing (Either(..))
 
 
@@ -55,31 +57,34 @@ mkHeader title ts =
 -}
 
 
-toAbcScoreNote : Pitch -> String
-toAbcScoreNote (Pitch (PitchClass letter accidental) octave) =
-    let
-        acc =
-            case accidental of
-                DoubleFlat ->
-                    "__"
+toAbcScoreNote : Bool -> Pitch -> String
+toAbcScoreNote showAccidental pitch =
+    case pitch |> Spelling.simple of
+        Ok { letter, accidental, octave } ->
+            let
+                acc =
+                    if showAccidental then
+                        case accidental of
+                            Flat ->
+                                "_"
 
-                Flat ->
-                    "_"
+                            Natural ->
+                                "="
 
-                Natural ->
-                    ""
+                            Sharp ->
+                                "^"
 
-                Sharp ->
-                    "^"
+                    else
+                        ""
+            in
+            if Octave.number octave < 5 then
+                acc ++ (letter |> Letter.toString) ++ (List.repeat (4 - Octave.number octave) ',' |> String.fromList)
 
-                DoubleSharp ->
-                    "^"
-    in
-    if Octave.number octave < 5 then
-        acc ++ (letter |> PitchClass.letterToString) ++ (List.repeat (4 - Octave.number octave) ',' |> String.fromList)
+            else
+                acc ++ (letter |> Letter.toString |> String.toLower) ++ (List.repeat (Octave.number octave - 5) '\'' |> String.fromList)
 
-    else
-        acc ++ (letter |> PitchClass.letterToString |> String.toLower) ++ (List.repeat (Octave.number octave - 5) '\'' |> String.fromList)
+        Err _ ->
+            ""
 
 
 clefToAbcNotation : Clef -> String
@@ -112,7 +117,7 @@ render orchestration =
 
 timeSignature : TimeSignature -> Meter
 timeSignature (TimeSignature numBeats beatDuration) =
-    Meter (numBeats |> numberOfBeatsToInt) (beatDuration |> beatDurationToInt)
+    Meter (numBeats |> TimeSignature.numberOfBeatsToInt) (beatDuration |> TimeSignature.beatDurationToInt)
 
 
 downloadAsPdf : Cmd msg
@@ -145,27 +150,27 @@ addAbcDuration duration note =
             note ++ "1"
 
 
-noteOrRestToAbcNotation : Either Note Rest -> String
+noteOrRestToAbcNotation : Either DisplayNote Rest -> String
 noteOrRestToAbcNotation noteOrRest =
     case noteOrRest of
-        Left (Note pitch duration) ->
-            toAbcScoreNote pitch |> addAbcDuration duration
+        Left (DisplayNote showAccidental (Note pitch duration)) ->
+            toAbcScoreNote showAccidental pitch |> addAbcDuration duration
 
         Right (Rest duration) ->
             "z" |> addAbcDuration duration
 
 
-getDuration : Either Note Rest -> Duration
+getDuration : Either DisplayNote Rest -> Duration
 getDuration noteOrRest =
     case noteOrRest of
-        Left (Note _ duration) ->
+        Left (DisplayNote _ (Note _ duration)) ->
             duration
 
         Right (Rest duration) ->
             duration
 
 
-isTriplet : Either Note Rest -> Bool
+isTriplet : Either DisplayNote Rest -> Bool
 isTriplet noteOrRest =
     case getDuration noteOrRest of
         Note.Quarter Note.Triplet ->

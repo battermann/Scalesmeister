@@ -4,32 +4,89 @@ import Audio
 import Browser.Dom exposing (Viewport)
 import Browser.Events
 import Libs.SelectList as SelectList exposing (SelectList)
-import Score exposing (render)
+import MusicTheory.Interval as Interval
+import MusicTheory.Letter exposing (Letter(..))
+import MusicTheory.Octave as Octave
+import MusicTheory.Pitch as Pitch exposing (Pitch)
+import MusicTheory.Pitch.Enharmonic as Enharmonic
+import MusicTheory.PitchClass as PitchClass exposing (PitchClass)
+import MusicTheory.Scale as Scale
+import MusicTheory.ScaleClass as ScaleClass exposing (ScaleClass)
+import Score as Score
 import Task
 import Types exposing (Device, Model, Msg(..), PlayingState(..))
 import Types.Formula as Formula exposing (Formula)
 import Types.Line as Line exposing (Line)
 import Types.Note as Note
-import Types.Octave as Octave
 import Types.Orchestration as Orchestration
-import Types.Pitch as Pitch exposing (Pitch(..), flat, natural, sharp)
-import Types.PitchClass exposing (Accidental(..), Letter(..), PitchClass(..))
-import Types.Range as Range exposing (Range, highest, lowest)
-import Types.Scale exposing (Scale(..), ScaleDef, ionian, majorMinorSecondPentatonic, majorMinorSixthPentatonic, majorPentatonic, minorPentatonic, minorSevenDiminishedFifthPentatonic, minorSixthPentatonic)
+import Types.Range as Range exposing (Range)
 import Types.Switch as Switch
-import Types.TimeSignature as TimeSignature exposing (BeatDuration(..), NumberOfBeats(..), TimeSignature(..), beatDuration, durationGte)
+import Types.TimeSignature as TimeSignature exposing (BeatDuration(..), NumberOfBeats(..), TimeSignature(..))
 
 
-scales : SelectList ( String, ScaleDef )
+scales : SelectList ( String, ScaleClass )
 scales =
     SelectList.fromLists []
-        ( "Major Pentatonic", majorPentatonic )
-        [ ( "Minor Pentatonic", minorPentatonic )
-        , ( "Minor 6 Pentatonic", minorSixthPentatonic )
-        , ( "Major ♭6 Pentatonic", majorMinorSixthPentatonic )
-        , ( "Minor 7 ♭5 Pentatonic", minorSevenDiminishedFifthPentatonic )
-        , ( "Major ♭2 Pentatonic", majorMinorSecondPentatonic )
-        , ( "Diatonic Major", ionian )
+        ( "Major Pentatonic", ScaleClass.majorPentatonic )
+        [ ( "Aeolian", ScaleClass.aeolian )
+        , ( "Altered 𝄫 7", ScaleClass.alteredDoubleFlat7 )
+        , ( "Altered", ScaleClass.altered )
+        , ( "Arabian", ScaleClass.arabian )
+        , ( "Augmented", ScaleClass.augmented )
+        , ( "Balinese", ScaleClass.balinese )
+        , ( "Blues", ScaleClass.blues )
+        , ( "Byzantine", ScaleClass.byzantine )
+        , ( "Chinese", ScaleClass.chinese )
+        , ( "Diminished Halftone Wholetone", ScaleClass.diminishedHalfToneWholeTone )
+        , ( "Diminished Wholetone Halftone", ScaleClass.diminishedWholeToneHalfTone )
+        , ( "Dorian ♭9", ScaleClass.dorianFlat9 )
+        , ( "Dorian ♯11", ScaleClass.dorianSharp11 )
+        , ( "Dorian", ScaleClass.dorian )
+        , ( "Double Harmonic Minor", ScaleClass.doubleHarmonicMinor )
+        , ( "Egyptian", ScaleClass.egyptian )
+        , ( "Eight Tone Spanish", ScaleClass.eightToneSpanish )
+        , ( "Enigmatic", ScaleClass.enigmatic )
+        , ( "Harmonic Minor", ScaleClass.harmonicMinor )
+        , ( "Hirajoshi", ScaleClass.hirajoshi )
+        , ( "Hungarian Major", ScaleClass.hungarianMajor )
+        , ( "Ichikosucho", ScaleClass.ichikosucho )
+        , ( "Ionian ♯5", ScaleClass.ionianSharp5 )
+        , ( "Ionian", ScaleClass.ionian )
+        , ( "Kumoi", ScaleClass.kumoi )
+        , ( "Leading Whole Tone", ScaleClass.leadingWholeTone )
+        , ( "Locrian ♮13", ScaleClass.locrianNatural13 )
+        , ( "Locrian ♮9", ScaleClass.locrianNatural9 )
+        , ( "Locrian", ScaleClass.locrian )
+        , ( "Lydian Augmented", ScaleClass.lydianAugmented )
+        , ( "Lydian Diminished", ScaleClass.lydianDiminished )
+        , ( "Lydian Dominant", ScaleClass.lydianDominant )
+        , ( "Lydian Minor", ScaleClass.lydianMinor )
+        , ( "Lydian ♯9", ScaleClass.lydianSharp9 )
+        , ( "Lydian", ScaleClass.lydian )
+        , ( "Major", ScaleClass.major )
+        , ( "Major Pentatonic", ScaleClass.majorPentatonic )
+        , ( "Major ♭2 Pentatonic", ScaleClass.majorFlat2Pentatonic )
+        , ( "Major ♭6 Pentatonic", ScaleClass.majorFlat6Pentatonic )
+        , ( "Melodic Minor", ScaleClass.melodicMinor )
+        , ( "Minor 6 Pentatonic", ScaleClass.minor6Pentatonic )
+        , ( "Minor 7 ♭5 Pentatonic", ScaleClass.minorFlat5Pentatonic )
+        , ( "Minor Pentatonic", ScaleClass.minorPentatonic )
+        , ( "Minor", ScaleClass.minor )
+        , ( "Mixolydian ♭13", ScaleClass.mixolydianFlat13 )
+        , ( "Mixolydian ♭9 ♭13", ScaleClass.mixolydianFlat9Flat13 )
+        , ( "Mixolydian", ScaleClass.mixolydian )
+        , ( "Neapolitan Major", ScaleClass.neapolitanMajor )
+        , ( "Neapolitan Minor", ScaleClass.neapolitanMinor )
+        , ( "Neapolitan", ScaleClass.neapolitan )
+        , ( "Pelog", ScaleClass.pelog )
+        , ( "Persian", ScaleClass.persian )
+        , ( "Phrygian", ScaleClass.phrygian )
+        , ( "Prometheus Neapolitan", ScaleClass.prometheusNeopolitan )
+        , ( "Prometheus", ScaleClass.prometheus )
+        , ( "Purvi Theta", ScaleClass.purviTheta )
+        , ( "Six Tone Symmetrical", ScaleClass.sixToneSymmetrical )
+        , ( "Todi Theta", ScaleClass.todiTheta )
+        , ( "Whole Tone", ScaleClass.wholeTone )
         ]
 
 
@@ -37,18 +94,18 @@ roots : SelectList PitchClass
 roots =
     SelectList.fromLists
         []
-        (PitchClass C Natural)
-        [ PitchClass D Flat
-        , PitchClass D Natural
-        , PitchClass E Flat
-        , PitchClass E Natural
-        , PitchClass F Natural
-        , PitchClass G Flat
-        , PitchClass G Natural
-        , PitchClass A Flat
-        , PitchClass A Natural
-        , PitchClass B Flat
-        , PitchClass B Natural
+        (PitchClass.pitchClass C PitchClass.natural)
+        [ PitchClass.pitchClass D PitchClass.flat
+        , PitchClass.pitchClass D PitchClass.natural
+        , PitchClass.pitchClass E PitchClass.flat
+        , PitchClass.pitchClass E PitchClass.natural
+        , PitchClass.pitchClass F PitchClass.natural
+        , PitchClass.pitchClass G PitchClass.flat
+        , PitchClass.pitchClass G PitchClass.natural
+        , PitchClass.pitchClass A PitchClass.flat
+        , PitchClass.pitchClass A PitchClass.natural
+        , PitchClass.pitchClass B PitchClass.flat
+        , PitchClass.pitchClass B PitchClass.natural
         ]
 
 
@@ -72,9 +129,9 @@ formulas =
         ]
 
 
-mkLine : Range -> ScaleDef -> Formula -> PitchClass -> PitchClass -> Line
-mkLine range scale formula root startingNote =
-    Line.fromScaleWithinRange range (Scale root scale)
+mkLine : Range -> ScaleClass -> Formula -> PitchClass -> PitchClass -> Line
+mkLine range scaleClass formula root startingNote =
+    Line.fromScaleWithinRange range (Scale.scale root scaleClass)
         |> Line.applyFormula startingNote formula
 
 
@@ -97,8 +154,8 @@ init =
     let
         range =
             Range.piano
-                |> Range.setLowest (Pitch (PitchClass C Natural) Octave.three)
-                |> Range.setHighest (Pitch (PitchClass B Natural) Octave.six)
+                |> Range.setLowest (Pitch.pitch C PitchClass.natural Octave.four)
+                |> Range.setHighest (Pitch.pitch B PitchClass.natural Octave.six)
 
         timeSignature =
             TimeSignature Four TimeSignature.Quarter
@@ -154,10 +211,10 @@ renderNew playingState model =
             ( model, Cmd.none )
 
         ( Stopped, Just orchestration ) ->
-            ( model, render orchestration )
+            ( model, Score.render orchestration )
 
         ( Playing, Just orchestration ) ->
-            ( { model | playingState = Stopped }, Cmd.batch [ Audio.stop, render orchestration ] )
+            ( { model | playingState = Stopped }, Cmd.batch [ Audio.stop, Score.render orchestration ] )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -192,9 +249,9 @@ update msg model =
             { model | startingNote = note, playingState = Stopped }
                 |> renderNew model.playingState
 
-        ScaleSelected scale ->
+        ScaleSelected scaleName ->
             { model
-                | scales = model.scales |> SelectList.select (Tuple.second >> (==) scale)
+                | scales = model.scales |> SelectList.select (Tuple.first >> (==) scaleName)
                 , playingState = Stopped
                 , startingNote = SelectList.selected model.roots
             }
@@ -212,7 +269,7 @@ update msg model =
                 | timeSignature = timeSignature
                 , playingState = Stopped
                 , noteDuration =
-                    if durationGte (beatDuration timeSignature) Quarter then
+                    if TimeSignature.durationGte (TimeSignature.beatDuration timeSignature) Quarter then
                         model.noteDuration
 
                     else
@@ -236,8 +293,10 @@ update msg model =
         RangeMinStepDown ->
             let
                 min =
-                    Pitch.transpose [ natural, flat ] (lowest model.range) -1
-                        |> Maybe.withDefault (lowest model.range)
+                    Pitch.transposeDown Interval.minorSecond (Range.lowest model.range)
+                        |> Result.toMaybe
+                        |> Maybe.andThen (Enharmonic.asNaturalOrElseFlat >> Result.toMaybe)
+                        |> Maybe.withDefault (Range.lowest model.range)
             in
             { model | range = Range.setLowest min model.range }
                 |> renderNew model.playingState
@@ -245,8 +304,10 @@ update msg model =
         RangeMinStepUp ->
             let
                 min =
-                    Pitch.transpose [ natural, sharp ] (lowest model.range) 1
-                        |> Maybe.withDefault (lowest model.range)
+                    Pitch.transposeUp Interval.minorSecond (Range.lowest model.range)
+                        |> Result.toMaybe
+                        |> Maybe.andThen (Enharmonic.asNaturalOrElseSharp >> Result.toMaybe)
+                        |> Maybe.withDefault (Range.lowest model.range)
             in
             { model | range = Range.setLowest min model.range }
                 |> renderNew model.playingState
@@ -254,8 +315,8 @@ update msg model =
         RangeMinSkipDown ->
             let
                 min =
-                    Pitch.transpose [ natural, flat ] (lowest model.range) -12
-                        |> Maybe.withDefault (lowest model.range)
+                    Pitch.transposeDown Interval.perfectOctave (Range.lowest model.range)
+                        |> Result.withDefault (Range.lowest model.range)
             in
             { model | range = Range.setLowest min model.range }
                 |> renderNew model.playingState
@@ -263,8 +324,8 @@ update msg model =
         RangeMinSkipUp ->
             let
                 min =
-                    Pitch.transpose [ natural, sharp ] (lowest model.range) 12
-                        |> Maybe.withDefault (lowest model.range)
+                    Pitch.transposeUp Interval.perfectOctave (Range.lowest model.range)
+                        |> Result.withDefault (Range.lowest model.range)
             in
             { model | range = Range.setLowest min model.range }
                 |> renderNew model.playingState
@@ -272,8 +333,10 @@ update msg model =
         RangeMaxStepDown ->
             let
                 max =
-                    Pitch.transpose [ natural, flat ] (highest model.range) -1
-                        |> Maybe.withDefault (highest model.range)
+                    Pitch.transposeDown Interval.minorSecond (Range.highest model.range)
+                        |> Result.toMaybe
+                        |> Maybe.andThen (Enharmonic.asNaturalOrElseFlat >> Result.toMaybe)
+                        |> Maybe.withDefault (Range.highest model.range)
             in
             { model | range = Range.setHighest max model.range }
                 |> renderNew model.playingState
@@ -281,8 +344,10 @@ update msg model =
         RangeMaxStepUp ->
             let
                 max =
-                    Pitch.transpose [ natural, sharp ] (highest model.range) 1
-                        |> Maybe.withDefault (highest model.range)
+                    Pitch.transposeUp Interval.minorSecond (Range.highest model.range)
+                        |> Result.toMaybe
+                        |> Maybe.andThen (Enharmonic.asNaturalOrElseSharp >> Result.toMaybe)
+                        |> Maybe.withDefault (Range.highest model.range)
             in
             { model | range = Range.setHighest max model.range }
                 |> renderNew model.playingState
@@ -290,8 +355,8 @@ update msg model =
         RangeMaxSkipDown ->
             let
                 max =
-                    Pitch.transpose [ natural, flat ] (highest model.range) -12
-                        |> Maybe.withDefault (highest model.range)
+                    Pitch.transposeDown Interval.perfectOctave (Range.highest model.range)
+                        |> Result.withDefault (Range.highest model.range)
             in
             { model | range = Range.setHighest max model.range }
                 |> renderNew model.playingState
@@ -299,8 +364,8 @@ update msg model =
         RangeMaxSkipUp ->
             let
                 max =
-                    Pitch.transpose [ natural, sharp ] (highest model.range) 12
-                        |> Maybe.withDefault (highest model.range)
+                    Pitch.transposeUp Interval.perfectOctave (Range.highest model.range)
+                        |> Result.withDefault (Range.highest model.range)
             in
             { model | range = Range.setHighest max model.range }
                 |> renderNew model.playingState

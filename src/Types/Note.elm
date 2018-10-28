@@ -8,7 +8,7 @@ module Types.Note exposing
     )
 
 import Libs.Ratio exposing (Rational, add, denominator, fromInt, numerator, over)
-import Types.Pitch exposing (Pitch)
+import MusicTheory.Pitch exposing (Pitch)
 
 
 type Altered
