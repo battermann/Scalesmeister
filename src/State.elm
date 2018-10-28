@@ -95,15 +95,21 @@ roots =
     SelectList.fromLists
         []
         (PitchClass.pitchClass C PitchClass.natural)
-        [ PitchClass.pitchClass D PitchClass.flat
+        [ PitchClass.pitchClass C PitchClass.sharp
+        , PitchClass.pitchClass D PitchClass.flat
         , PitchClass.pitchClass D PitchClass.natural
+        , PitchClass.pitchClass D PitchClass.sharp
         , PitchClass.pitchClass E PitchClass.flat
         , PitchClass.pitchClass E PitchClass.natural
+        , PitchClass.pitchClass E PitchClass.sharp
         , PitchClass.pitchClass F PitchClass.natural
+        , PitchClass.pitchClass F PitchClass.sharp
         , PitchClass.pitchClass G PitchClass.flat
         , PitchClass.pitchClass G PitchClass.natural
+        , PitchClass.pitchClass G PitchClass.sharp
         , PitchClass.pitchClass A PitchClass.flat
         , PitchClass.pitchClass A PitchClass.natural
+        , PitchClass.pitchClass A PitchClass.sharp
         , PitchClass.pitchClass B PitchClass.flat
         , PitchClass.pitchClass B PitchClass.natural
         ]
