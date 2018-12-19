@@ -352,7 +352,7 @@ viewPage model =
         [ el (centerX :: Styles.h1) (text "Luigi")
         , paragraph
             (Styles.subTitle ++ [ paddingEach { top = 0, bottom = 40, left = 0, right = 0 }, centerX ])
-            [ row [] [ text "Generate lines for jazz improvisation based on ", el [ Font.bold ] (text "scales"), text " and ", el [ Font.bold ] (text "formulas"), text "." ] ]
+            [ paragraph [] [ text "Generate lines for jazz improvisation based on ", el [ Font.bold ] (text "scales"), text " and ", el [ Font.bold ] (text "formulas"), text "." ] ]
         , column
             [ smallSpacing, width fill ]
             [ row
@@ -373,7 +373,7 @@ viewPage model =
         , column
             ([ spacing 5, width fill ] ++ Styles.footer)
             [ row [ centerX ]
-                [ text "v0.3.1 | created with "
+                [ text "v0.3.2 | created with "
                 , link Styles.link { url = "http://elm-lang.org/", label = text "Elm" }
                 ]
             , row [ centerX ]
