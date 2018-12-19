@@ -352,7 +352,7 @@ viewPage model =
         [ el (centerX :: Styles.h1) (text "Luigi")
         , paragraph
             (Styles.subTitle ++ [ paddingEach { top = 0, bottom = 40, left = 0, right = 0 }, centerX ])
-            [ row [] [ text "Generate lines for jazz improvisation based on ", el [ Font.bold ] (text "scales"), text " and ", el [ Font.bold ] (text "formulas"), text "." ] ]
+            [ paragraph [] [ text "Generate lines for jazz improvisation based on ", el [ Font.bold ] (text "scales"), text " and ", el [ Font.bold ] (text "formulas"), text "." ] ]
         , column
             [ smallSpacing, width fill ]
             [ row
