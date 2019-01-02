@@ -410,7 +410,7 @@ viewPage model =
         , column
             ([ spacing 5, width fill ] ++ Styles.footer)
             [ row [ centerX ]
-                [ text "v0.3.2 | created with "
+                [ text "v0.3.3 | created with "
                 , link Styles.link { url = "http://elm-lang.org/", label = text "Elm" }
                 ]
             , row [ centerX ]
