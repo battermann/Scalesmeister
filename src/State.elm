@@ -29,30 +29,18 @@ scales =
     SelectList.fromLists []
         ( "Major Pentatonic", ScaleClass.majorPentatonic )
         [ ( "Aeolian", ScaleClass.aeolian )
-        , ( "Altered 𝄫 7", ScaleClass.alteredDoubleFlat7 )
         , ( "Altered", ScaleClass.altered )
-        , ( "Arabian", ScaleClass.arabian )
         , ( "Augmented", ScaleClass.augmented )
-        , ( "Balinese", ScaleClass.balinese )
         , ( "Blues", ScaleClass.blues )
-        , ( "Byzantine", ScaleClass.byzantine )
-        , ( "Chinese", ScaleClass.chinese )
         , ( "Diminished Halftone Wholetone", ScaleClass.diminishedHalfToneWholeTone )
         , ( "Diminished Wholetone Halftone", ScaleClass.diminishedWholeToneHalfTone )
         , ( "Dorian ♭9", ScaleClass.dorianFlat9 )
         , ( "Dorian ♯11", ScaleClass.dorianSharp11 )
         , ( "Dorian", ScaleClass.dorian )
         , ( "Double Harmonic Minor", ScaleClass.doubleHarmonicMinor )
-        , ( "Egyptian", ScaleClass.egyptian )
-        , ( "Eight Tone Spanish", ScaleClass.eightToneSpanish )
-        , ( "Enigmatic", ScaleClass.enigmatic )
         , ( "Harmonic Minor", ScaleClass.harmonicMinor )
-        , ( "Hirajoshi", ScaleClass.hirajoshi )
-        , ( "Hungarian Major", ScaleClass.hungarianMajor )
-        , ( "Ichikosucho", ScaleClass.ichikosucho )
         , ( "Ionian ♯5", ScaleClass.ionianSharp5 )
         , ( "Ionian", ScaleClass.ionian )
-        , ( "Kumoi", ScaleClass.kumoi )
         , ( "Leading Whole Tone", ScaleClass.leadingWholeTone )
         , ( "Locrian ♮13", ScaleClass.locrianNatural13 )
         , ( "Locrian ♮9", ScaleClass.locrianNatural9 )
@@ -64,7 +52,6 @@ scales =
         , ( "Lydian ♯9", ScaleClass.lydianSharp9 )
         , ( "Lydian", ScaleClass.lydian )
         , ( "Major", ScaleClass.major )
-        , ( "Major Pentatonic", ScaleClass.majorPentatonic )
         , ( "Major ♭2 Pentatonic", ScaleClass.majorFlat2Pentatonic )
         , ( "Major ♭6 Pentatonic", ScaleClass.majorFlat6Pentatonic )
         , ( "Melodic Minor", ScaleClass.melodicMinor )
@@ -75,17 +62,8 @@ scales =
         , ( "Mixolydian ♭13", ScaleClass.mixolydianFlat13 )
         , ( "Mixolydian ♭9 ♭13", ScaleClass.mixolydianFlat9Flat13 )
         , ( "Mixolydian", ScaleClass.mixolydian )
-        , ( "Neapolitan Major", ScaleClass.neapolitanMajor )
-        , ( "Neapolitan Minor", ScaleClass.neapolitanMinor )
-        , ( "Neapolitan", ScaleClass.neapolitan )
-        , ( "Pelog", ScaleClass.pelog )
-        , ( "Persian", ScaleClass.persian )
         , ( "Phrygian", ScaleClass.phrygian )
-        , ( "Prometheus Neapolitan", ScaleClass.prometheusNeopolitan )
-        , ( "Prometheus", ScaleClass.prometheus )
-        , ( "Purvi Theta", ScaleClass.purviTheta )
         , ( "Six Tone Symmetrical", ScaleClass.sixToneSymmetrical )
-        , ( "Todi Theta", ScaleClass.todiTheta )
         , ( "Whole Tone", ScaleClass.wholeTone )
         ]
 
@@ -252,7 +230,10 @@ update msg model =
                 |> renderNew model.playingState
 
         StartingNoteSelected note ->
-            { model | startingNote = note, playingState = Stopped }
+            { model
+                | startingNote = note
+                , playingState = Stopped
+            }
                 |> renderNew model.playingState
 
         ScaleSelected scaleName ->

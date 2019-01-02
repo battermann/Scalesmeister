@@ -6,7 +6,7 @@ import Element.Font as Font
 import Element.Input as Input
 import Html
 import Html.Attributes
-import Libs.SelectList as SelectList
+import Libs.SelectList as SelectList exposing (SelectList)
 import List.Extra
 import MusicTheory.Pitch as Pitch
 import MusicTheory.PitchClass as PitchClass exposing (PitchClass)
@@ -261,19 +261,24 @@ darkButtonAttributes =
     Styles.darkButton ++ [ Styles.userSelectNone, standardPadding, width (fill |> minimum 100) ]
 
 
-viewSelectNoteButton : (PitchClass -> Msg) -> PitchClass -> Element Msg
-viewSelectNoteButton event pitchClass =
-    Input.button darkButtonAttributes { label = PitchClass.toString pitchClass |> text, onPress = Just <| event pitchClass }
+lightButtonAttributes : List (Attribute msg)
+lightButtonAttributes =
+    Styles.lightButton ++ [ Styles.userSelectNone, standardPadding, width (fill |> minimum 100) ]
 
 
-viewSelectScaleButton : ( String, ScaleClass ) -> Element Msg
-viewSelectScaleButton ( name, scale ) =
-    Input.button darkButtonAttributes { label = text name, onPress = Just <| ScaleSelected name }
+viewSelectNoteButton : List (Attribute Msg) -> (PitchClass -> Msg) -> PitchClass -> Element Msg
+viewSelectNoteButton attrs event pitchClass =
+    Input.button attrs { label = PitchClass.toString pitchClass |> text, onPress = Just <| event pitchClass }
 
 
-viewSelectFormulaButton : Formula -> Element Msg
-viewSelectFormulaButton formula =
-    Input.button darkButtonAttributes { label = formula |> Formula.toString |> text, onPress = Just <| FormulaSelected formula }
+viewSelectScaleButton : List (Attribute Msg) -> ( String, ScaleClass ) -> Element Msg
+viewSelectScaleButton attrs ( name, scale ) =
+    Input.button attrs { label = text name, onPress = Just <| ScaleSelected name }
+
+
+viewSelectFormulaButton : List (Attribute Msg) -> Formula -> Element Msg
+viewSelectFormulaButton attrs formula =
+    Input.button attrs { label = formula |> Formula.toString |> text, onPress = Just <| FormulaSelected formula }
 
 
 viewSelectScaleDialog : Model -> Element Msg
@@ -281,7 +286,11 @@ viewSelectScaleDialog model =
     viewModalDialog "Scale" <|
         column
             [ smallSpacing ]
-            (SelectList.toList model.scales |> List.sortBy Tuple.first |> List.map viewSelectScaleButton)
+            (List.append (SelectList.before model.scales) (SelectList.after model.scales)
+                |> List.sortBy Tuple.first
+                |> List.map (viewSelectScaleButton darkButtonAttributes)
+                |> (::) (SelectList.selected model.scales |> viewSelectScaleButton lightButtonAttributes)
+            )
 
 
 viewSelectRootDialog : Model -> Element Msg
@@ -289,7 +298,11 @@ viewSelectRootDialog model =
     viewModalDialog "Root" <|
         column
             [ smallSpacing ]
-            (SelectList.toList model.roots |> List.map (viewSelectNoteButton RootSelected) |> List.Extra.greedyGroupsOf 3 |> List.map (row [ smallSpacing, width fill ]))
+            (SelectList.toList model.roots
+                |> List.map (\root -> viewSelectNoteButton (matchWithSelected darkButtonAttributes lightButtonAttributes model.roots root) RootSelected root)
+                |> List.Extra.greedyGroupsOf 3
+                |> List.map (row [ smallSpacing, width fill ])
+            )
 
 
 viewSelectStartingNoteDialog : Model -> Element Msg
@@ -299,7 +312,18 @@ viewSelectStartingNoteDialog model =
             [ smallSpacing ]
             (SelectList.selected model.scales
                 |> (Tuple.second >> Scale.scale (SelectList.selected model.roots) >> Scale.toList)
-                |> List.map (viewSelectNoteButton StartingNoteSelected)
+                |> List.map
+                    (\startingNote ->
+                        viewSelectNoteButton
+                            (if model.startingNote == startingNote then
+                                lightButtonAttributes
+
+                             else
+                                darkButtonAttributes
+                            )
+                            StartingNoteSelected
+                            startingNote
+                    )
                 |> List.Extra.greedyGroupsOf 3
                 |> List.map (row [ smallSpacing, width fill ])
             )
@@ -310,7 +334,11 @@ viewSelectFormulaDialog model =
     viewModalDialog "Formula" <|
         column
             [ smallSpacing ]
-            (SelectList.toList model.formulas |> List.map viewSelectFormulaButton |> List.Extra.greedyGroupsOf 2 |> List.map (row [ smallSpacing, width fill ]))
+            (SelectList.toList model.formulas
+                |> List.map (\f -> viewSelectFormulaButton (matchWithSelected darkButtonAttributes lightButtonAttributes model.formulas f) f)
+                |> List.Extra.greedyGroupsOf 2
+                |> List.map (row [ smallSpacing, width fill ])
+            )
 
 
 viewSelectedDialog : Model -> Element Msg
@@ -332,6 +360,15 @@ viewSelectedDialog model =
             Element.none
 
 
+matchWithSelected : b -> b -> SelectList a -> a -> b
+matchWithSelected onNotSelected onSelected list a =
+    if SelectList.selected list == a then
+        onSelected
+
+    else
+        onNotSelected
+
+
 viewPage : Model -> Element Msg
 viewPage model =
     let
@@ -349,7 +386,7 @@ viewPage model =
                 )
     in
     column [ width fill, spacing 40, paddingXY 10 10, paddingTop ]
-        [ el (centerX :: Styles.h1) (text "Luigi")
+        [ el (centerX :: Styles.h1) (text "Scalesmeister")
         , paragraph
             (Styles.subTitle ++ [ paddingEach { top = 0, bottom = 40, left = 0, right = 0 }, centerX ])
             [ paragraph [] [ text "Generate lines for jazz improvisation based on ", el [ Font.bold ] (text "scales"), text " and ", el [ Font.bold ] (text "formulas"), text "." ] ]
@@ -373,7 +410,7 @@ viewPage model =
         , column
             ([ spacing 5, width fill ] ++ Styles.footer)
             [ row [ centerX ]
-                [ text "v0.3.2 | created with "
+                [ text "v0.3.3 | created with "
                 , link Styles.link { url = "http://elm-lang.org/", label = text "Elm" }
                 ]
             , row [ centerX ]

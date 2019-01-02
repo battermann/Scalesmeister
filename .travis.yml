@@ -30,5 +30,5 @@ script:
 deploy:
   provider: surge
   project: ./build/
-  domain: luigi-app.surge.sh
+  domain: scalesmeister.surge.sh
   skip_cleanup: true
