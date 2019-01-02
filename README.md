@@ -4,4 +4,4 @@
 
 Generate lines for jazz improvisation based on scales and formulas.
 
-[Live Demo](https://luigi-app.surge.sh/)
+[Live Demo](https://scalesmeister.surge.sh/)
