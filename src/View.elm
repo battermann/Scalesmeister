@@ -349,7 +349,7 @@ viewPage model =
                 )
     in
     column [ width fill, spacing 40, paddingXY 10 10, paddingTop ]
-        [ el (centerX :: Styles.h1) (text "Luigi")
+        [ el (centerX :: Styles.h1) (text "Scalesmeister")
         , paragraph
             (Styles.subTitle ++ [ paddingEach { top = 0, bottom = 40, left = 0, right = 0 }, centerX ])
             [ paragraph [] [ text "Generate lines for jazz improvisation based on ", el [ Font.bold ] (text "scales"), text " and ", el [ Font.bold ] (text "formulas"), text "." ] ]
