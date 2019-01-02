@@ -52,7 +52,6 @@ scales =
         , ( "Lydian ♯9", ScaleClass.lydianSharp9 )
         , ( "Lydian", ScaleClass.lydian )
         , ( "Major", ScaleClass.major )
-        , ( "Major Pentatonic", ScaleClass.majorPentatonic )
         , ( "Major ♭2 Pentatonic", ScaleClass.majorFlat2Pentatonic )
         , ( "Major ♭6 Pentatonic", ScaleClass.majorFlat6Pentatonic )
         , ( "Melodic Minor", ScaleClass.melodicMinor )
@@ -231,7 +230,10 @@ update msg model =
                 |> renderNew model.playingState
 
         StartingNoteSelected note ->
-            { model | startingNote = note, playingState = Stopped }
+            { model
+                | startingNote = note
+                , playingState = Stopped
+            }
                 |> renderNew model.playingState
 
         ScaleSelected scaleName ->
