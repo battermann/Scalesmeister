@@ -386,7 +386,15 @@ viewPage model =
                 )
     in
     column [ width fill, spacing 40, paddingXY 10 10, paddingTop ]
-        [ el (centerX :: Styles.h1) (text "Scalesmeister")
+        [ el
+            [ centerX
+            , if model.device.width < 411 then
+                Font.size 50
+
+              else
+                Font.size 60
+            ]
+            (text "Scalesmeister")
         , paragraph
             (Styles.subTitle ++ [ paddingEach { top = 0, bottom = 40, left = 0, right = 0 }, centerX ])
             [ paragraph [] [ text "Generate lines for jazz improvisation based on ", el [ Font.bold ] (text "scales"), text " and ", el [ Font.bold ] (text "formulas"), text "." ] ]
@@ -410,11 +418,11 @@ viewPage model =
         , column
             ([ spacing 5, width fill ] ++ Styles.footer)
             [ row [ centerX ]
-                [ text "v0.3.4 | created with "
+                [ text "v0.3.5 | created with "
                 , link Styles.link { url = "http://elm-lang.org/", label = text "Elm" }
                 ]
             , row [ centerX ]
-                [ text "sound samples from "
+                [ text "sound samples: "
                 , link Styles.link { url = "https://archive.org/details/SalamanderGrandPianoV3", label = text "Salamander Grand Piano" }
                 ]
             , row [ centerX ]
