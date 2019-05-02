@@ -10,10 +10,9 @@ module Types.Orchestration exposing
 import Dict.Any as Dict exposing (AnyDict)
 import List.Extra
 import MusicTheory.Letter as Letter exposing (Letter)
-import MusicTheory.Octave as Octave exposing (Octave)
+import MusicTheory.Octave exposing (Octave)
 import MusicTheory.Pitch as Pitch exposing (Pitch)
 import MusicTheory.Pitch.Spelling as Spelling exposing (PitchSpelling)
-import MusicTheory.PitchClass exposing (PitchClass)
 import MusicTheory.PitchClass.Spelling exposing (Accidental(..))
 import Types.Line exposing (Line)
 import Types.Note exposing (Duration(..), Note(..), Rest(..), addDurations)

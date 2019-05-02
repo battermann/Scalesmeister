@@ -62,8 +62,7 @@ module MusicTheory.ScaleClass exposing
     )
 
 import MusicTheory.Internal.ScaleClass as ScaleClass
-import MusicTheory.Interval as Interval exposing (Interval)
-import MusicTheory.PitchClass as PitchClass exposing (PitchClass)
+import MusicTheory.Interval as Interval
 
 
 type alias ScaleClass =

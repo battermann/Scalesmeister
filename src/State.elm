@@ -7,7 +7,7 @@ import Libs.SelectList as SelectList exposing (SelectList)
 import MusicTheory.Interval as Interval
 import MusicTheory.Letter exposing (Letter(..))
 import MusicTheory.Octave as Octave
-import MusicTheory.Pitch as Pitch exposing (Pitch)
+import MusicTheory.Pitch as Pitch
 import MusicTheory.Pitch.Enharmonic as Enharmonic
 import MusicTheory.PitchClass as PitchClass exposing (PitchClass)
 import MusicTheory.Scale as Scale

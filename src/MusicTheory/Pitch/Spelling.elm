@@ -8,11 +8,11 @@ module MusicTheory.Pitch.Spelling exposing
     )
 
 import MusicTheory.Internal.Pitch as Pitch exposing (Pitch)
-import MusicTheory.Internal.PitchClass as PitchClass exposing (PitchClass)
+import MusicTheory.Internal.PitchClass as PitchClass
 import MusicTheory.Internal.PitchClass.Enharmonic as PitchClassEnharmonic exposing (NaturalOrSingleAccidental(..))
 import MusicTheory.Letter as Letter exposing (Letter(..))
 import MusicTheory.Octave as Octave exposing (Octave)
-import MusicTheory.Pitch.Enharmonic as Enharmonic exposing (EnharmonicTransformationError(..))
+import MusicTheory.Pitch.Enharmonic exposing (EnharmonicTransformationError(..))
 import MusicTheory.PitchClass.Spelling exposing (Accidental(..))
 
 

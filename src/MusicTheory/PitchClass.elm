@@ -20,8 +20,8 @@ module MusicTheory.PitchClass exposing
 -}
 
 import MusicTheory.Internal.PitchClass as Internal
-import MusicTheory.Interval as Interval exposing (Interval)
-import MusicTheory.Letter as Letter exposing (Letter)
+import MusicTheory.Interval exposing (Interval)
+import MusicTheory.Letter exposing (Letter)
 import MusicTheory.PitchClass.Enharmonic as Enharmonic
 
 

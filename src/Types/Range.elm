@@ -3,7 +3,7 @@ module Types.Range exposing (Range, contains, highest, lowest, piano, setHighest
 import MusicTheory.Letter exposing (Letter(..))
 import MusicTheory.Octave as Octave
 import MusicTheory.Pitch as Pitch exposing (Pitch)
-import MusicTheory.PitchClass as PitchClass exposing (natural)
+import MusicTheory.PitchClass exposing (natural)
 
 
 type Range

@@ -3,7 +3,7 @@ module Score exposing (downloadAsPdf, elementId, render)
 import List.Extra
 import MusicTheory.Letter as Letter
 import MusicTheory.Octave as Octave
-import MusicTheory.Pitch as Pitch exposing (Pitch)
+import MusicTheory.Pitch exposing (Pitch)
 import MusicTheory.Pitch.Spelling as Spelling
 import MusicTheory.PitchClass.Spelling exposing (Accidental(..))
 import Ports.Out

@@ -45,8 +45,6 @@ module Libs.Ratio exposing
 
 -}
 
-import Basics exposing (..)
-
 
 {-| "Arbitrary" (up to `max_int` size) precision fractional numbers. Think of
 it as the length of a rigid bar that you've constructed from a bunch of
@@ -79,6 +77,7 @@ gcd a b =
 -}
 
 
+normalize : Rational -> Rational
 normalize (Rational p q) =
     let
         k =

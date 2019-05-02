@@ -37,14 +37,17 @@ font =
         ]
 
 
+lightGray : Element.Color
 lightGray =
     rgb 0.4 0.4 0.4
 
 
+darkGray : Element.Color
 darkGray =
     rgb 0.25 0.25 0.25
 
 
+veryLightGray : Element.Color
 veryLightGray =
     rgb 0.9 0.9 0.9
 

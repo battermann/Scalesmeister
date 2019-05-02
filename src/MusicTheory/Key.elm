@@ -7,8 +7,7 @@ module MusicTheory.Key exposing
     , tonic
     )
 
-import MusicTheory.Letter exposing (Letter(..))
-import MusicTheory.PitchClass exposing (PitchClass, pitchClass)
+import MusicTheory.PitchClass exposing (PitchClass)
 import MusicTheory.Scale as Scale exposing (Scale)
 import MusicTheory.ScaleClass as ScaleClass
 

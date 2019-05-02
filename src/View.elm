@@ -1,6 +1,6 @@
 module View exposing (view)
 
-import Element as Element exposing (Attribute, Element, alignBottom, alignLeft, alignRight, centerX, centerY, column, el, fill, height, image, inFront, link, minimum, padding, paddingEach, paddingXY, paragraph, px, rgb255, row, scrollbarX, scrollbars, spacing, text, width)
+import Element as Element exposing (Attribute, Element, alignBottom, centerX, centerY, column, el, fill, height, image, inFront, link, minimum, padding, paddingEach, paddingXY, paragraph, px, row, scrollbars, spacing, text, width)
 import Element.Events exposing (onClick)
 import Element.Font as Font
 import Element.Input as Input
@@ -10,9 +10,7 @@ import Libs.SelectList as SelectList exposing (SelectList)
 import List.Extra
 import MusicTheory.Pitch as Pitch
 import MusicTheory.PitchClass as PitchClass exposing (PitchClass)
-import MusicTheory.PitchClass.Spelling as Spelling
 import MusicTheory.Scale as Scale
-import MusicTheory.ScaleClass exposing (ScaleClass)
 import Score
 import Types exposing (Dialog(..), Model, Msg(..), PlayingState(..))
 import Types.Formula as Formula exposing (Formula)
@@ -271,8 +269,8 @@ viewSelectNoteButton attrs event pitchClass =
     Input.button attrs { label = PitchClass.toString pitchClass |> text, onPress = Just <| event pitchClass }
 
 
-viewSelectScaleButton : List (Attribute Msg) -> ( String, ScaleClass ) -> Element Msg
-viewSelectScaleButton attrs ( name, scale ) =
+viewSelectScaleButton : List (Attribute Msg) -> String -> Element Msg
+viewSelectScaleButton attrs name =
     Input.button attrs { label = text name, onPress = Just <| ScaleSelected name }
 
 
@@ -288,8 +286,8 @@ viewSelectScaleDialog model =
             [ smallSpacing ]
             (List.append (SelectList.before model.scales) (SelectList.after model.scales)
                 |> List.sortBy Tuple.first
-                |> List.map (viewSelectScaleButton darkButtonAttributes)
-                |> (::) (SelectList.selected model.scales |> viewSelectScaleButton lightButtonAttributes)
+                |> List.map (Tuple.first >> viewSelectScaleButton darkButtonAttributes)
+                |> (::) (SelectList.selected model.scales |> Tuple.first >> viewSelectScaleButton lightButtonAttributes)
             )
 
 
@@ -380,7 +378,7 @@ viewPage model =
                 )
 
             else
-                ( row ([ width fill ] ++ Styles.score) [ el (Styles.score ++ [ id Score.elementId, centerX ]) Element.none ]
+                ( row (width fill :: Styles.score) [ el (Styles.score ++ [ id Score.elementId, centerX ]) Element.none ]
                 , paddingEach { top = 100, bottom = 0, left = 0, right = 0 }
                 , paddingXY 250 0
                 )

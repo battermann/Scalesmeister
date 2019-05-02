@@ -6,12 +6,10 @@ module Types.Line exposing
 
 import List.Extra
 import Maybe.Extra
-import MusicTheory.Letter as Letter
 import MusicTheory.Octave as Octave
 import MusicTheory.Pitch as Pitch exposing (Pitch)
 import MusicTheory.PitchClass as PitchClass exposing (PitchClass)
 import MusicTheory.Scale exposing (Scale, toList)
-import Set
 import Types.Formula as Formula exposing (Direction(..), Formula)
 import Types.Range as Range exposing (Range)
 
