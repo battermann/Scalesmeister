@@ -1,6 +1,6 @@
 module View exposing (view)
 
-import Element as Element exposing (Attribute, Element, alignBottom, centerX, centerY, column, el, fill, height, image, inFront, link, minimum, padding, paddingEach, paddingXY, paragraph, px, row, scrollbars, spacing, text, width)
+import Element as Element exposing (Attribute, Element, alignBottom, alignRight, centerX, centerY, column, el, fill, height, image, inFront, link, minimum, padding, paddingEach, paddingXY, paragraph, px, row, scrollbars, spacing, text, width)
 import Element.Events exposing (onClick)
 import Element.Font as Font
 import Element.Input as Input
@@ -367,6 +367,21 @@ matchWithSelected onNotSelected onSelected list a =
         onNotSelected
 
 
+viewAdvancedControls : Model -> Element Msg
+viewAdvancedControls model =
+    if model.advancedControls then
+        column (Styles.settings ++ [ padding 20, spacing 6, width fill ])
+            [ row [ spacing 10, alignRight, Styles.userSelectNone, onClick ToggleAdvancedControls ] [ Icons.angleUp ]
+            , viewTimeSignatureControls model
+            , viewNoteDurationControls model
+            ]
+
+    else
+        column (Styles.settings ++ [ padding 20, spacing 6, width fill ])
+            [ row [ spacing 10, alignRight, Styles.userSelectNone, onClick ToggleAdvancedControls ] [ el Styles.smallText (text "More"), Icons.angleDown ]
+            ]
+
+
 viewPage : Model -> Element Msg
 viewPage model =
     let
@@ -406,9 +421,8 @@ viewPage model =
                         [ viewTempoSlider model
                         , viewMainSettingsControls model
                         , viewRangeControls model
-                        , viewTimeSignatureControls model
-                        , viewNoteDurationControls model
                         ]
+                    , viewAdvancedControls model
                     ]
                 ]
             , viewScore

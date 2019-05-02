@@ -161,6 +161,7 @@ init =
             , noteDuration = noteDuration
             , clickTrack = Switch.off
             , tempo = 160
+            , advancedControls = False
             }
     in
     case line model |> Orchestration.orchestrate timeSignature noteDuration of
@@ -368,6 +369,9 @@ update msg model =
 
         UpdateTempo tempo ->
             ( { model | tempo = tempo }, tempo |> round |> Audio.setTempo )
+
+        ToggleAdvancedControls ->
+            ( { model | advancedControls = not model.advancedControls }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg

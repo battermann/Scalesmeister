@@ -47,29 +47,31 @@ type alias Model =
     , noteDuration : Note.Duration
     , clickTrack : Switch
     , tempo : Float
+    , advancedControls : Bool
     }
 
 
 type Msg
-    = TogglePlay
+    = CloseDialog
     | DownloadPdf
-    | RootSelected PitchClass
-    | StartingNoteSelected PitchClass
-    | ScaleSelected String
     | FormulaSelected Formula
     | Open Dialog
-    | SamplesLoaded
-    | WindowResize Device
-    | SetTimeSignature TimeSignature
-    | ToggleNoteValue
-    | RangeMinStepDown
-    | RangeMinStepUp
-    | RangeMinSkipDown
-    | RangeMinSkipUp
-    | RangeMaxStepDown
-    | RangeMaxStepUp
     | RangeMaxSkipDown
     | RangeMaxSkipUp
-    | CloseDialog
+    | RangeMaxStepDown
+    | RangeMaxStepUp
+    | RangeMinSkipDown
+    | RangeMinSkipUp
+    | RangeMinStepDown
+    | RangeMinStepUp
+    | RootSelected PitchClass
+    | SamplesLoaded
+    | ScaleSelected String
+    | SetTimeSignature TimeSignature
+    | StartingNoteSelected PitchClass
+    | ToggleAdvancedControls
     | ToggleClick
+    | ToggleNoteValue
+    | TogglePlay
     | UpdateTempo Float
+    | WindowResize Device
