@@ -1,6 +1,8 @@
 module View.FontAwesome exposing
-    ( angleLeft
+    ( angleDown
+    , angleLeft
     , angleRight
+    , angleUp
     , doubleAngleLeft
     , doubleAngleRight
     , download
@@ -70,6 +72,16 @@ doubleAngleRight =
 doubleAngleLeft : Element.Element msg
 doubleAngleLeft =
     toEl "fas fa-angle-double-left"
+
+
+angleDown : Element.Element msg
+angleDown =
+    toEl "fas fa-angle-down"
+
+
+angleUp : Element.Element msg
+angleUp =
+    toEl "fas fa-angle-up"
 
 
 spinner : Element.Element msg
