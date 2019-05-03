@@ -10,6 +10,7 @@ module View.FontAwesome exposing
     , play
     , spinner
     , stop
+    , times
     , volumeOff
     , volumeUp
     )
@@ -37,6 +38,11 @@ volumeOff =
 download : Element.Element msg
 download =
     toEl "fas fa-download"
+
+
+times : Element.Element msg
+times =
+    toEl "fas fa-times"
 
 
 play : Element.Element msg

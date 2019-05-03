@@ -1,10 +1,12 @@
 module View.Styles exposing
     ( darkButton
+    , darkGray
     , dialog
     , footer
     , gitHubIcon
     , h1
     , h2
+    , largeText
     , lightButton
     , link
     , opacity
@@ -118,6 +120,11 @@ page =
 smallText : List (Attribute msg)
 smallText =
     [ Font.size 14 ]
+
+
+largeText : List (Attribute msg)
+largeText =
+    [ Font.size 28 ]
 
 
 dialog : List (Attribute msg)
