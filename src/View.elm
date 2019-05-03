@@ -6,8 +6,6 @@ import Element.Font as Font
 import Element.Input as Input
 import Html
 import Html.Attributes
-import Html.Events
-import Json.Decode
 import Libs.SelectList as SelectList exposing (SelectList)
 import List.Extra
 import MusicTheory.Pitch as Pitch
@@ -355,7 +353,7 @@ viewSelectFormulaDialog model =
                 , placeholder = Just <| Input.placeholder [] <| text "example: +2-1-2+1"
                 , label = Input.labelHidden "formula"
                 }
-            , el Styles.largeText (text <| Formula.toString model.formula)
+            , el (onClick CloseDialog :: width fill :: Styles.userSelectNone :: padding 10 :: Styles.largeText) (text <| Formula.toString model.formula)
             , column
                 [ smallSpacing ]
                 (Formula.formulas
