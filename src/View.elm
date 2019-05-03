@@ -397,6 +397,7 @@ viewAdvancedControls model =
     if model.advancedControls then
         column (Styles.settings ++ [ padding 20, spacing 6, width fill ])
             [ row [ spacing 10, alignRight, Styles.userSelectNone, onClick ToggleAdvancedControls ] [ Icons.angleUp ]
+            , viewRangeControls model
             , viewTimeSignatureControls model
             , viewNoteDurationControls model
             ]
@@ -445,7 +446,6 @@ viewPage model =
                     , column (Styles.settings ++ [ padding 20, spacing 6, width fill ])
                         [ viewTempoSlider model
                         , viewMainSettingsControls model
-                        , viewRangeControls model
                         ]
                     , viewAdvancedControls model
                     ]
