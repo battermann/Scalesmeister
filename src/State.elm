@@ -118,7 +118,7 @@ init =
     let
         range =
             Range.piano
-                |> Range.setLowest (Pitch.pitch C PitchClass.natural Octave.four)
+                |> Range.setLowest (Pitch.pitch C PitchClass.natural Octave.three)
                 |> Range.setHighest (Pitch.pitch B PitchClass.natural Octave.six)
 
         timeSignature =
