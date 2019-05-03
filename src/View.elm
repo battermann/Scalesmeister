@@ -6,6 +6,8 @@ import Element.Font as Font
 import Element.Input as Input
 import Html
 import Html.Attributes
+import Html.Events
+import Json.Decode
 import Libs.SelectList as SelectList exposing (SelectList)
 import List.Extra
 import MusicTheory.Pitch as Pitch
@@ -227,7 +229,7 @@ viewMainSettingsControls model =
         |> viewControlWithLabel [ width fill ] "Scale"
     , Input.button
         buttonAttributes
-        { label = model.formulas |> SelectList.selected |> Formula.toString |> text, onPress = Just <| Open SelectFormula }
+        { label = model.formula |> Formula.toString |> text, onPress = Just <| Open SelectFormula }
         |> viewControlWithLabel [ width fill ] "Formula"
     , Input.button
         buttonAttributes
@@ -241,17 +243,33 @@ viewMainSettingsControls model =
 
 viewModalDialog : String -> Element Msg -> Element Msg
 viewModalDialog heading element =
-    el (Styles.page ++ [ centerX, padding 20 ]) (column [ spacing 20 ] [ el (centerX :: Styles.h2) (text heading), element ])
-        |> el
-            (Styles.dialog
-                ++ [ Element.htmlAttribute (Html.Attributes.style "z-index" "20")
-                   , width fill
-                   , height fill
-                   , onClick CloseDialog
-                   , paddingEach { top = 100, left = 0, bottom = 0, right = 0 }
-                   , scrollbars
-                   ]
-            )
+    el
+        (Styles.dialog
+            ++ [ Element.htmlAttribute (Html.Attributes.style "z-index" "20")
+               , width fill
+               , height fill
+               , onClick CloseDialog
+               , paddingEach { top = 100, left = 0, bottom = 0, right = 0 }
+               , scrollbars
+               ]
+        )
+    <|
+        el (Styles.page ++ [ centerX, padding 20 ]) (column [ spacing 20 ] [ el [ Element.alignRight, Styles.userSelectNone ] Icons.times, el (centerX :: Styles.h2) (text heading), element ])
+
+
+viewModalDialog2 : String -> Element Msg -> Element Msg
+viewModalDialog2 heading element =
+    el
+        (Styles.dialog
+            ++ [ Element.htmlAttribute (Html.Attributes.style "z-index" "20")
+               , width fill
+               , height fill
+               , paddingEach { top = 100, left = 0, bottom = 0, right = 0 }
+               , scrollbars
+               ]
+        )
+    <|
+        el (Styles.page ++ [ centerX, padding 20 ]) (column [ spacing 20 ] [ el [ Element.alignRight, Styles.userSelectNone, onClick CloseDialog ] Icons.times, el (centerX :: Styles.h2) (text heading), element ])
 
 
 darkButtonAttributes : List (Attribute msg)
@@ -329,14 +347,23 @@ viewSelectStartingNoteDialog model =
 
 viewSelectFormulaDialog : Model -> Element Msg
 viewSelectFormulaDialog model =
-    viewModalDialog "Formula" <|
-        column
-            [ smallSpacing ]
-            (SelectList.toList model.formulas
-                |> List.map (\f -> viewSelectFormulaButton (matchWithSelected darkButtonAttributes lightButtonAttributes model.formulas f) f)
-                |> List.Extra.greedyGroupsOf 2
-                |> List.map (row [ smallSpacing, width fill ])
-            )
+    viewModalDialog2 "Formula" <|
+        column [ Element.spacing 16 ]
+            [ Input.text [ Font.color Styles.darkGray, Element.htmlAttribute (Html.Attributes.id "formula-input") ]
+                { onChange = FormulaInput
+                , text = model.formulaInput
+                , placeholder = Just <| Input.placeholder [] <| text "example: +2-1-2+1"
+                , label = Input.labelHidden "formula"
+                }
+            , el Styles.largeText (text <| Formula.toString model.formula)
+            , column
+                [ smallSpacing ]
+                (Formula.formulas
+                    |> List.map (viewSelectFormulaButton darkButtonAttributes)
+                    |> List.Extra.greedyGroupsOf 2
+                    |> List.map (row [ smallSpacing, width fill ])
+                )
+            ]
 
 
 viewSelectedDialog : Model -> Element Msg

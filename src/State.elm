@@ -14,7 +14,7 @@ import MusicTheory.Scale as Scale
 import MusicTheory.ScaleClass as ScaleClass exposing (ScaleClass)
 import Score as Score
 import Task
-import Types exposing (Device, Model, Msg(..), PlayingState(..))
+import Types exposing (Device, Dialog(..), Model, Msg(..), PlayingState(..))
 import Types.Formula as Formula exposing (Formula)
 import Types.Line as Line exposing (Line)
 import Types.Note as Note
@@ -93,26 +93,6 @@ roots =
         ]
 
 
-formulas : SelectList Formula
-formulas =
-    SelectList.fromLists []
-        [ 1 ]
-        [ [ -1 ]
-        , [ 2 ]
-        , [ -2 ]
-        , Formula.formula1
-        , Formula.formula1 |> Formula.invert
-        , Formula.formula2
-        , Formula.formula2 |> Formula.invert
-        , Formula.formula3
-        , Formula.formula3 |> Formula.invert
-        , Formula.formula4
-        , Formula.formula4 |> Formula.invert
-        , Formula.formula5
-        , Formula.formula5 |> Formula.invert
-        ]
-
-
 mkLine : Range -> ScaleClass -> Formula -> PitchClass -> PitchClass -> Line
 mkLine range scaleClass formula root startingNote =
     Line.fromScaleWithinRange range (Scale.scale root scaleClass)
@@ -123,7 +103,7 @@ line : Model -> Line
 line model =
     mkLine model.range
         (model.scales |> SelectList.selected |> Tuple.second)
-        (model.formulas |> SelectList.selected)
+        model.formula
         (model.roots |> SelectList.selected)
         model.startingNote
 
@@ -147,9 +127,13 @@ init =
         noteDuration =
             Note.Eighth Note.None
 
+        formula =
+            [ 1 ]
+
         model =
             { range = range
-            , formulas = formulas
+            , formula = formula
+            , formulaInput = Formula.serialize formula
             , roots = roots
             , startingNote = SelectList.selected roots
             , scales = scales
@@ -205,6 +189,9 @@ renderNew playingState model =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        NoOp ->
+            ( model, Cmd.none )
+
         TogglePlay ->
             case model.playingState of
                 Stopped ->
@@ -217,7 +204,12 @@ update msg model =
             ( model, Score.downloadAsPdf )
 
         Open dialog ->
-            ( { model | dialog = Just dialog }, Cmd.none )
+            case dialog of
+                SelectFormula ->
+                    ( { model | dialog = Just dialog, formulaInput = Formula.serialize model.formula }, Task.attempt (always NoOp) (Browser.Dom.focus "formula-input") )
+
+                _ ->
+                    ( { model | dialog = Just dialog }, Cmd.none )
 
         CloseDialog ->
             ( { model | dialog = Nothing }, Cmd.none )
@@ -247,8 +239,9 @@ update msg model =
 
         FormulaSelected formula ->
             { model
-                | formulas = model.formulas |> SelectList.select ((==) formula)
+                | formula = formula
                 , playingState = Stopped
+                , formulaInput = Formula.serialize formula
             }
                 |> renderNew model.playingState
 
@@ -372,6 +365,15 @@ update msg model =
 
         ToggleAdvancedControls ->
             ( { model | advancedControls = not model.advancedControls }, Cmd.none )
+
+        FormulaInput input ->
+            case input |> Formula.fromString of
+                Just formula ->
+                    { model | formula = formula, formulaInput = input, playingState = Stopped }
+                        |> renderNew model.playingState
+
+                Nothing ->
+                    ( { model | formulaInput = input }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg

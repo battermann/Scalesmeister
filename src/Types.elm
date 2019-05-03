@@ -36,7 +36,8 @@ type alias Device =
 type alias Model =
     { range : Range
     , scales : SelectList ( String, ScaleClass )
-    , formulas : SelectList Formula
+    , formula : Formula
+    , formulaInput : String
     , roots : SelectList PitchClass
     , startingNote : PitchClass
     , dialog : Maybe Dialog
@@ -55,6 +56,8 @@ type Msg
     = CloseDialog
     | DownloadPdf
     | FormulaSelected Formula
+    | FormulaInput String
+    | NoOp
     | Open Dialog
     | RangeMaxSkipDown
     | RangeMaxSkipUp
