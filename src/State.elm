@@ -242,6 +242,7 @@ update msg model =
                 | formula = formula
                 , playingState = Stopped
                 , formulaInput = Formula.serialize formula
+                , dialog = Nothing
             }
                 |> renderNew model.playingState
 
@@ -367,13 +368,10 @@ update msg model =
             ( { model | advancedControls = not model.advancedControls }, Cmd.none )
 
         FormulaInput input ->
-            case input |> Formula.fromString of
-                Just formula ->
-                    { model | formula = formula, formulaInput = input, playingState = Stopped }
-                        |> renderNew model.playingState
+            ( { model | formulaInput = input |> Formula.filter }, Cmd.none )
 
-                Nothing ->
-                    ( { model | formulaInput = input }, Cmd.none )
+        FormulaPresetSelected formula ->
+            ( { model | formulaInput = formula |> Formula.serialize }, Task.attempt (always NoOp) (Browser.Dom.focus "formula-input") )
 
 
 subscriptions : Model -> Sub Msg
