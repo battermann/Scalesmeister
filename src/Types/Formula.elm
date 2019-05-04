@@ -2,6 +2,7 @@ module Types.Formula exposing
     ( Direction(..)
     , Formula
     , direction
+    , filter
     , formula1
     , formula2
     , formula3
@@ -10,6 +11,7 @@ module Types.Formula exposing
     , formulas
     , fromString
     , invert
+    , isValidChar
     , serialize
     , toString
     )
@@ -118,6 +120,16 @@ serialize =
     toStringWithSymbol "" "+" "-"
 
 
+isValidChar : Char -> Bool
+isValidChar c =
+    Char.isDigit c || c == '+' || c == '-'
+
+
+filter : String -> String
+filter =
+    String.toList >> List.filter isValidChar >> String.fromList
+
+
 fromString : String -> Maybe Formula
 fromString str =
     let
@@ -138,7 +150,7 @@ fromString str =
                 c :: tail ->
                     go (acc ++ toStep c) tail
     in
-    case go [] (String.toList str |> List.filter (\c -> Char.isDigit c || c == '+' || c == '-')) of
+    case go [] (String.toList str |> List.filter isValidChar) of
         [] ->
             Nothing
 

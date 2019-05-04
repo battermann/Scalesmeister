@@ -56,6 +56,7 @@ type Msg
     = CloseDialog
     | DownloadPdf
     | FormulaSelected Formula
+    | FormulaPresetSelected Formula
     | FormulaInput String
     | NoOp
     | Open Dialog

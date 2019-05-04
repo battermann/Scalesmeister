@@ -292,7 +292,7 @@ viewSelectScaleButton attrs name =
 
 viewSelectFormulaButton : List (Attribute Msg) -> Formula -> Element Msg
 viewSelectFormulaButton attrs formula =
-    Input.button attrs { label = formula |> Formula.toString |> text, onPress = Just <| FormulaSelected formula }
+    Input.button attrs { label = formula |> Formula.toString |> text, onPress = Just <| FormulaPresetSelected formula }
 
 
 viewSelectScaleDialog : Model -> Element Msg
@@ -353,7 +353,17 @@ viewSelectFormulaDialog model =
                 , placeholder = Just <| Input.placeholder [] <| text "example: +2-1-2+1"
                 , label = Input.labelHidden "formula"
                 }
-            , el (onClick CloseDialog :: width fill :: Styles.userSelectNone :: padding 10 :: Styles.largeText) (text <| Formula.toString model.formula)
+            , el (onClick CloseDialog :: width fill :: Styles.userSelectNone :: padding 10 :: Styles.largeText)
+                (Maybe.withDefault (text "invalid") (model.formulaInput |> Formula.fromString |> Maybe.map (Formula.toString >> text)))
+            , row [ spacing 2, width fill ]
+                [ Input.button lightButtonAttributes { label = el [ Element.centerX ] <| text "Cancel", onPress = Just <| CloseDialog }
+                , case model.formulaInput |> Formula.fromString of
+                    Just formula ->
+                        Input.button lightButtonAttributes { label = el [ Element.centerX ] <| text "Ok", onPress = Just <| FormulaSelected formula }
+
+                    Nothing ->
+                        el lightButtonAttributes (el [ Element.centerX ] <| text "Ok")
+                ]
             , column
                 [ smallSpacing ]
                 (Formula.formulas

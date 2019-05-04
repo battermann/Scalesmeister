@@ -124,7 +124,7 @@ smallText =
 
 largeText : List (Attribute msg)
 largeText =
-    [ Font.size 28 ]
+    [ Font.size 22 ]
 
 
 dialog : List (Attribute msg)
