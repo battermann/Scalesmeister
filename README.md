@@ -2,6 +2,6 @@
 
 # Scalesmeister
 
-Generate lines for jazz improvisation based on scales and formulas.
+Jazz line generator written in Elm based on scales and formulas.
 
 [Live Demo](https://scalesmeister.surge.sh/)
