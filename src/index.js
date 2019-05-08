@@ -2,8 +2,6 @@ import '@fortawesome/fontawesome-free/css/all.css'
 import { Elm } from './Main.elm'
 import { Sampler, Transport, Part, Player } from 'tone'
 import StartAudioContext from 'startaudiocontext'
-import svg2pdf from 'svg2pdf.js'
-import jsPDF from 'jspdf-yworks'
 import abcjs from 'abcjs'
 import registerServiceWorker from './registerServiceWorker'
 
@@ -17,32 +15,11 @@ var sampler = null
 var part = null
 var player = null
 var clickTrack = null
+var audioContextStarted = false
 
 Transport.bpm.value = 160
 
 var button = document.getElementById('play-button')
-
-StartAudioContext(Transport.context, button, function () {})
-
-app.ports.downloadPdf.subscribe(function () {
-  const svgElement = document.getElementById('score').lastChild
-  const width = 600; const height = 400
-
-  // create a new jsPDF instance
-  /* eslint-disable */
-  const pdf = new jsPDF('l', 'pt', [width, height])
-  /* eslint-enable */
-
-  // render the svg element
-  svg2pdf(svgElement, pdf, {
-    xOffset: 0,
-    yOffset: 0,
-    scale: 1
-  })
-
-  // or simply safe the created pdf
-  pdf.save('luigi-score.pdf')
-})
 
 app.ports.renderScore.subscribe(function (input) {
   window.requestAnimationFrame(function () {
@@ -55,11 +32,11 @@ app.ports.renderScore.subscribe(function (input) {
 app.ports.loadSamples.subscribe(function (pitchToSampleUrlMapping) {
   const toObj = (array) =>
     array.reduce((obj, item) => {
-      obj[item[0]] = item[1]
+      obj[item[0]] = window.location.protocol + '//' + window.location.host + '/' + item[1]
       return obj
     }, {})
 
-  player = new Player('./samples/click.mp3').toMaster()
+  player = new Player(window.location.protocol + '//' + window.location.host + '/samples/click.mp3').toMaster()
 
   sampler = new Sampler(toObj(pitchToSampleUrlMapping), function () {
     app.ports.samplesLoaded.send(null)
@@ -77,6 +54,11 @@ app.ports.setClickMute.subscribe(function (mute) {
 })
 
 app.ports.startSequence.subscribe(function (data) {
+  if (!audioContextStarted) {
+    StartAudioContext(Transport.context, button, function () {})
+    audioContextStarted = true
+  }
+
   Transport.timeSignature = data.timeSignature
   Transport.loop = true
   Transport.loopEnd = data.loopEnd

@@ -242,3 +242,12 @@ orchestrate timeSignature duration line =
                     |> Tuple.second
                     |> Orchestration timeSignature
             )
+        |> Maybe.andThen
+            (\o ->
+                case o of
+                    Orchestration _ [] ->
+                        Nothing
+
+                    _ ->
+                        Just o
+            )

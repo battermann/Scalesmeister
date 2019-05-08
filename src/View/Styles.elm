@@ -4,8 +4,8 @@ module View.Styles exposing
     , dialog
     , footer
     , gitHubIcon
-    , h1
     , h2
+    , headerFont
     , largeText
     , lightButton
     , link
@@ -17,6 +17,7 @@ module View.Styles exposing
     , smallText
     , subTitle
     , userSelectNone
+    , veryDarkGray
     , verySmallText
     )
 
@@ -39,6 +40,14 @@ font =
         ]
 
 
+headerFont : Attribute msg
+headerFont =
+    Font.family
+        [ Font.typeface "Syncopate"
+        , Font.sansSerif
+        ]
+
+
 lightGray : Element.Color
 lightGray =
     rgb 0.4 0.4 0.4
@@ -47,6 +56,11 @@ lightGray =
 darkGray : Element.Color
 darkGray =
     rgb 0.25 0.25 0.25
+
+
+veryDarkGray : Element.Color
+veryDarkGray =
+    rgb 0.0 0.0 0.0
 
 
 veryLightGray : Element.Color
@@ -87,11 +101,6 @@ score =
 h2 : List (Attribute msg)
 h2 =
     [ Font.size 40 ]
-
-
-h1 : List (Attribute msg)
-h1 =
-    [ Font.size 60 ]
 
 
 lightButton : List (Attribute msg)

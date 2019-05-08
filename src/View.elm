@@ -1,18 +1,19 @@
 module View exposing (view)
 
+import Browser
+import Constants
 import Element as Element exposing (Attribute, Element, alignBottom, alignRight, centerX, centerY, column, el, fill, height, image, inFront, link, minimum, padding, paddingEach, paddingXY, paragraph, px, row, scrollbars, spacing, text, width)
 import Element.Events exposing (onClick)
 import Element.Font as Font
 import Element.Input as Input
-import Html
 import Html.Attributes
 import Libs.SelectList as SelectList exposing (SelectList)
 import List.Extra
 import MusicTheory.Pitch as Pitch
 import MusicTheory.PitchClass as PitchClass exposing (PitchClass)
-import MusicTheory.Scale as Scale
+import Routing
 import Score
-import Types exposing (Dialog(..), Model, Msg(..), PlayingState(..))
+import Types exposing (Dialog(..), Error(..), Model, Msg(..), PlayingState(..))
 import Types.Formula as Formula exposing (Formula)
 import Types.Note as Note
 import Types.Range as Range
@@ -223,7 +224,7 @@ viewMainSettingsControls model =
         |> viewControlWithLabel [ width fill ] "Root"
     , Input.button
         buttonAttributes
-        { label = text (model.scales |> SelectList.selected |> Tuple.first), onPress = Just <| Open SelectScale }
+        { label = text (model.scales |> SelectList.selected |> Tuple.first |> Constants.scaleToDisplayName), onPress = Just <| Open SelectScale }
         |> viewControlWithLabel [ width fill ] "Scale"
     , Input.button
         buttonAttributes
@@ -280,14 +281,19 @@ lightButtonAttributes =
     Styles.lightButton ++ [ Styles.userSelectNone, standardPadding, width (fill |> minimum 100) ]
 
 
-viewSelectNoteButton : List (Attribute Msg) -> (PitchClass -> Msg) -> PitchClass -> Element Msg
-viewSelectNoteButton attrs event pitchClass =
-    Input.button attrs { label = PitchClass.toString pitchClass |> text, onPress = Just <| event pitchClass }
+viewSelectRootButton : List (Attribute Msg) -> PitchClass -> Formula -> String -> Element Msg
+viewSelectRootButton attrs pitchClass formula scaleName =
+    Element.link attrs { label = PitchClass.toString pitchClass |> text, url = Routing.mkUrl pitchClass scaleName formula pitchClass }
 
 
-viewSelectScaleButton : List (Attribute Msg) -> String -> Element Msg
-viewSelectScaleButton attrs name =
-    Input.button attrs { label = text name, onPress = Just <| ScaleSelected name }
+viewSelectStartingNoteButton : List (Attribute Msg) -> PitchClass -> Formula -> String -> PitchClass -> Element Msg
+viewSelectStartingNoteButton attrs pitchClass formula scaleName startingNote =
+    Element.link attrs { label = PitchClass.toString startingNote |> text, url = Routing.mkUrl pitchClass scaleName formula startingNote }
+
+
+viewSelectScaleButton : List (Attribute Msg) -> PitchClass -> Formula -> PitchClass -> String -> Element Msg
+viewSelectScaleButton attrs pitchClass formula startingNote scaleName =
+    Element.link attrs { label = text (Constants.scaleToDisplayName scaleName), url = Routing.mkUrl pitchClass scaleName formula startingNote }
 
 
 viewSelectFormulaButton : List (Attribute Msg) -> Formula -> Element Msg
@@ -302,8 +308,8 @@ viewSelectScaleDialog model =
             [ smallSpacing ]
             (List.append (SelectList.before model.scales) (SelectList.after model.scales)
                 |> List.sortBy Tuple.first
-                |> List.map (Tuple.first >> viewSelectScaleButton darkButtonAttributes)
-                |> (::) (SelectList.selected model.scales |> Tuple.first >> viewSelectScaleButton lightButtonAttributes)
+                |> List.map (Tuple.first >> viewSelectScaleButton darkButtonAttributes (SelectList.selected model.roots) model.formula model.startingNote)
+                |> (::) (SelectList.selected model.scales |> Tuple.first >> viewSelectScaleButton lightButtonAttributes (SelectList.selected model.roots) model.formula model.startingNote)
             )
 
 
@@ -313,7 +319,7 @@ viewSelectRootDialog model =
         column
             [ smallSpacing ]
             (SelectList.toList model.roots
-                |> List.map (\root -> viewSelectNoteButton (matchWithSelected darkButtonAttributes lightButtonAttributes model.roots root) RootSelected root)
+                |> List.map (\root -> viewSelectRootButton (matchWithSelected darkButtonAttributes lightButtonAttributes model.roots root) root model.formula (SelectList.selected model.scales |> Tuple.first))
                 |> List.Extra.greedyGroupsOf 3
                 |> List.map (row [ smallSpacing, width fill ])
             )
@@ -324,18 +330,20 @@ viewSelectStartingNoteDialog model =
     viewModalDialog "Starting Note" <|
         column
             [ smallSpacing ]
-            (SelectList.selected model.scales
-                |> (Tuple.second >> Scale.scale (SelectList.selected model.roots) >> Scale.toList)
+            (model
+                |> Types.pitchClasses
                 |> List.map
                     (\startingNote ->
-                        viewSelectNoteButton
+                        viewSelectStartingNoteButton
                             (if model.startingNote == startingNote then
                                 lightButtonAttributes
 
                              else
                                 darkButtonAttributes
                             )
-                            StartingNoteSelected
+                            (SelectList.selected model.roots)
+                            model.formula
+                            (SelectList.selected model.scales |> Tuple.first)
                             startingNote
                     )
                 |> List.Extra.greedyGroupsOf 3
@@ -354,12 +362,15 @@ viewSelectFormulaDialog model =
                 , label = Input.labelHidden "formula"
                 }
             , el (onClick CloseDialog :: width fill :: Styles.userSelectNone :: padding 10 :: Styles.largeText)
-                (Maybe.withDefault (text "invalid") (model.formulaInput |> Formula.fromString |> Maybe.map (Formula.toString >> text)))
+                (Maybe.withDefault Element.none (model.formulaInput |> Formula.fromInputString |> Maybe.map (Formula.toString >> text)))
             , row [ spacing 2, width fill ]
                 [ Input.button lightButtonAttributes { label = el [ Element.centerX ] <| text "Cancel", onPress = Just <| CloseDialog }
-                , case model.formulaInput |> Formula.fromString of
+                , case model.formulaInput |> Formula.fromInputString of
                     Just formula ->
-                        Input.button lightButtonAttributes { label = el [ Element.centerX ] <| text "Ok", onPress = Just <| FormulaSelected formula }
+                        Element.link lightButtonAttributes
+                            { label = el [ Element.centerX ] <| text "Ok"
+                            , url = Routing.mkUrl (SelectList.selected model.roots) (SelectList.selected model.scales |> Tuple.first) formula model.startingNote
+                            }
 
                     Nothing ->
                         el lightButtonAttributes (el [ Element.centerX ] <| text "Ok")
@@ -406,7 +417,7 @@ viewAdvancedControls : Model -> Element Msg
 viewAdvancedControls model =
     if model.advancedControls then
         column (Styles.settings ++ [ padding 20, spacing 6, width fill ])
-            [ row [ spacing 10, alignRight, Styles.userSelectNone, onClick ToggleAdvancedControls ] [ Icons.angleUp ]
+            [ row [ width fill, onClick ToggleAdvancedControls, Element.htmlAttribute (Html.Attributes.style "cursor" "pointer") ] [ el [ spacing 10, alignRight, Styles.userSelectNone ] Icons.angleUp ]
             , viewRangeControls model
             , viewTimeSignatureControls model
             , viewNoteDurationControls model
@@ -414,8 +425,20 @@ viewAdvancedControls model =
 
     else
         column (Styles.settings ++ [ padding 20, spacing 6, width fill ])
-            [ row [ spacing 10, alignRight, Styles.userSelectNone, onClick ToggleAdvancedControls ] [ el Styles.smallText (text "More"), Icons.angleDown ]
+            [ row [ Element.htmlAttribute (Html.Attributes.style "cursor" "pointer"), spacing 10, alignRight, Styles.userSelectNone, onClick ToggleAdvancedControls ] [ el Styles.smallText (text "More"), Icons.angleDown ]
             ]
+
+
+responsiveTitleSize : Model -> Int
+responsiveTitleSize model =
+    if model.device.width > 860 then
+        80
+
+    else if model.device.width > 540 then
+        50
+
+    else
+        30
 
 
 viewPage : Model -> Element Msg
@@ -436,17 +459,14 @@ viewPage model =
     in
     column [ width fill, spacing 40, paddingXY 10 10, paddingTop ]
         [ el
-            [ centerX
-            , if model.device.width < 411 then
-                Font.size 50
-
-              else
-                Font.size 60
+            [ Styles.headerFont
+            , centerX
+            , Font.size (responsiveTitleSize model)
             ]
             (text "Scalesmeister")
         , paragraph
             (Styles.subTitle ++ [ paddingEach { top = 0, bottom = 40, left = 0, right = 0 }, centerX ])
-            [ paragraph [] [ text "Generate lines for jazz improvisation based on ", el [ Font.bold ] (text "scales"), text " and ", el [ Font.bold ] (text "formulas"), text "." ] ]
+            [ paragraph [] [ text "Jazz line generator based on ", el [ Font.bold ] (text "scales"), text " and ", el [ Font.bold ] (text "formulas") ] ]
         , column
             [ smallSpacing, width fill ]
             [ row
@@ -460,7 +480,12 @@ viewPage model =
                     , viewAdvancedControls model
                     ]
                 ]
-            , viewScore
+            , case model.error of
+                Nothing ->
+                    viewScore
+
+                Just CantCreateLine ->
+                    paragraph ([ padding 40, Font.center, Font.color Styles.veryDarkGray ] ++ Styles.score) [ text "Sorry, can't create line with the current settings. The formula most likely exceeds the bounds of the range. You can try to increase the range or change the formula." ]
             ]
         , column
             ([ spacing 5, width fill ] ++ Styles.footer)
@@ -481,12 +506,16 @@ viewPage model =
         ]
 
 
-view : Model -> Html.Html Msg
+view : Model -> Browser.Document Msg
 view model =
-    Element.layout Styles.page <|
-        column
-            [ width fill
-            , height fill
-            , inFront <| viewSelectedDialog model
-            ]
-            [ viewPage model ]
+    { title = "Scalesmeister"
+    , body =
+        [ Element.layout Styles.page <|
+            column
+                [ width fill
+                , height fill
+                , inFront <| viewSelectedDialog model
+                ]
+                [ viewPage model ]
+        ]
+    }
