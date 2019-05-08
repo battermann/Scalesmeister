@@ -1,9 +1,12 @@
 module State exposing (init, subscriptions, update)
 
 import Audio
+import Browser
 import Browser.Dom exposing (Viewport)
 import Browser.Events
-import Libs.SelectList as SelectList exposing (SelectList)
+import Browser.Navigation as Nav
+import Constants
+import Libs.SelectList as SelectList
 import MusicTheory.Interval as Interval
 import MusicTheory.Letter exposing (Letter(..))
 import MusicTheory.Octave as Octave
@@ -11,10 +14,11 @@ import MusicTheory.Pitch as Pitch
 import MusicTheory.Pitch.Enharmonic as Enharmonic
 import MusicTheory.PitchClass as PitchClass exposing (PitchClass)
 import MusicTheory.Scale as Scale
-import MusicTheory.ScaleClass as ScaleClass exposing (ScaleClass)
+import MusicTheory.ScaleClass exposing (ScaleClass)
+import Routing exposing (Route(..))
 import Score as Score
 import Task
-import Types exposing (Device, Dialog(..), Model, Msg(..), PlayingState(..))
+import Types exposing (Device, Dialog(..), Error(..), Model, Msg(..), PlayingState(..))
 import Types.Formula as Formula exposing (Formula)
 import Types.Line as Line exposing (Line)
 import Types.Note as Note
@@ -22,75 +26,7 @@ import Types.Orchestration as Orchestration
 import Types.Range as Range exposing (Range)
 import Types.Switch as Switch
 import Types.TimeSignature as TimeSignature exposing (BeatDuration(..), NumberOfBeats(..), TimeSignature(..))
-
-
-scales : SelectList ( String, ScaleClass )
-scales =
-    SelectList.fromLists []
-        ( "Major Pentatonic", ScaleClass.majorPentatonic )
-        [ ( "Aeolian", ScaleClass.aeolian )
-        , ( "Altered", ScaleClass.altered )
-        , ( "Augmented", ScaleClass.augmented )
-        , ( "Blues", ScaleClass.blues )
-        , ( "Diminished Half Whole", ScaleClass.diminishedHalfToneWholeTone )
-        , ( "Diminished Whole Half", ScaleClass.diminishedWholeToneHalfTone )
-        , ( "Dorian ♭9", ScaleClass.dorianFlat9 )
-        , ( "Dorian ♯11", ScaleClass.dorianSharp11 )
-        , ( "Dorian", ScaleClass.dorian )
-        , ( "Double Harmonic Minor", ScaleClass.doubleHarmonicMinor )
-        , ( "Harmonic Minor", ScaleClass.harmonicMinor )
-        , ( "Ionian ♯5", ScaleClass.ionianSharp5 )
-        , ( "Ionian", ScaleClass.ionian )
-        , ( "Leading Whole Tone", ScaleClass.leadingWholeTone )
-        , ( "Locrian ♮13", ScaleClass.locrianNatural13 )
-        , ( "Locrian ♮9", ScaleClass.locrianNatural9 )
-        , ( "Locrian", ScaleClass.locrian )
-        , ( "Lydian Augmented", ScaleClass.lydianAugmented )
-        , ( "Lydian Diminished", ScaleClass.lydianDiminished )
-        , ( "Lydian Dominant", ScaleClass.lydianDominant )
-        , ( "Lydian Minor", ScaleClass.lydianMinor )
-        , ( "Lydian ♯9", ScaleClass.lydianSharp9 )
-        , ( "Lydian", ScaleClass.lydian )
-        , ( "Major", ScaleClass.major )
-        , ( "Major ♭2 Pentatonic", ScaleClass.majorFlat2Pentatonic )
-        , ( "Major ♭6 Pentatonic", ScaleClass.majorFlat6Pentatonic )
-        , ( "Melodic Minor", ScaleClass.melodicMinor )
-        , ( "Minor 6 Pentatonic", ScaleClass.minor6Pentatonic )
-        , ( "Minor 7 ♭5 Pentatonic", ScaleClass.minorFlat5Pentatonic )
-        , ( "Minor Pentatonic", ScaleClass.minorPentatonic )
-        , ( "Minor", ScaleClass.minor )
-        , ( "Mixolydian ♭13", ScaleClass.mixolydianFlat13 )
-        , ( "Mixolydian ♭9 ♭13", ScaleClass.mixolydianFlat9Flat13 )
-        , ( "Mixolydian", ScaleClass.mixolydian )
-        , ( "Phrygian", ScaleClass.phrygian )
-        , ( "Six Tone Symmetrical", ScaleClass.sixToneSymmetrical )
-        , ( "Whole Tone", ScaleClass.wholeTone )
-        ]
-
-
-roots : SelectList PitchClass
-roots =
-    SelectList.fromLists
-        []
-        (PitchClass.pitchClass C PitchClass.natural)
-        [ PitchClass.pitchClass C PitchClass.sharp
-        , PitchClass.pitchClass D PitchClass.flat
-        , PitchClass.pitchClass D PitchClass.natural
-        , PitchClass.pitchClass D PitchClass.sharp
-        , PitchClass.pitchClass E PitchClass.flat
-        , PitchClass.pitchClass E PitchClass.natural
-        , PitchClass.pitchClass E PitchClass.sharp
-        , PitchClass.pitchClass F PitchClass.natural
-        , PitchClass.pitchClass F PitchClass.sharp
-        , PitchClass.pitchClass G PitchClass.flat
-        , PitchClass.pitchClass G PitchClass.natural
-        , PitchClass.pitchClass G PitchClass.sharp
-        , PitchClass.pitchClass A PitchClass.flat
-        , PitchClass.pitchClass A PitchClass.natural
-        , PitchClass.pitchClass A PitchClass.sharp
-        , PitchClass.pitchClass B PitchClass.flat
-        , PitchClass.pitchClass B PitchClass.natural
-        ]
+import Url
 
 
 mkLine : Range -> ScaleClass -> Formula -> PitchClass -> PitchClass -> Line
@@ -113,8 +49,8 @@ initialSizeCmd =
     Task.perform (classifyDevice >> WindowResize) Browser.Dom.getViewport
 
 
-init : ( Model, Cmd Msg )
-init =
+init : Url.Url -> Nav.Key -> ( Model, Cmd Msg )
+init url key =
     let
         range =
             Range.piano
@@ -127,16 +63,37 @@ init =
         noteDuration =
             Note.Eighth Note.None
 
-        formula =
-            [ 1 ]
+        ( settings, cmd ) =
+            case Routing.extractRoute url of
+                Just (Main root scaleClass formula startingNote) ->
+                    ( { root = root
+                      , scale = scaleClass
+                      , formula = formula
+                      , startingNote = startingNote
+                      }
+                    , Cmd.none
+                    )
+
+                Nothing ->
+                    let
+                        set =
+                            { root = SelectList.selected Constants.roots
+                            , scale = SelectList.selected Constants.scales
+                            , formula = [ 1 ]
+                            , startingNote = SelectList.selected Constants.roots
+                            }
+                    in
+                    ( set
+                    , Nav.pushUrl key (Routing.mkUrl set.root (Tuple.first set.scale) set.formula set.startingNote)
+                    )
 
         model =
             { range = range
-            , formula = formula
-            , formulaInput = Formula.serialize formula
-            , roots = roots
-            , startingNote = SelectList.selected roots
-            , scales = scales
+            , formula = settings.formula
+            , formulaInput = Formula.toInputString settings.formula
+            , roots = Constants.roots |> SelectList.select ((==) settings.root)
+            , startingNote = settings.startingNote
+            , scales = Constants.scales |> SelectList.select ((==) settings.scale)
             , playingState = Stopped
             , dialog = Nothing
             , samplesLoaded = False
@@ -146,14 +103,16 @@ init =
             , clickTrack = Switch.off
             , tempo = 160
             , advancedControls = False
+            , key = key
+            , error = Nothing
             }
     in
     case line model |> Orchestration.orchestrate timeSignature noteDuration of
         Just orchestration ->
-            ( model, Cmd.batch [ initialSizeCmd, Audio.loadPianoSamples, Score.render orchestration ] )
+            ( model, Cmd.batch [ initialSizeCmd, Audio.loadPianoSamples, Score.render orchestration, cmd ] )
 
         Nothing ->
-            ( model, Cmd.batch [ initialSizeCmd, Audio.loadPianoSamples ] )
+            ( { model | error = Just CantCreateLine }, Cmd.batch [ initialSizeCmd, Audio.loadPianoSamples, cmd ] )
 
 
 classifyDevice : Viewport -> Device
@@ -177,18 +136,48 @@ renderNew : PlayingState -> Model -> ( Model, Cmd msg )
 renderNew playingState model =
     case ( playingState, line model |> Orchestration.orchestrate model.timeSignature model.noteDuration ) of
         ( _, Nothing ) ->
-            ( model, Cmd.none )
+            ( { model | error = Just CantCreateLine }, Cmd.none )
 
         ( Stopped, Just orchestration ) ->
-            ( model, Score.render orchestration )
+            ( { model | error = Nothing }, Score.render orchestration )
 
         ( Playing, Just orchestration ) ->
-            ( { model | playingState = Stopped }, Cmd.batch [ Audio.stop, Score.render orchestration ] )
+            ( { model | playingState = Stopped, error = Nothing }, Cmd.batch [ Audio.stop, Score.render orchestration ] )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        LinkClicked urlRequest ->
+            case urlRequest of
+                Browser.Internal url ->
+                    ( model, Nav.pushUrl model.key (Url.toString url) )
+
+                Browser.External href ->
+                    ( model, Nav.load href )
+
+        UrlChanged url ->
+            case Routing.extractRoute url of
+                Just (Main root scaleClass formula startingNote) ->
+                    { model
+                        | roots = model.roots |> SelectList.select ((==) root)
+                        , scales = Constants.scales |> SelectList.select ((==) scaleClass)
+                        , startingNote =
+                            if Types.validStartingNote root (Tuple.second scaleClass) startingNote then
+                                startingNote
+
+                            else
+                                root
+                        , formula = formula
+                        , formulaInput = Formula.toInputString formula
+                        , dialog = Nothing
+                        , playingState = Stopped
+                    }
+                        |> renderNew model.playingState
+
+                Nothing ->
+                    ( model, Cmd.none )
+
         NoOp ->
             ( model, Cmd.none )
 
@@ -206,45 +195,13 @@ update msg model =
         Open dialog ->
             case dialog of
                 SelectFormula ->
-                    ( { model | dialog = Just dialog, formulaInput = Formula.serialize model.formula }, Task.attempt (always NoOp) (Browser.Dom.focus "formula-input") )
+                    ( { model | dialog = Just dialog, formulaInput = Formula.toInputString model.formula }, Task.attempt (always NoOp) (Browser.Dom.focus "formula-input") )
 
                 _ ->
                     ( { model | dialog = Just dialog }, Cmd.none )
 
         CloseDialog ->
             ( { model | dialog = Nothing }, Cmd.none )
-
-        RootSelected note ->
-            { model
-                | roots = model.roots |> SelectList.select ((==) note)
-                , playingState = Stopped
-                , startingNote = note
-            }
-                |> renderNew model.playingState
-
-        StartingNoteSelected note ->
-            { model
-                | startingNote = note
-                , playingState = Stopped
-            }
-                |> renderNew model.playingState
-
-        ScaleSelected scaleName ->
-            { model
-                | scales = model.scales |> SelectList.select (Tuple.first >> (==) scaleName)
-                , playingState = Stopped
-                , startingNote = SelectList.selected model.roots
-            }
-                |> renderNew model.playingState
-
-        FormulaSelected formula ->
-            { model
-                | formula = formula
-                , playingState = Stopped
-                , formulaInput = Formula.serialize formula
-                , dialog = Nothing
-            }
-                |> renderNew model.playingState
 
         SetTimeSignature timeSignature ->
             { model
@@ -371,7 +328,7 @@ update msg model =
             ( { model | formulaInput = input |> Formula.filter }, Cmd.none )
 
         FormulaPresetSelected formula ->
-            ( { model | formulaInput = formula |> Formula.serialize }, Task.attempt (always NoOp) (Browser.Dom.focus "formula-input") )
+            ( { model | formulaInput = formula |> Formula.toInputString }, Task.attempt (always NoOp) (Browser.Dom.focus "formula-input") )
 
 
 subscriptions : Model -> Sub Msg

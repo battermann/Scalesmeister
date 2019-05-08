@@ -9,11 +9,13 @@ module Types.Formula exposing
     , formula4
     , formula5
     , formulas
-    , fromString
+    , fromInputString
+    , fromUrlString
     , invert
     , isValidChar
-    , serialize
+    , toInputString
     , toString
+    , toUrlString
     )
 
 import Maybe.Extra
@@ -115,9 +117,14 @@ toString =
     toStringWithSymbol " " "↑" "↓"
 
 
-serialize : Formula -> String
-serialize =
+toInputString : Formula -> String
+toInputString =
     toStringWithSymbol "" "+" "-"
+
+
+toUrlString : Formula -> String
+toUrlString =
+    toStringWithSymbol "-" "up" "down"
 
 
 isValidChar : Char -> Bool
@@ -126,12 +133,29 @@ isValidChar c =
 
 
 filter : String -> String
-filter =
-    String.toList >> List.filter isValidChar >> String.fromList
+filter inputString =
+    let
+        cleaned =
+            inputString |> String.toList |> List.filter isValidChar |> String.fromList
+    in
+    if (cleaned |> String.endsWith "-") || (cleaned |> String.endsWith "+") then
+        cleaned
+
+    else
+        cleaned |> fromInputString |> Maybe.map (List.take 8 >> toInputString) |> Maybe.withDefault cleaned
 
 
-fromString : String -> Maybe Formula
-fromString str =
+fromUrlString : String -> Maybe Formula
+fromUrlString =
+    String.toLower
+        >> String.replace "-" ""
+        >> String.replace "up" "+"
+        >> String.replace "down" "-"
+        >> fromInputString
+
+
+fromInputString : String -> Maybe Formula
+fromInputString str =
     let
         toStep =
             String.fromChar >> String.toInt >> Maybe.Extra.toList
@@ -155,8 +179,4 @@ fromString str =
             Nothing
 
         nonEmpty ->
-            if (nonEmpty |> List.length) > 8 then
-                Nothing
-
-            else
-                Just nonEmpty
+            Just (nonEmpty |> List.take 8)
