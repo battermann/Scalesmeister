@@ -105,14 +105,15 @@ init url key =
             , advancedControls = False
             , key = key
             , error = Nothing
+            , randomUrl = Routing.mkUrl settings.root (Tuple.first settings.scale) settings.formula settings.startingNote
             }
     in
     case line model |> Orchestration.orchestrate timeSignature noteDuration of
         Just orchestration ->
-            ( model, Cmd.batch [ initialSizeCmd, Audio.loadPianoSamples, Score.render orchestration, cmd ] )
+            ( model, Cmd.batch [ Routing.generateRandomUrl RandomUrlCreated, initialSizeCmd, Audio.loadPianoSamples, Score.render orchestration, cmd ] )
 
         Nothing ->
-            ( { model | error = Just CantCreateLine }, Cmd.batch [ initialSizeCmd, Audio.loadPianoSamples, cmd ] )
+            ( { model | error = Just CantCreateLine }, Cmd.batch [ Routing.generateRandomUrl RandomUrlCreated, initialSizeCmd, Audio.loadPianoSamples, cmd ] )
 
 
 classifyDevice : Viewport -> Device
@@ -133,16 +134,21 @@ classifyDeviceFrom width height =
 
 
 renderNew : PlayingState -> Model -> ( Model, Cmd msg )
-renderNew playingState model =
+renderNew =
+    renderNewWithCmd Cmd.none
+
+
+renderNewWithCmd : Cmd msg -> PlayingState -> Model -> ( Model, Cmd msg )
+renderNewWithCmd cmd playingState model =
     case ( playingState, line model |> Orchestration.orchestrate model.timeSignature model.noteDuration ) of
         ( _, Nothing ) ->
-            ( { model | error = Just CantCreateLine }, Cmd.none )
+            ( { model | error = Just CantCreateLine }, Cmd.batch [ cmd ] )
 
         ( Stopped, Just orchestration ) ->
-            ( { model | error = Nothing }, Score.render orchestration )
+            ( { model | error = Nothing }, Cmd.batch [ cmd, Score.render orchestration ] )
 
         ( Playing, Just orchestration ) ->
-            ( { model | playingState = Stopped, error = Nothing }, Cmd.batch [ Audio.stop, Score.render orchestration ] )
+            ( { model | playingState = Stopped, error = Nothing }, Cmd.batch [ cmd, Audio.stop, Score.render orchestration ] )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -173,7 +179,7 @@ update msg model =
                         , dialog = Nothing
                         , playingState = Stopped
                     }
-                        |> renderNew model.playingState
+                        |> renderNewWithCmd (Routing.generateRandomUrl RandomUrlCreated) model.playingState
 
                 Nothing ->
                     ( model, Cmd.none )
@@ -329,6 +335,9 @@ update msg model =
 
         FormulaPresetSelected formula ->
             ( { model | formulaInput = formula |> Formula.toInputString }, Task.attempt (always NoOp) (Browser.Dom.focus "formula-input") )
+
+        RandomUrlCreated url ->
+            ( { model | randomUrl = url }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg

@@ -59,6 +59,7 @@ type alias Model =
     , advancedControls : Bool
     , key : Nav.Key
     , error : Maybe Error
+    , randomUrl : String
     }
 
 
@@ -105,3 +106,4 @@ type Msg
     | UpdateTempo Float
     | UrlChanged Url.Url
     | WindowResize Device
+    | RandomUrlCreated String

@@ -8,6 +8,7 @@ module View.FontAwesome exposing
     , download
     , github
     , play
+    , random
     , spinner
     , stop
     , times
@@ -93,3 +94,8 @@ angleUp =
 spinner : Element.Element msg
 spinner =
     toEl "fas fa-spinner fa-spin"
+
+
+random : Element.Element msg
+random =
+    toEl "fas fa-dice"

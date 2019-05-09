@@ -1,4 +1,4 @@
-module Routing exposing (Route(..), extractRoute, mkUrl, routeParser)
+module Routing exposing (Route(..), extractRoute, generateRandomUrl, mkUrl, routeParser)
 
 import Constants
 import Libs.SelectList as SelectList
@@ -8,7 +8,9 @@ import MusicTheory.Letter as Letter exposing (Letter(..))
 import MusicTheory.PitchClass as PitchClass exposing (PitchClass)
 import MusicTheory.PitchClass.Enharmonic as Enharmonic
 import MusicTheory.PitchClass.Spelling as Spelling exposing (Accidental(..))
+import MusicTheory.Scale as Scale
 import MusicTheory.ScaleClass exposing (ScaleClass)
+import Random
 import Types
 import Types.Formula as Formula exposing (Formula)
 import Url exposing (Url)
@@ -100,7 +102,7 @@ extractRoute =
                     Just (Main root sc f startingNote)
 
                 else
-                    Nothing
+                    Just (Main root sc f root)
             )
 
 
@@ -134,3 +136,50 @@ pitchClassToUrlString pc =
                 ++ (serializeAccidental accidental |> Maybe.Extra.unwrap "" ((++) "-"))
     in
     toString spelling
+
+
+randomStep : Random.Generator Int
+randomStep =
+    Random.weighted ( 50, 1 )
+        [ ( 40, 2 )
+        , ( 30, 3 )
+        , ( 20, 4 )
+        , ( 10, 5 )
+        ]
+        |> Random.andThen (\n -> Random.uniform -1 [ 1 ] |> Random.map ((*) n))
+
+
+randomFormula : Random.Generator Formula
+randomFormula =
+    Random.weighted ( 5, 1 )
+        [ ( 10, 2 )
+        , ( 40, 3 )
+        , ( 50, 4 )
+        , ( 40, 5 )
+        , ( 10, 6 )
+        , ( 5, 7 )
+        , ( 2, 8 )
+        ]
+        |> Random.andThen (\n -> Random.list n randomStep)
+
+
+randomUrl : Random.Generator String
+randomUrl =
+    Random.pair
+        (Random.uniform (SelectList.selected Constants.roots) (SelectList.before Constants.roots ++ SelectList.after Constants.roots))
+        (Random.uniform (SelectList.selected Constants.scales) (SelectList.before Constants.scales ++ SelectList.after Constants.scales))
+        |> Random.andThen
+            (\( r, sc ) ->
+                Random.uniform r (Scale.scale r (Tuple.second sc) |> Scale.toList |> List.filter (not << (==) r))
+                    |> Random.map (\sn -> ( r, sc, sn ))
+            )
+        |> Random.andThen
+            (\( r, sc, sn ) ->
+                randomFormula
+                    |> Random.map (\f -> mkUrl r (Tuple.first sc) f sn)
+            )
+
+
+generateRandomUrl : (String -> msg) -> Cmd msg
+generateRandomUrl msg =
+    Random.generate msg randomUrl
