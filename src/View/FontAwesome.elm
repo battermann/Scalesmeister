@@ -98,4 +98,4 @@ spinner =
 
 random : Element.Element msg
 random =
-    toEl "fas fa-dice"
+    toEl "fas fa-random"

@@ -443,7 +443,7 @@ responsiveTitleSize model =
 
 viewRandomLink : String -> Element Msg
 viewRandomLink url =
-    link (height (px 60) :: lightButtonAttributes) { url = url, label = row [ spacing 10 ] [ Icons.random, text "Random" ] }
+    el [ alignRight ] <| link (height (px 60) :: lightButtonAttributes) { url = url, label = row [ spacing 10 ] [ Icons.random, text "Random" ] }
 
 
 viewPage : Model -> Element Msg
@@ -477,7 +477,7 @@ viewPage model =
             [ row
                 [ centerX, width fill, paddingLeftRight ]
                 [ column [ smallSpacing, width fill ]
-                    [ row [ smallSpacing ] [ viewPlayControl model, viewRandomLink model.randomUrl ]
+                    [ row [ smallSpacing, width fill ] [ viewPlayControl model, viewRandomLink model.randomUrl ]
                     , column (Styles.settings ++ [ padding 20, spacing 6, width fill ])
                         [ viewTempoSlider model
                         , viewMainSettingsControls model
