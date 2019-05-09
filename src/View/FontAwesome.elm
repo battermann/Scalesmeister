@@ -11,6 +11,7 @@ module View.FontAwesome exposing
     , random
     , spinner
     , stop
+    , sync
     , times
     , volumeOff
     , volumeUp
@@ -99,3 +100,8 @@ spinner =
 random : Element.Element msg
 random =
     toEl "fas fa-random"
+
+
+sync : Element.Element msg
+sync =
+    toEl "fas fa-sync-alt"

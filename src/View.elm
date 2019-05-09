@@ -19,6 +19,7 @@ import Types.Note as Note
 import Types.Range as Range
 import Types.Switch as Switch
 import Types.TimeSignature as TimeSignature exposing (BeatDuration(..), NumberOfBeats(..), TimeSignature(..))
+import Url.Builder
 import View.FontAwesome as Icons
 import View.Styles as Styles
 
@@ -68,19 +69,19 @@ viewNoteDurationControls model =
         [ smallSpacing ]
         [ Input.button
             (Note.Eighth Note.None |> attributes)
-            { label = image [ height (px 20) ] { src = fileName (Note.Eighth Note.None) "eighthnotes", description = "" }
+            { label = image [ height (px 20) ] { src = Url.Builder.absolute [ fileName (Note.Eighth Note.None) "eighthnotes" ] [], description = "" }
             , onPress = Just ToggleNoteValue
             }
         , if [ Quarter, Half ] |> List.member (model.timeSignature |> TimeSignature.beatDuration) then
             Input.button
                 (Note.Eighth Note.Triplet |> attributes)
-                { label = image [ height (px 20) ] { src = fileName (Note.Eighth Note.Triplet) "triplet", description = "" }
+                { label = image [ height (px 20) ] { src = Url.Builder.absolute [ fileName (Note.Eighth Note.Triplet) "triplet" ] [], description = "" }
                 , onPress = Just ToggleNoteValue
                 }
 
           else
             el (Note.Eighth Note.Triplet |> attributes) <|
-                image [ Styles.opacity 0.2, height (px 20) ] { src = fileName (Note.Eighth Note.Triplet) "triplet", description = "" }
+                image [ Styles.opacity 0.2, height (px 20) ] { src = Url.Builder.absolute [ fileName (Note.Eighth Note.Triplet) "triplet" ] [], description = "" }
         ]
 
 
@@ -213,7 +214,7 @@ viewMainSettingsControls model =
                 2
 
             else
-                4
+                5
 
         buttonAttributes =
             Styles.page ++ [ standardPadding, Styles.userSelectNone, width fill ]
@@ -234,6 +235,12 @@ viewMainSettingsControls model =
         buttonAttributes
         { label = PitchClass.toString model.startingNote |> text, onPress = Just <| Open SelectStartingNote }
         |> viewControlWithLabel [ width fill ] "Starting Note"
+    , link
+        buttonAttributes
+        { label = Icons.sync
+        , url = Routing.mkUrl (SelectList.selected model.roots) (Tuple.first <| SelectList.selected model.scales) (Formula.invert model.formula) model.startingNote
+        }
+        |> viewControlWithLabel [ width fill ] "Invert"
     ]
         |> List.Extra.greedyGroupsOf columns
         |> List.map (row [ smallSpacing, width fill ])
