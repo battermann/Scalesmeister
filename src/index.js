@@ -1,6 +1,7 @@
 import '@fortawesome/fontawesome-free/css/all.css'
 import { Elm } from './Main.elm'
-import { Sampler, Transport, Part, Player } from 'tone'
+import 'regenerator-runtime/runtime'
+import * as Tone from 'tone'
 import abcjs from 'abcjs'
 import registerServiceWorker from './registerServiceWorker'
 
@@ -15,7 +16,7 @@ var part = null
 var player = null
 var clickTrack = null
 
-Transport.bpm.value = 160
+Tone.Transport.bpm.value = 160
 
 app.ports.renderScore.subscribe(function (input) {
   window.requestAnimationFrame(function () {
@@ -32,15 +33,15 @@ app.ports.loadSamples.subscribe(function (pitchToSampleUrlMapping) {
       return obj
     }, {})
 
-  player = new Player(window.location.protocol + '//' + window.location.host + '/samples/click.mp3').toMaster()
+  player = new Tone.Player(window.location.protocol + '//' + window.location.host + '/samples/click.mp3').toMaster()
 
-  sampler = new Sampler(toObj(pitchToSampleUrlMapping), function () {
+  sampler = new Tone.Sampler(toObj(pitchToSampleUrlMapping), function () {
     app.ports.samplesLoaded.send(null)
   }).toMaster()
 })
 
 app.ports.setTempo.subscribe(function (tempo) {
-  Transport.bpm.value = tempo
+  Tone.Transport.bpm.value = tempo
 })
 
 app.ports.setClickMute.subscribe(function (mute) {
@@ -50,35 +51,37 @@ app.ports.setClickMute.subscribe(function (mute) {
 })
 
 app.ports.startSequence.subscribe(function (data) {
-  Transport.timeSignature = data.timeSignature
-  Transport.loop = true
-  Transport.loopEnd = data.loopEnd
+  Tone.start().then((_) => {
+    Tone.Transport.timeSignature = data.timeSignature
+    Tone.Transport.loop = true
+    Tone.Transport.loopEnd = data.loopEnd
 
-  part = new Part(function (time, note) {
-    sampler.triggerAttackRelease(note, data.noteLength, time)
-  }, data.notes)
+    part = new Tone.Part(function (time, note) {
+      sampler.triggerAttackRelease(note, data.noteLength, time)
+    }, data.notes)
 
-  clickTrack = new Part(function (time, note) {
-    player.start(time)
-  }, data.clicks)
+    clickTrack = new Tone.Part(function (time, note) {
+      player.start(time)
+    }, data.clicks)
 
-  clickTrack.mute = data.clickMuted
-  clickTrack.start(0)
-  clickTrack.loop = true
+    clickTrack.mute = data.clickMuted
+    clickTrack.start(0)
+    clickTrack.loop = true
 
-  part.start(0)
-  Transport.start('+0.1')
+    part.start(0)
+    Tone.Transport.start('+0.1')
+  })
 })
 
 app.ports.stopSequence.subscribe(function () {
-  Transport.stop()
+  Tone.Transport.stop()
   if (part != null) {
-    part.removeAll()
+    part.clear()
     part = null
   };
 
   if (clickTrack != null) {
-    clickTrack.removeAll()
+    clickTrack.clear()
     clickTrack = null
   };
 })
