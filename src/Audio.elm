@@ -149,34 +149,8 @@ play clickTrackSwitch ts duration line =
         , loopEnd = (numBars |> String.fromInt) ++ "m"
         , noteLength = noteLength duration
         , notes = notes
-        , clicks = clicks ts duration
         , clickMuted = clickTrackSwitch |> Switch.fold False True
         }
-
-
-clicks : TimeSignature -> Duration -> List ( String, String )
-clicks (TimeSignature numBeats beatDuration) duration =
-    case ( numBeats, beatDuration, duration ) of
-        ( TimeSignature.Four, TimeSignature.Quarter, Eighth None ) ->
-            [ ( "0:0:0", "" ), ( "0:2:0", "" ) ]
-
-        ( TimeSignature.Five, TimeSignature.Quarter, Eighth None ) ->
-            [ ( "0:0:0", "" ), ( "0:3:0", "" ) ]
-
-        ( TimeSignature.Six, TimeSignature.Quarter, Eighth None ) ->
-            [ ( "0:0:0", "" ), ( "0:3:0", "" ) ]
-
-        ( TimeSignature.Five, TimeSignature.Eighth, Eighth None ) ->
-            [ ( "0:0:0", "" ), ( "0:1:2", "" ) ]
-
-        ( TimeSignature.Seven, TimeSignature.Eighth, Eighth None ) ->
-            [ ( "0:0:0", "" ), ( "0:2:0", "" ) ]
-
-        ( TimeSignature.Twelve, TimeSignature.Eighth, Eighth None ) ->
-            [ ( "0:0:0", "" ), ( "0:3:0", "" ) ]
-
-        _ ->
-            [ ( "0:0:0", "" ) ]
 
 
 timeSignature : TimeSignature -> ( String, String )
