@@ -33,11 +33,11 @@ app.ports.loadSamples.subscribe(function (pitchToSampleUrlMapping) {
       return obj
     }, {})
 
-  player = new Tone.Player(window.location.protocol + '//' + window.location.host + '/samples/click.mp3').toMaster()
+  player = new Tone.Player(window.location.protocol + '//' + window.location.host + '/samples/click.mp3').toDestination()
 
   sampler = new Tone.Sampler(toObj(pitchToSampleUrlMapping), function () {
     app.ports.samplesLoaded.send(null)
-  }).toMaster()
+  }).toDestination()
 })
 
 app.ports.setTempo.subscribe(function (tempo) {
@@ -65,8 +65,8 @@ app.ports.startSequence.subscribe(function (data) {
     }, data.clicks)
 
     clickTrack.mute = data.clickMuted
-    clickTrack.start(0)
     clickTrack.loop = true
+    clickTrack.start(0)
 
     part.start(0)
     Tone.Transport.start('+0.1')
