@@ -1,7 +1,6 @@
 import '@fortawesome/fontawesome-free/css/all.css'
 import { Elm } from './Main.elm'
 import { Sampler, Transport, Part, Player } from 'tone'
-import StartAudioContext from 'startaudiocontext'
 import abcjs from 'abcjs'
 import registerServiceWorker from './registerServiceWorker'
 
@@ -15,11 +14,8 @@ var sampler = null
 var part = null
 var player = null
 var clickTrack = null
-var audioContextStarted = false
 
 Transport.bpm.value = 160
-
-var button = document.getElementById('play-button')
 
 app.ports.renderScore.subscribe(function (input) {
   window.requestAnimationFrame(function () {
@@ -54,11 +50,6 @@ app.ports.setClickMute.subscribe(function (mute) {
 })
 
 app.ports.startSequence.subscribe(function (data) {
-  if (!audioContextStarted) {
-    StartAudioContext(Transport.context, button, function () {})
-    audioContextStarted = true
-  }
-
   Transport.timeSignature = data.timeSignature
   Transport.loop = true
   Transport.loopEnd = data.loopEnd

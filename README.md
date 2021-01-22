@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/battermann/Luigi.svg?branch=master)](https://travis-ci.org/battermann/Luigi)
-
 # Scalesmeister
 
 Jazz line generator written in Elm based on scales and formulas.
