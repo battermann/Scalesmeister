@@ -23,10 +23,10 @@
   "dependencies": {
     "abcjs": "^5.1.2",
     "svg2pdf.js": "^1.2.1",
-    "tone": "^0.12.80"
+    "tone": "^0.12.80",
+    "@fortawesome/fontawesome-free": "^5.15.2"
   },
   "devDependencies": {
-    "@fortawesome/fontawesome-free": "^5.3.1",
     "standard": "^12.0.1"
   }
 }
