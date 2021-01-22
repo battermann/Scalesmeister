@@ -19,9 +19,9 @@ jobs:
 
       - run: npm install -g create-elm-app@5.22.0
       - run: npm install -g elm-format@0.8.2
-      - run: npm install
+      - run: npm install --production
       - run: elm-format --validate src --elm-version=0.19
-      - run: standard
+      - run: npx standard
       - run: elm-app build
       - run: elm-app test
       - run: mv ./build/index.html ./build/200.html
