@@ -1,0 +1,29 @@
+name: Publish
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Publish to surge
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Install create-elm-app, and surge, then publish
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+
+      - run: npm install -g create-elm-app@5.22.0
+      - run: npm install -g elm-format@0.8.2
+      - run: npm install
+      - run: elm-format --validate src --elm-version=0.19
+      - run: standard
+      - run: elm-app build
+      - run: elm-app test
+      - run: mv ./build/index.html ./build/200.html
+      - run: npm install -g surge
+      - run: surge ./build/ ${{ secrets.SURGE_DOMAIN }} --token ${{ secrets.SURGE_TOKEN }}
