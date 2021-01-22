@@ -5,6 +5,10 @@ import * as Tone from 'tone'
 import abcjs from 'abcjs'
 import registerServiceWorker from './registerServiceWorker'
 
+const unmuteAudio = require('unmute-ios-audio')
+
+unmuteAudio()
+
 const root = document.getElementById('root')
 
 const app = Elm.Main.init({

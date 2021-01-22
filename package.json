@@ -23,7 +23,8 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.2",
     "abcjs": "^5.1.2",
-    "tone": "^14.7.77"
+    "tone": "^14.7.77",
+    "unmute-ios-audio": "^3.3.0"
   },
   "devDependencies": {
     "standard": "^12.0.1"
