@@ -132,7 +132,7 @@ function setupClick (signature, mute) {
       clickTrack = new Tone.Part(function (time, note) {
         metronome.triggerAttackRelease(note, 0.1, time)
       }, [[0, 'C6'], ['0:1.5', 'C5'], ['0:3', 'C5'], ['0:4.5', 'C5']])
-      break      
+      break
     default:
       console.log('unknown signature')
       clickTrack = new Tone.Part(function (time, note) { }, [])
