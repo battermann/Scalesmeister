@@ -79,7 +79,7 @@ init url key =
                         set =
                             { root = SelectList.selected Constants.roots
                             , scale = SelectList.selected Constants.scales
-                            , formula = [ 1 ]
+                            , formula = [ 2, -1, -2, -1 ]
                             , startingNote = SelectList.selected Constants.roots
                             }
                     in

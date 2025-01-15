@@ -10,7 +10,7 @@ import String.Extra
 scales : SelectList ( String, ScaleClass )
 scales =
     SelectList.fromLists []
-        ( "major-pentatonic", ScaleClass.majorPentatonic )
+        ( "minor-pentatonic", ScaleClass.minorPentatonic )
         [ ( "aeolian", ScaleClass.aeolian )
         , ( "altered", ScaleClass.altered )
         , ( "augmented", ScaleClass.augmented )
@@ -37,10 +37,10 @@ scales =
         , ( "major", ScaleClass.major )
         , ( "major-flat-2-pentatonic", ScaleClass.majorFlat2Pentatonic )
         , ( "major-flat-6-pentatonic", ScaleClass.majorFlat6Pentatonic )
+        , ( "major-pentatonic", ScaleClass.majorPentatonic )
         , ( "melodic-minor", ScaleClass.melodicMinor )
         , ( "minor-6-pentatonic", ScaleClass.minor6Pentatonic )
         , ( "minor-7-flat-5-pentatonic", ScaleClass.minorFlat5Pentatonic )
-        , ( "minor-pentatonic", ScaleClass.minorPentatonic )
         , ( "minor", ScaleClass.minor )
         , ( "mixolydian-flat-13", ScaleClass.mixolydianFlat13 )
         , ( "mixolydian-flat-9-flat-13", ScaleClass.mixolydianFlat9Flat13 )
