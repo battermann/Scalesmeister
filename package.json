@@ -7,7 +7,8 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "elm-format --yes src --elm-version=0.19 && npx standard --fix"
   },
   "repository": {
     "type": "git",
